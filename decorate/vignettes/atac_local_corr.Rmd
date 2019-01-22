@@ -1,0 +1,210 @@
+
+---
+title: "decorate: Local correlation analysis of ATAC-seq"
+subtitle: 'Data from Crawford buld ATAC-seq'
+author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
+date: "Run on `r Sys.Date()`"
+documentclass: article
+output: 
+  html_document:
+  toc: true
+  smart: false
+vignette: >
+  %\VignetteIndexEntry{decorate: Local correlation of ATAC-seq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+<!--- 
+# run analysis
+cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
+# cd /hpc/users/hoffmg01/work/pinnacle/vignettes
+rmarkdown::render("atac_local_corr.Rmd", output_dir='./', intermediates_dir='./'); system("cat atac_local_corr.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > atac_local_corr2.html")
+
+
+--->
+
+
+```{r initialize, cache=FALSE, echo=FALSE, message=FALSE, results='hide'}
+
+if( system("echo $HOSTNAME", intern=TRUE) == "typhon.home" ){
+  nthreads = 3
+}else{
+  nthreads = 12
+}
+```
+
+# Goal: Differential correlation analysis on epigenomic data
+### 1) Evaluate local correlations
+### 2) Identify blocks of correlated peaks
+### 3) Compare correlaions between cases and controls
+
+```{r load.packages, echo=TRUE, message=FALSE, results='hide'}
+suppressPackageStartupMessages(library(decorate))
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(edgeR))
+suppressPackageStartupMessages(library(data.table)) 
+suppressPackageStartupMessages(library(genomation)) 
+suppressPackageStartupMessages(library(GenomicRanges)) 
+suppressPackageStartupMessages(library(Matrix)) 
+suppressPackageStartupMessages(library(adjclust)) 
+
+options(xtable.type="html")
+
+knitr::opts_chunk$set(
+  echo=FALSE,
+  warning=FALSE,
+  message=TRUE,
+  error = FALSE,
+  tidy = FALSE,
+  cache = TRUE,
+  cache.lazy = FALSE,
+  dev = c("png"), 
+  fig.width=7, fig.height=7)
+
+options(markdown.HTML.stylesheet = 'css/custom.css')
+```
+
+```{r load.always, cache=FALSE, echo=FALSE, message=FALSE}
+suppressPackageStartupMessages(library(doParallel))
+# if( ! exists("cl") ){
+#   cl <- makeCluster(nthreads)
+#   registerDoParallel(cl)
+# }
+suppressPackageStartupMessages(library(synapser))
+# login once and then save info
+# synLogin("user.name", "password", rememberMe=TRUE)
+synLogin() 
+```
+
+# Download data
+```{r download, echo=TRUE}
+# metadata
+# metadata = fread( synGet('syn5691351')$path )
+
+# metadata$CellType = factor( metadata$CellType, c('NeuN-', 'NeuN+'))
+# metadata = metadata[HistoneMark=='H3K27ac',]
+# metadata$name = gsub("^HBCC_", '', metadata$Sample_ID)
+# metadata = data.frame(metadata)
+# rownames(metadata) = metadata$name 
+
+# chip-Seq counts
+chipCounts = read.table( synGet('syn17061266')$path, header=TRUE, stringsAsFactors=FALSE, sep='\t', row.names=1)
+
+# peak locations
+peakLocs_in = fread( synGet('syn17061264')$path )
+peakLocs = with(peakLocs_in, GRanges(V1, IRanges(V2, V3), name=V4))
+
+metadata = data.frame(constant=rep(1, ncol(chipCounts)))
+```
+
+# Processed data
+```{r process.counts, echo=TRUE}
+isexpr = rowSums(cpm(chipCounts)>1) >= 0.2*ncol(chipCounts)
+peakLocs2 = peakLocs[which(isexpr)]
+
+# Standard usage of limma/voom
+countObj = DGEList( chipCounts[isexpr,] )
+countObj = calcNormFactors( countObj )
+design = model.matrix( ~ 1, metadata)
+vobj = voom( countObj, design, plot=TRUE)
+
+identical(peakLocs2$names, rownames(vobj))
+```
+
+# PCA on normalized ATAC-seeq
+```{r pca}
+# C = cor(vobj$E, method='spearman')
+
+# dstat = apply(C, 1, function(x) median(x))
+# hist(dstat)
+
+dcmp = svd(vobj$E, nv=2, nu=0)
+frac = dcmp$d^2 / sum(dcmp$d^2) * 100
+xlab = paste0('PC1: ', round(frac[1], 1), '%')
+ylab = paste0('PC2: ', round(frac[2], 1), '%')
+plot(dcmp$v[,1], dcmp$v[,2], xlab=xlab, ylab=ylab, main="Original data")
+
+dsgn = model.matrix( ~ dcmp$v[,1:2])
+fitPC = lmFit(vobj, dsgn)
+quantResid = residuals( fitPC, vobj )
+
+dcmp = svd(quantResid, nv=2, nu=0)
+frac = dcmp$d^2 / sum(dcmp$d^2) * 100
+xlab = paste0('PC1: ', round(frac[1], 1), '%')
+ylab = paste0('PC2: ', round(frac[2], 1), '%')
+plot(dcmp$v[,1], dcmp$v[,2], xlab=xlab, ylab=ylab,main="After regressing out 2 PC's")
+```
+
+# Learn local clusters
+```{r geohclust, message=FALSE, echo=TRUE}
+library(BiocParallel)
+
+# Compute hierarchical clustering
+# param <- SnowParam(workers = 4, type = "SOCK")
+param = MulticoreParam(4)
+idx = which(array(seqnames(peakLocs2) %in% c("chr22", "chr21", 'chr20')))
+treeList = runOrderedClusteringGenome( quantResid[idx,], peakLocs2[idx], params=list(alpha=.9, adjacentCount=500), BPPARAM=param) 
+```
+
+
+
+
+```{r plot.clusters, echo=TRUE}
+
+treeListClusters = createClusters( treeList, meanClusterSize=50 )
+
+clusterValues = treeListClusters[['chr22']]
+
+query = GRanges('chr22', IRanges(1e7, 5e8))
+
+plotDecorate( treeList, treeListClusters, query)
+
+```
+
+# test differential signal
+```{r sled, echo=TRUE, message=FALSE}
+# library(sLED)
+
+# resDiffCorr = function(clusterValues, param, npermute=100){
+
+#   clustValTab = table(clusterValues)
+#   clustValTab = clustValTab[clustValTab >3]
+#   clustIDLst = names(clustValTab)
+
+#   sledRes = bplapply( clustIDLst, function( clstLabel ){
+
+#     cat("\rCluster label", clstLabel)
+#     peakIDs = names(clusterValues)[clusterValues == clstLabel]
+
+#     if( length(peakIDs) > 3 ){
+
+#       Y1 = t(vobj$E[peakIDs,metadata$Disease == 0])
+#       Y2 = t(vobj$E[peakIDs,metadata$Disease == 1])
+
+#       res = sLED(X=Y1, Y=Y2, npermute=npermute, verbose=FALSE)
+#     }else{
+#       res = NULL
+#     }
+
+#     res
+#   }, BPPARAM=param)
+#   names(sledRes) = clustIDLst
+
+#   sledRes
+# }
+
+# set.seed(1)
+# metadata = data.frame( Disease = sample(0:1, ncol(vobj), replace=TRUE))
+  
+# clusterValues = treeListClusters[['chr22']]
+
+# param = MulticoreParam(4)
+
+# sledRes = resDiffCorr( clusterValues, param )
+
+# pv = sapply( sledRes, function(x) x$pVal )
+```
+
+

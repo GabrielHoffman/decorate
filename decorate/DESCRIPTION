@@ -1,0 +1,44 @@
+Package: decorate
+Type: Package
+Title: Differential Epigenetic Coregeulation Test
+Version: 1.0
+Date: 2019-01-22
+Author: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
+Maintainer: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
+Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.
+VignetteBuilder: knitr
+License: GPL (>= 2)
+Suggests:
+    BiocStyle,
+    knitr
+biocViews: 
+    ChIPSeq,
+    ATACSeq,
+    DNAMethylation,
+    DifferentialPeakCalling,
+    DifferentialMethylation,
+    DifferentialExpression,
+    GeneSetEnrichment,
+    Regression,
+    Software
+Depends:    
+    ggplot2,
+    grid,
+    Biobase,
+    methods
+Imports:
+    ClustGeo,
+    vegan,
+    rlist,
+    adjclust,
+    BiocParallel,
+    Rcpp,
+    RcppArmadillo,
+    Matrix,
+    reshape2,
+    GenomicRanges,
+    utils,
+    stats
+LinkingTo:   
+    Rcpp, RcppArmadillo
+RoxygenNote: 6.1.1
