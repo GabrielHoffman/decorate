@@ -1,7 +1,7 @@
 Package: decorate
 Type: Package
-Title: Differential Epigenetic Coregeulation Test
-Version: 1.0
+Title: Differential Epigenetic Coregulation Test
+Version: 0.99.0
 Date: 2019-01-22
 Author: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
 Maintainer: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>

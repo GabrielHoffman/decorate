@@ -27,7 +27,7 @@ plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("white","red")){
   # to pass R CMD check
   x = y = value = NULL
 
-  if( is(C) == "matrix"){
+  if( is(C, "matrix")){
     C[upper.tri(C, diag=TRUE)] = NA
     df = melt(abs(C))
     df = df[!is.na(df$value),]    
@@ -81,7 +81,7 @@ plotClusterSegments = function( clusterValues ){
 
   dfclust = data.frame(cluster=as.character(clusterValues), stringsAsFactors=FALSE)
   dfclust$x = 1
-  dfclust$y = 1:nrow(dfclust) *sqrt(2)
+  dfclust$y = seq_len(nrow(dfclust)) *sqrt(2)
 
   # to pass R CMD check
   x = y = cluster = NULL

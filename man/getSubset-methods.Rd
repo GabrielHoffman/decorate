@@ -24,3 +24,17 @@ epiclust or epiclustList object
 \description{
 Extract subset of data points
 }
+\examples{
+library(GenomicRanges)
+
+data('decorateData')
+
+# Evaluate hierarchical clsutering
+treeList = runOrderedClusteringGenome( simData, simLocation ) 
+
+# extract subset of data after clustering 
+getSubset( treeList, simLocation[1:10])
+
+plotDecorate( treeList, treeListClusters, query)
+
+}

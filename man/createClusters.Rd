@@ -23,7 +23,6 @@ Convert hierarchical clustering into discrete clusters based on selection criter
 Create cluster from list of hclust objects
 }
 \examples{
-library(decorate)
 library(GenomicRanges)
 
 data('decorateData')

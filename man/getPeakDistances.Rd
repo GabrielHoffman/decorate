@@ -12,17 +12,19 @@ getPeakDistances(query, windowSize = 10000)
 \item{windowSize}{with of window around each interval in bp}
 }
 \value{
-for all pairs of peaks within windowSize, report distance 
-
-library(GenomicRanges)
-
-query = GRanges(rep('chr1', 5), IRanges(1:5, 1:5))
-
-getPeakDistances( query )
+for all pairs of peaks within windowSize, report distance
 }
 \description{
 Given a query set of genome intervals, report distance to all others within window
 }
 \details{
 A smaller window size will create a covariance matrix that is faster to evaluate, but larger windows give a better approximation and are less likely to have negative eigen value
+}
+\examples{
+library(GenomicRanges)
+
+query = GRanges(rep('chr1', 5), IRanges(1:5, 1:5))
+
+getPeakDistances( query )
+
 }

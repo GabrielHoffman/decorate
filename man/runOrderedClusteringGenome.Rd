@@ -39,7 +39,6 @@ Or, use hclustgeo in ClustGeo package to generate hierarchical clustering that r
 Chavent, et al. 2017. ClustGeo: an R package for hierarchical clustering with spatial constraints. arXiv:1707.03897v2 doi:10.1007/s00180-018-0791-1
 }
 \examples{
-library(decorate)
 library(GenomicRanges)
 
 data('decorateData')

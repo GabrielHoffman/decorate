@@ -9,6 +9,7 @@
 #'
 #' @return for all pairs of peaks within windowSize, report distance 
 #' 
+#' @examples
 #' library(GenomicRanges)
 #' 
 #' query = GRanges(rep('chr1', 5), IRanges(1:5, 1:5))
@@ -177,7 +178,6 @@ setClass("epiclustList", representation('ANY'))
 #' Chavent, et al. 2017. ClustGeo: an R package for hierarchical clustering with spatial constraints. arXiv:1707.03897v2 doi:10.1007/s00180-018-0791-1
 #'
 #' @examples
-#' library(decorate)
 #' library(GenomicRanges)
 #' 
 #' data('decorateData')
@@ -267,6 +267,19 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
 #' 
 #' @return epiclust or epiclustList object
 #'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clsutering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#'
+#' # extract subset of data after clustering 
+#' getSubset( treeList, simLocation[1:10])
+#' 
+#' plotDecorate( treeList, treeListClusters, query)
+#' 
 #' @importFrom GenomicRanges GRanges
 #' @export
 #' @docType methods
@@ -338,7 +351,6 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' @return  Convert hierarchical clustering into discrete clusters based on selection criteria method
 #'
 #' @examples
-#' library(decorate)
 #' library(GenomicRanges)
 #' 
 #' data('decorateData')
