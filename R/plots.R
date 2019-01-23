@@ -102,7 +102,6 @@ plotClusterSegments = function( clusterValues ){
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
 #' @examples
-#' library(decorate)
 #' library(GenomicRanges)
 #' 
 #' data('decorateData')
@@ -121,6 +120,7 @@ plotClusterSegments = function( clusterValues ){
 #' @import ggplot2
 #' @import grid
 #' @import Biobase
+# @import BiocGenerics
 #' @export
 plotDecorate = function( treeList, treeListClusters, query){
 

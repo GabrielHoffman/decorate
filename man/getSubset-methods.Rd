@@ -33,8 +33,7 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # extract subset of data after clustering 
-getSubset( treeList, simLocation[1:10])
+res = getSubset( treeList, simLocation[1:10])
 
-plotDecorate( treeList, treeListClusters, query)
 
 }

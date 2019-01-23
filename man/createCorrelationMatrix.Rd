@@ -10,7 +10,7 @@ createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
 \arguments{
 \item{query}{GRanges object of intervals to query}
 
-\item{regionQuant}{normalized quantifications of regions in query}
+\item{regionQuant}{normalized quantifications of regions in query.  Rows are features, like in limma}
 
 \item{adjacentCount}{number of adjacent entries to compute correlation against}
 
@@ -30,6 +30,9 @@ return sparse symmatric matrix
 Create correlation matrix based on correlation between pairs of peaks
 }
 \examples{
-C = createCorrelationMatrix(simLocation[1:100], simData[,1:100])
+
+data('decorateData')
+
+C = createCorrelationMatrix(simLocation, simData)
 
 }

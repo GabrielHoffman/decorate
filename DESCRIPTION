@@ -31,6 +31,8 @@ Imports:
     vegan,
     rlist,
     adjclust,
+    limma,
+    sLED,
     BiocParallel,
     Rcpp,
     RcppArmadillo,

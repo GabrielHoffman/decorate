@@ -59,7 +59,7 @@ getPeakDistances = function( query, windowSize=10000 ){
 #' Create correlation matrix based on correlation between pairs of peaks
 #'
 #' @param query GRanges object of intervals to query
-#' @param regionQuant normalized quantifications of regions in query
+#' @param regionQuant normalized quantifications of regions in query.  Rows are features, like in limma
 #' @param adjacentCount number of adjacent entries to compute correlation against
 #' @param windowSize width of window in bp around each interval beyond which weight is zero
 #' @param method 'adjacent': compute corr on fixed count sliding window define by adjacentCount.  "distance": compute corr for entries within windowSize bp
@@ -71,14 +71,17 @@ getPeakDistances = function( query, windowSize=10000 ){
 #' return sparse symmatric matrix 
 #'
 #' @examples
-#' C = createCorrelationMatrix(simLocation[1:100], simData[,1:100])
+#'
+#' data('decorateData')
+#'
+#' C = createCorrelationMatrix(simLocation, simData)
 #'
 #' @export
 #' @importFrom Matrix sparseMatrix
 createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", quiet=FALSE){
 
-  if( ncol(regionQuant) != length(query) ){
-    stop("Columns in regionQuant must equal entries in query")
+  if( nrow(regionQuant) != length(query) ){
+    stop("Number of rows in regionQuant must equal entries in query")
   }
 
   if( method == "adjacent"){
@@ -87,16 +90,19 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
     start(query) = seq_len(length(query))
     end(query) = seq_len(length(query))
 
-    df_peaksMap = getPeakDistances(  query, windowSize=adjacentCount)
+    df_peaksMap = getPeakDistances( query, windowSize=adjacentCount )
+
   }else if( method == "distance"){
+
     if( ! quiet ) cat("distance: ", windowSize, 'bp\n')
     # define pairs based on distance
-    df_peaksMap = getPeakDistances(  query, windowSize=windowSize)
+    df_peaksMap = getPeakDistances( query, windowSize=windowSize )
+
   }else{
     stop("method must be 'adjacent' or 'distance'")
   }
 
-  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, silent=quiet)
+  corSubsetPairs( t(regionQuant), df_peaksMap$queryHits, df_peaksMap$subjectHits, silent=quiet)
 }
 
 
@@ -232,7 +238,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     idx = which(array(GenomicRanges::seqnames(gr) == chrom))
 
     if(method == "adjclust"){
-      C = createCorrelationMatrix( gr[idx], t(X[idx,]), adjacentCount=adjacentCount, quiet=TRUE)
+      C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE)
       h = min( adjacentCount, nrow(C)-1)
       fitClust = adjClust( C, "similarity", h=h)
       # fitClust = as.hclust(fitClust)
@@ -276,9 +282,8 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #'
 #' # extract subset of data after clustering 
-#' getSubset( treeList, simLocation[1:10])
+#' res = getSubset( treeList, simLocation[1:10])
 #' 
-#' plotDecorate( treeList, treeListClusters, query)
 #' 
 #' @importFrom GenomicRanges GRanges
 #' @export

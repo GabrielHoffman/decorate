@@ -90,7 +90,8 @@ corSubsetPairs <- function(Y, idxi, idxj, silent=FALSE) {
 	# if TRUE, only use last value
 	M = sparseMatrix( i = vi,
                 j = vj,
-                x = as.numeric(rho), 
+                x = as.numeric(rho),
+                dimnames = list(colnames(Y), colnames(Y)),
                 dims = c(N,N), symmetric=TRUE)
 
 	if( ! silent ){

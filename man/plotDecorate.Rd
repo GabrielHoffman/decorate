@@ -20,7 +20,6 @@ ggplot2 of cluster assignments and correlation between peaks
 Plot decorate analysis for clusters and correlations
 }
 \examples{
-library(decorate)
 library(GenomicRanges)
 
 data('decorateData')
