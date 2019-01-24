@@ -122,6 +122,7 @@ plotClusterSegments = function( clusterValues ){
 #' @import grid
 #' @import Biobase
 #' @importFrom labeling extended
+#' @importFrom stats as.hclust
 #' @importFrom ggdendro ggdendrogram
 # @import BiocGenerics
 #' @export
