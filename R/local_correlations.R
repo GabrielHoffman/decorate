@@ -318,8 +318,8 @@ setMethod("getSubset", c("epiclust", "GRanges"),
       if( N == 0 ){
         stop("Cannot select empty subset of entries")
       }
-      fitNew@clust$merge = fitNew@clust$merge[N-1,]
-      fitNew@clust$height = fitNew@clust$height[N-1]
+      fitNew@clust$merge = fitNew@clust$merge[seq_len(N-1),]
+      fitNew@clust$height = fitNew@clust$height[seq_len(N-1)]
       fitNew@clust$order = fitNew@clust$order[seq_len(N)]
       fitNew@clust$labels = fitNew@clust$labels[seq_len(N)]
 

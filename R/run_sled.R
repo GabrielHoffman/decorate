@@ -98,6 +98,9 @@ setClass("sLEDresults", representation("list"))
 
 	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
 
+	set1 = which(testVariable == levels(testVariable)[1])
+	set2 = which(testVariable == levels(testVariable)[2])
+
 	# for each chromosome
 	res = lapply( names(clustList), function(chrom){
 
@@ -119,8 +122,8 @@ setClass("sLEDresults", representation("list"))
 	    if( length(peakIDs) > 3 ){
 
 	    	# get two subsets of data
-	      	Y1 = t(epiSignal[peakIDs,testVariable == 0])
-	      	Y2 = t(epiSignal[peakIDs,testVariable == 1])
+	      	Y1 = t(epiSignal[peakIDs,set1])
+	      	Y2 = t(epiSignal[peakIDs,set2])
 
 	      	# compare correlation structure with sLED
 	      	res = sLED(X=Y1, Y=Y2, npermute=npermute, verbose=FALSE)

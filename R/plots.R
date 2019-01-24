@@ -98,6 +98,7 @@ plotClusterSegments = function( clusterValues ){
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
 #' @param query GRanges object indiecating region to plot
+#' @param plotTree show tree from hierachical clustering
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
@@ -120,9 +121,11 @@ plotClusterSegments = function( clusterValues ){
 #' @import ggplot2
 #' @import grid
 #' @import Biobase
+#' @importFrom labeling extended
+#' @importFrom ggdendro ggdendrogram
 # @import BiocGenerics
 #' @export
-plotDecorate = function( treeList, treeListClusters, query){
+plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
 
   if( length(query) > 1){
     stop("Can only query one interval")
@@ -139,6 +142,7 @@ plotDecorate = function( treeList, treeListClusters, query){
   clst = treeListClusters[[chrom]]
   clst = clst[names(clst) %in% fit[[1]]@clust$labels]
 
+
   # plot correlation matix
   fig1 = plotCorrTriangle( fit[[1]]@correlation, cols=c("white", "red") )
 
@@ -149,7 +153,11 @@ plotDecorate = function( treeList, treeListClusters, query){
   v1 = start(rng) 
   v2 = end(rng) 
 
-  df = data.frame(x=c(v1,v2), y=c(0,0))
+  m = 5
+  breaks = extended(v1, v2, m)
+
+  # df = data.frame(x=c(v1,v2), y=c(0,0))
+  df = data.frame(x=c(min(breaks[1], v1),max(v2, breaks[m])), y=c(0,0))
 
   # to pass R CMD check
   x = y = NULL
@@ -162,9 +170,15 @@ plotDecorate = function( treeList, treeListClusters, query){
       panel.grid.major = element_blank(), 
       panel.grid.minor = element_blank(),
       panel.border = element_blank(),
-      axis.ticks.y=element_blank()) + geom_line() + scale_x_continuous(limits=c(v1,v2)) + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') 
+      axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
 
-  figCombine = rbind(ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+  if( plotTree ){
+    figTree = ggdendrogram(as.hclust(fit[[1]]@clust), labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+
+    figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+  }else{
+    figCombine = rbind( ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last", heights = c(1, 1, 1) )
+  }
    
   grid.newpage()
   grid.draw( figCombine )

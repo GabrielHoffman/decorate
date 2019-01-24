@@ -4,7 +4,7 @@
 \alias{plotDecorate}
 \title{Plot decorate analysis}
 \usage{
-plotDecorate(treeList, treeListClusters, query)
+plotDecorate(treeList, treeListClusters, query, plotTree = TRUE)
 }
 \arguments{
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
@@ -12,6 +12,8 @@ plotDecorate(treeList, treeListClusters, query)
 \item{treeListClusters}{assign regions to clusters after cutting tree with createClusters()}
 
 \item{query}{GRanges object indiecating region to plot}
+
+\item{plotTree}{show tree from hierachical clustering}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks
