@@ -182,7 +182,10 @@ setMethod("summary", "sLEDresults", function( object ){
 		})
 		do.call("rbind", res)
 	})
-	do.call("rbind", res)
+	res = do.call("rbind", res)
+
+	res$p.adjust = p.adjust( res$pValue, "fdr" )
+	res
 })
 
 
