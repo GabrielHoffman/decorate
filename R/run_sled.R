@@ -130,7 +130,6 @@ setClass("sLEDresults", representation("list"))
 	      	Y1 = t(epiSignal[peakIDs,set1])
 	      	Y2 = t(epiSignal[peakIDs,set2])
 
-
 	      	# perform permutations until p-values is precise enough
 	      	# if not precise enough
 	      	a = log10(npermute[1])
@@ -150,8 +149,12 @@ setClass("sLEDresults", representation("list"))
 	      	res = NULL
 	    }
 
+	    if( i %% 100 == 0){
+			gc()
+		}
+
 	    res
-	  })#, BPPARAM=BPPARAM)
+	  })
 	  names(sledRes) = clustIDLst
 	  sledRes
 	})

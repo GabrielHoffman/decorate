@@ -434,3 +434,91 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
 
 
 
+
+#' Count clusters on each chromosome
+#'
+#' Count clusters on each chromosome
+#'
+#' @param treeListClusters from createClusters()
+#'
+#' @return  count number of clusters on each chromsome
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clsutering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # Count clusters on each chromsome
+#' countClusters( treeListClusters )
+#'
+#' @export
+countClusters = function(treeListClusters){
+ vapply(treeListClusters, function(x) length(unique(x)), numeric(1))
+}
+
+
+#' Find which cluster a peak is in
+#'
+#' Find which cluster a peak is in
+#'
+#' @param treeListClusters from createClusters()
+#' @param id name of query peak
+#'
+#' @return data.frame of chromosome and cluster
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clsutering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # Find chromsome and cluster of peak_204
+#' whichCluster( treeListClusters, 'peak_204')
+#'
+#' @export
+whichCluster = function(treeListClusters, id){
+  # find cluster based on anem
+  res = vapply(treeListClusters, function(x){
+    idx = (names(x) == id)
+    if( sum(idx) == 0){
+      res = NA
+    }else{
+      res = x[idx]
+    }
+    res}, numeric(1))
+
+  res = res[!is.na(res)]
+
+  if( length(res) == 0){
+    chrom = cluster = NA
+  }else{
+    chrom = names(res)
+    cluster = res[1]
+  }
+  res = data.frame(chrom=chrom, cluster=cluster, stringsAsFactors=FALSE)
+  rownames(res) = c()
+  res
+}
+
+
+
+
+
+
+
+
+
+
+
+
