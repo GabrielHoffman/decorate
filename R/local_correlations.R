@@ -382,17 +382,23 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
 
   if( method == "meanClusterSize"){
     # get counts on each chromosome
-    n_entries = vapply(treeList, function(x){
+    n_features = vapply(treeList, function(x){
        length(x@clust$order)
-    }, "numeric")
+    }, FUN.VALUE=numeric(1))
     # combine counts across chromosomes
-    n_entries = sum(n_entries)
+    n_features_total = sum(n_features)
+
+    n_total_clusters = round(n_features_total / meanClusterSize)
 
     # cut tree to get average of meanClusterSize
     res = lapply(treeList, function(x){
-      cutree(x@clust, k=round(n_entries / meanClusterSize))
+      N = length(x@clust$order)
+      frac = N / n_features_total
+      n_clust = round( frac*n_total_clusters )
+      cutree(x@clust, k=n_clust)
     })
     names(res) = names(treeList)
+    
   }else{
     res = lapply(treeList, function(x){
       select( x@clust, type=method, pct=pct)

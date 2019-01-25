@@ -122,8 +122,8 @@ plotClusterSegments = function( clusterValues ){
 #' @import grid
 #' @import Biobase
 #' @importFrom labeling extended
-#' @importFrom stats as.hclust
-#' @importFrom ggdendro ggdendrogram
+# @importFrom stats as.hclust
+# @importFrom ggdendro ggdendrogram
 # @import BiocGenerics
 #' @export
 plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
@@ -173,13 +173,13 @@ plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
       panel.border = element_blank(),
       axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
 
-  if( plotTree ){
-    figTree = ggdendrogram(as.hclust(fit[[1]]@clust), labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+  # if( plotTree ){
+  #   figTree = ggdendrogram(as.hclust(fit[[1]]@clust), labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
 
-    figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
-  }else{
-    figCombine = rbind( ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last", heights = c(1, 1, 1) )
-  }
+  #   figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+  # }else{
+    figCombine = rbind( ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last")
+  # }
    
   grid.newpage()
   grid.draw( figCombine )

@@ -31,7 +31,6 @@ Imports:
     vegan,
     rlist,
     adjclust,
-    ggdendro,
     limma,
     sLED,
     BiocParallel,
