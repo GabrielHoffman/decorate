@@ -10,7 +10,8 @@
 #' @param gr GenomciRanges corresponding to the rows of epiSignal
 #' @param clustList list of cluster assignments
 #' @param npermute number of permutations
-#' @param BPPARAM parameters for parallel evaluation by chromosome
+# @param BPPARAM parameters for parallel evaluation by chromosome
+#' @param mc.cores number of cores to permutations
 #' 
 #' @return list of result by chromosome and clustList
 #'
@@ -52,7 +53,8 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = 100, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4) standardGeneric("evalDiffCorr"))
+	# BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
@@ -60,8 +62,8 @@ setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, nper
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,EList,ANY,GRanges,list,numeric,ANY-method
 setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = 100, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal$E, testVariable, gr, clustList, npermute, BPPARAM )
+	function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
+		.evalDiffCorr( epiSignal$E, testVariable, gr, clustList, npermute, mc.cores) #BPPARAM )
 	})
 
 
@@ -70,8 +72,8 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY"),
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,matrix,ANY,GRanges,list,numeric,ANY-method
 setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = 100, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal, testVariable, gr, clustList, npermute, BPPARAM )
+	function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
+		.evalDiffCorr( epiSignal, testVariable, gr, clustList, npermute, mc.cores) #BPPARAM )
 	})
 
 
@@ -81,7 +83,7 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY"),
 setClass("sLEDresults", representation("list"))
 
 #' @import sLED
-.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = 100, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
 
 	if( nrow(epiSignal) != length(gr)){
 		stop("Number of rows in epiSignal must equal number of entries in gr")
@@ -110,7 +112,7 @@ setClass("sLEDresults", representation("list"))
 	  	clustIDLst = names(clustValTab)
 
 	  # for each cluster in the chromosome
-	  sledRes = bplapply( clustIDLst, function( clstLabel ){
+	  sledRes = lapply( clustIDLst, function( clstLabel ){
 
 	    i = match(paste0(chrom, '_', clstLabel), allClusters)
 
@@ -126,13 +128,13 @@ setClass("sLEDresults", representation("list"))
 	      	Y2 = t(epiSignal[peakIDs,set2])
 
 	      	# compare correlation structure with sLED
-	      	res = sLED(X=Y1, Y=Y2, npermute=npermute, verbose=FALSE)
+	      	res = sLED(X=Y1, Y=Y2, npermute=npermute, verbose=FALSE, mc.cores=mc.cores, useMC=mc.cores>1)
 	    }else{
 	      	res = NULL
 	    }
 
 	    res
-	  }, BPPARAM=BPPARAM)
+	  })#, BPPARAM=BPPARAM)
 	  names(sledRes) = clustIDLst
 	  sledRes
 	})

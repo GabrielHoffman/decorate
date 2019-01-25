@@ -398,8 +398,13 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
       cutree(x@clust, k=n_clust)
     })
     names(res) = names(treeList)
-    
+
   }else{
+
+    if( treeList[[1]]@method == 'hclustgeo' ){
+      stop("Method '", method, "' is only compatible with result of\nrunOrderedClusteringGenome(...,method ='adjclust')")
+    }
+
     res = lapply(treeList, function(x){
       select( x@clust, type=method, pct=pct)
     })

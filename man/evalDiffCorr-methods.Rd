@@ -10,13 +10,13 @@
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = 100,
-  BPPARAM = SerialParam())
+  mc.cores = 4)
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = 100, BPPARAM = SerialParam())
+  gr, clustList, npermute = 100, mc.cores = 4)
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = 100, BPPARAM = SerialParam())
+  gr, clustList, npermute = 100, mc.cores = 4)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -29,7 +29,7 @@ evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = 100,
 
 \item{npermute}{number of permutations}
 
-\item{BPPARAM}{parameters for parallel evaluation by chromosome}
+\item{mc.cores}{number of cores to permutations}
 }
 \value{
 list of result by chromosome and clustList
