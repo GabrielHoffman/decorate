@@ -140,7 +140,7 @@ setClass("sLEDresults", representation("list"))
 	      	for( nperm in permArray){
 		      	# compare correlation structure with sLED
 		      	res = sLED(X=Y1, Y=Y2, npermute=nperm, verbose=FALSE, mc.cores=mc.cores, useMC=mc.cores>1)
-		      	
+
 		      	if( res$pVal * nperm > 10){
 		      		break
 		      	}
@@ -175,14 +175,12 @@ setMethod("summary", "sLEDresults", function( object ){
 	res = lapply( names(object), function(chrom){
 		res = lapply( names(object[[chrom]]), function(clst){
 			df = object[[chrom]][[clst]]
-			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat)
+			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.pem=length(df$Tn.permute))
 		})
 		do.call("rbind", res)
 	})
 	do.call("rbind", res)
 })
-
-
 
 
 
