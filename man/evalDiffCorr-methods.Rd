@@ -9,14 +9,14 @@
 \alias{evalDiffCorr,matrix,ANY,GRanges,list,numeric,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
-evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = 100,
-  mc.cores = 4)
+evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = c(100,
+  10000), mc.cores = 4)
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = 100, mc.cores = 4)
+  gr, clustList, npermute = c(100, 10000), mc.cores = 4)
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = 100, mc.cores = 4)
+  gr, clustList, npermute = c(100, 10000), mc.cores = 4)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -27,7 +27,7 @@ evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = 100,
 
 \item{clustList}{list of cluster assignments}
 
-\item{npermute}{number of permutations}
+\item{npermute}{array of two entries with min and max number of permutations}
 
 \item{mc.cores}{number of cores to permutations}
 }

@@ -9,7 +9,7 @@
 #' @param testVariable factor indicating two subsets of the samples to compare
 #' @param gr GenomciRanges corresponding to the rows of epiSignal
 #' @param clustList list of cluster assignments
-#' @param npermute number of permutations
+#' @param npermute array of two entries with min and max number of permutations
 # @param BPPARAM parameters for parallel evaluation by chromosome
 #' @param mc.cores number of cores to permutations
 #' 
@@ -53,7 +53,7 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList , npermute = c(100, 10000), mc.cores=4) standardGeneric("evalDiffCorr"))
 	# BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
 
 #' @import limma
@@ -62,7 +62,7 @@ setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, nper
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,EList,ANY,GRanges,list,numeric,ANY-method
 setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
+	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), mc.cores=4){#, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal$E, testVariable, gr, clustList, npermute, mc.cores) #BPPARAM )
 	})
 
@@ -72,7 +72,7 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY"),
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,matrix,ANY,GRanges,list,numeric,ANY-method
 setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
+	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), mc.cores=4){#, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal, testVariable, gr, clustList, npermute, mc.cores) #BPPARAM )
 	})
 
@@ -83,7 +83,7 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY"),
 setClass("sLEDresults", representation("list"))
 
 #' @import sLED
-.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = 100, mc.cores=4){#, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), mc.cores=4){#, BPPARAM = SerialParam()){
 
 	if( nrow(epiSignal) != length(gr)){
 		stop("Number of rows in epiSignal must equal number of entries in gr")
@@ -96,6 +96,9 @@ setClass("sLEDresults", representation("list"))
 	}
 	if( min(table(testVariable)) < 20){
 		stop("Need at last 20 samples in smallest class of testVariable")
+	}
+	if( length(npermute) != 2 || npermute[1] >= npermute[2] ){
+		stop("npermute must have two entries: min and max permutations")
 	}
 
 	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
@@ -127,8 +130,22 @@ setClass("sLEDresults", representation("list"))
 	      	Y1 = t(epiSignal[peakIDs,set1])
 	      	Y2 = t(epiSignal[peakIDs,set2])
 
-	      	# compare correlation structure with sLED
-	      	res = sLED(X=Y1, Y=Y2, npermute=npermute, verbose=FALSE, mc.cores=mc.cores, useMC=mc.cores>1)
+
+	      	# perform permutations until p-values is precise enough
+	      	# if not precise enough
+	      	a = log10(npermute[1])
+	      	b = log10(npermute[2])
+	      	permArray = 10^seq(a,b, length.out=b-a +1)
+
+	      	for( nperm in permArray){
+		      	# compare correlation structure with sLED
+		      	res = sLED(X=Y1, Y=Y2, npermute=nperm, verbose=FALSE, mc.cores=mc.cores, useMC=mc.cores>1)
+		      	
+		      	if( res$pVal * nperm > 10){
+		      		break
+		      	}
+		    }
+
 	    }else{
 	      	res = NULL
 	    }
