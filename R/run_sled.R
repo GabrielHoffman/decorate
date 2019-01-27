@@ -178,14 +178,14 @@ setMethod("summary", "sLEDresults", function( object ){
 	res = lapply( names(object), function(chrom){
 		res = lapply( names(object[[chrom]]), function(clst){
 			df = object[[chrom]][[clst]]
-			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.pem=length(df$Tn.permute))
+			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute))
 		})
 		do.call("rbind", res)
 	})
 	res = do.call("rbind", res)
 
 	res$p.adjust = p.adjust( res$pValue, "fdr" )
-	res
+	res[order(res$pValue),]
 })
 
 
