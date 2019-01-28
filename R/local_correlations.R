@@ -192,7 +192,7 @@ setClass("epiclustList", representation('ANY'))
 #' 
 #' data('decorateData')
 #' 
-#' # Evaluate hierarchical clsutering
+#' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clutsers
@@ -293,7 +293,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
 #' 
 #' data('decorateData')
 #' 
-#' # Evaluate hierarchical clsutering
+#' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #'
 #' # extract subset of data after clustering 
@@ -375,7 +375,7 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' 
 #' data('decorateData')
 #' 
-#' # Evaluate hierarchical clsutering
+#' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clutsers
@@ -463,7 +463,7 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
 #' 
 #' data('decorateData')
 #' 
-#' # Evaluate hierarchical clsutering
+#' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clutsers
@@ -492,7 +492,7 @@ countClusters = function(treeListClusters){
 #' 
 #' data('decorateData')
 #' 
-#' # Evaluate hierarchical clsutering
+#' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clutsers
