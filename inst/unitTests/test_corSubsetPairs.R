@@ -8,7 +8,7 @@ test_corSubsetPairs = function(){
 	v1 = sample.int(N, 2000, replace=TRUE)
 	v2 = sample.int(N, 2000, replace=TRUE)
 
-	M = corSubsetPairs(Y, v1,v2)
+	M = corSubsetPairs(t(Y), v1,v2)
 
 	# compute correlation using corSubsetPairs
 	cor1 = M[v1[1], v2[1]]

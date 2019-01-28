@@ -5,7 +5,7 @@
 #'
 #' Compute correlations between pairs of features given in idxi and idxj
 #'
-#' @param Y matrix where columns are features
+#' @param Y matrix where rows are features
 #' @param idxi indecies
 #' @param idxj indecies
 #' @param silent suppress messages 
@@ -23,7 +23,7 @@
 #' i2 = sample.int(N, 200, replace=TRUE)
 #' 
 #' # evaluate all piars
-#' C = corSubsetPairs(Y, i1,i2)
+#' C = corSubsetPairs(t(Y), i1,i2)
 #' 
 #' # show value
 #' C[i1[10], i2[10]]
@@ -47,8 +47,8 @@ corSubsetPairs <- function(Y, idxi, idxj, silent=FALSE) {
 
 	# max index cannot be larger than ncol(Y)
 	idx_range = range(c(idxi, idxj))
-	if( idx_range[2] > ncol(Y) ){
-		stop("Entry indxi or idxj exceeeds ncol(Y): ", idx_range[2] ,' > ', ncol(Y))
+	if( idx_range[2] > nrow(Y) ){
+		stop("Entry indxi or idxj exceeeds nrow(Y): ", idx_range[2] ,' > ', nrow(Y))
 	}
 
 	# min index must be greater than zero
@@ -76,7 +76,8 @@ corSubsetPairs <- function(Y, idxi, idxj, silent=FALSE) {
 	# only computes crossprod(y1, y2)
 	# This is only the correlation value if mean of cols is zero and 
 	# sd == 1
-    rho = .Call('_decorate_corSubsetPairs', PACKAGE = 'decorate', scale(Y), vi, vj)
+	Y = scale(t(Y))
+    rho = .Call('_decorate_corSubsetPairs', PACKAGE = 'decorate', Y, vi, vj)
 
     N = ncol(Y)
 	sparsity = length(idxi) / N^2

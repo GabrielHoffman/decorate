@@ -7,7 +7,7 @@
 corSubsetPairs(Y, idxi, idxj, silent = FALSE)
 }
 \arguments{
-\item{Y}{matrix where columns are features}
+\item{Y}{matrix where rows are features}
 
 \item{idxi}{indecies}
 
@@ -31,7 +31,7 @@ i1 = sample.int(N, 200, replace=TRUE)
 i2 = sample.int(N, 200, replace=TRUE)
 
 # evaluate all piars
-C = corSubsetPairs(Y, i1,i2)
+C = corSubsetPairs(t(Y), i1,i2)
 
 # show value
 C[i1[10], i2[10]]

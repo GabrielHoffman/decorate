@@ -1,2 +1,8 @@
-JAn 22, 2019:
+
+0.99.2:
+	- reduce memory usage substantially
+	- reduce compute time 100x by using adaptive permutations
+
+
+Jan 22, 2019:
     Initial version

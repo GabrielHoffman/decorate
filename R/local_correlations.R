@@ -102,7 +102,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
     stop("method must be 'adjacent' or 'distance'")
   }
 
-  corSubsetPairs( t(regionQuant), df_peaksMap$queryHits, df_peaksMap$subjectHits, silent=quiet)
+  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, silent=quiet)
 }
 
 
@@ -152,7 +152,12 @@ runOrderedClustering = function( X, gr, alpha=0.5 ){
   
   treeOriginal <- hclustgeo(D1, D2, alpha=alpha)
 
+  rm(D1)
+  rm(D2)
+
   treeReOrder = vegan:::reorder.hclust(treeOriginal, match(treeOriginal$labels, rownames(X)))
+
+  rm(treeOriginal)
 
   treeReOrder
 }
@@ -170,7 +175,6 @@ setClass("epiclustList", representation('ANY'))
 #' @param quiet suppress messages
 #' @param alpha use by 'hclustgeo': mixture parameter weighing correlations (alpha=0) versus chromosome distances (alpha=1)
 #' @param adjacentCount used by 'adjclust': number of adjacent entries to compute correlation against
-#' @param BPPARAM parameters for parallel evaluation by chromosome
 #' 
 #' @return list hclust tree, one entry for each chromosome
 #'
@@ -199,14 +203,13 @@ setClass("epiclustList", representation('ANY'))
 #' 
 #' plotDecorate( treeList, treeListClusters, query)
 #'
-#' @import BiocParallel
 #' @importFrom rlist list.reverse
 #' @importFrom GenomicRanges seqnames
 #' @importFrom adjclust adjClust
 #' @importFrom methods new
 #' @importFrom stats cor
 #' @export
-runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500, BPPARAM=SerialParam()){
+runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500){
 
   if( nrow(X) != length(gr) ){
     stop("# rows of X must equal # of entries in gr: ", nrow(X), ' != ', length(gr))
@@ -228,13 +231,23 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
   }
 
   # run last (i.e. smallest) chrom first
-  chromArray = as.character(rev(seqnames(gr)@values))
+  chromArray = as.character(seqnames(gr)@values)
+
+  # run analysis
+  ##############
+
+  # remove clostly sanity check in adjclust
+  f = function(mat){
+    NULL
+  }
+
+  assignInNamespace(x="checkCondition", value = f, ns='adjclust')
 
   # for each chromosome
-  # treePerChrom = foreach( chrom = chromArray) %dopar% {
-  treePerChrom = bplapply( chromArray, function(chrom){
-    if( !quiet ) cat("\r", chrom, '    ')
-    # extract peaks from this chrom
+  treePerChrom = lapply( chromArray, function(chrom){
+
+    cat("\rEvaluating:", chrom, '          ')
+
     idx = which(array(GenomicRanges::seqnames(gr) == chrom))
 
     if(method == "adjclust"){
@@ -254,14 +267,16 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     }
     rm(C)
     rm(fitClust)
+    gc()
     res
-  }, BPPARAM = BPPARAM)
+  })
+  cat('\n')
 
   names(treePerChrom) = chromArray
   
-  # reverse chrom order to start with chr1
-  new('epiclustList', list.reverse( treePerChrom ))
+  new('epiclustList', treePerChrom )
 }
+
 
 
 #' Extract subset of data points
