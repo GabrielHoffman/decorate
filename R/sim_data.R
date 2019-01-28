@@ -4,7 +4,7 @@
 # library(GenomicRanges)
 # set.seed(5)
 # N <- 1000
-# r2 <- 0.3
+# r2 <- 0.4
 # corr <- 0.5
 # blockSizes <- sample(5:80, 10, replace=TRUE)
 # p <- sum(blockSizes)

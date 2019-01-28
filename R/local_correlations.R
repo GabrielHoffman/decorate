@@ -386,7 +386,7 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' 
 #' plotDecorate( treeList, treeListClusters, query)
 #'
-#' @importFrom adjclust select
+#' @import adjclust
 #' @importFrom stats cutree
 #' @export
 createClusters = function(treeList, method = c("capushe", "bstick", "meanClusterSize"), meanClusterSize=50, pct=0.15) {

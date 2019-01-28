@@ -1,4 +1,7 @@
 
+0.99.3:
+	- fix issues with ploting trees
+
 0.99.2:
 	- reduce memory usage substantially
 	- reduce compute time 100x by using adaptive permutations

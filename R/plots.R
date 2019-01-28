@@ -98,6 +98,9 @@ plotClusterSegments = function( clusterValues ){
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
 #' @param query GRanges object indiecating region to plot
+#' @param size plotting argument to geom_point() in correlation triangle
+#' @param stroke plotting argument to geom_point() in correlation triangle
+#' @param cols array of two colors for gradient in correlation triangle
 #' @param plotTree show tree from hierachical clustering
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
@@ -122,11 +125,12 @@ plotClusterSegments = function( clusterValues ){
 #' @import grid
 #' @import Biobase
 #' @importFrom labeling extended
-# @importFrom stats as.hclust
-# @importFrom ggdendro ggdendrogram
+#' @importFrom stats as.hclust
+#' @importFrom ggdendro ggdendrogram
+#' @importFrom adjclust correct
 # @import BiocGenerics
 #' @export
-plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
+plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("white","red"), plotTree=TRUE){
 
   if( length(query) > 1){
     stop("Can only query one interval")
@@ -141,11 +145,16 @@ plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
   chrom = names(fit)
 
   clst = treeListClusters[[chrom]]
-  clst = clst[names(clst) %in% fit[[1]]@clust$labels]
+  idx = names(clst) %in% fit[[1]]@clust$labels
+  clst = clst[idx]
 
+  if( any(!idx) & plotTree){
+    cat("Cannot plot tree when features are dropped\n")
+    plotTree = FALSE
+  }
 
   # plot correlation matix
-  fig1 = plotCorrTriangle( fit[[1]]@correlation, cols=c("white", "red") )
+  fig1 = plotCorrTriangle( fit[[1]]@correlation, size=size, stroke=stroke, cols=cols )
 
   fig2 = plotClusterSegments( clst )
 
@@ -173,13 +182,21 @@ plotDecorate = function( treeList, treeListClusters, query, plotTree=TRUE){
       panel.border = element_blank(),
       axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
 
-  # if( plotTree ){
-  #   figTree = ggdendrogram(as.hclust(fit[[1]]@clust), labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+  if( plotTree ){
 
-  #   figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
-  # }else{
+    treeTmp = fit[[1]]@clust 
+
+    # if tree is chac from adjclust, use correct() to get positive branch lengths
+    if( is(treeTmp, 'chac') ){
+      treeTmp = as.hclust(correct( treeTmp ))
+    }
+
+    figTree = ggdendrogram(treeTmp, labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+
+    figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+  }else{
     figCombine = rbind( ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last")
-  # }
+  }
    
   grid.newpage()
   grid.draw( figCombine )

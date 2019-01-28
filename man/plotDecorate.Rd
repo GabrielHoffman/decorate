@@ -4,7 +4,8 @@
 \alias{plotDecorate}
 \title{Plot decorate analysis}
 \usage{
-plotDecorate(treeList, treeListClusters, query, plotTree = TRUE)
+plotDecorate(treeList, treeListClusters, query, size = 1, stroke = 1.5,
+  cols = c("white", "red"), plotTree = TRUE)
 }
 \arguments{
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
@@ -12,6 +13,12 @@ plotDecorate(treeList, treeListClusters, query, plotTree = TRUE)
 \item{treeListClusters}{assign regions to clusters after cutting tree with createClusters()}
 
 \item{query}{GRanges object indiecating region to plot}
+
+\item{size}{plotting argument to geom_point() in correlation triangle}
+
+\item{stroke}{plotting argument to geom_point() in correlation triangle}
+
+\item{cols}{array of two colors for gradient in correlation triangle}
 
 \item{plotTree}{show tree from hierachical clustering}
 }
