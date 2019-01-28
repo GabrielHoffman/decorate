@@ -15,6 +15,7 @@ install_github('https://github.com/GabrielHoffman/decorate.git')
 # Run example analysis
 ```r
 library(GenomicRanges)
+library(decorate)
 
 data('decorateData')
 
