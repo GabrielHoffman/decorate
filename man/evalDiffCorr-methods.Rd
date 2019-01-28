@@ -62,7 +62,7 @@ set.seed(1)
 metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
 
 # Evaluate Differential Correlation between two subsets of data
-sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=20)
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
 
 # get summary of results
 df = summary( sledRes )

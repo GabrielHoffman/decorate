@@ -40,7 +40,7 @@ library(GenomicRanges)
 
 data('decorateData')
 
-# Evaluate hierarchical clsutering
+# Evaluate hierarchical clustering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clutsers

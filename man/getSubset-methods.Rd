@@ -29,7 +29,7 @@ library(GenomicRanges)
 
 data('decorateData')
 
-# Evaluate hierarchical clsutering
+# Evaluate hierarchical clustering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # extract subset of data after clustering 
