@@ -529,6 +529,39 @@ whichCluster = function(treeListClusters, id){
 
 
 
+#' Get feature names in selected cluster
+#'
+#' Get feature names in selected cluster given chrom and clusterid 
+#'
+#' @param treeListClusters from createClusters()
+#' @param chrom chromosome name of cluster
+#' @param clustID cluster identifier
+#'
+#' @return array of feature names
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # Find chromsome and cluster of peak_204
+#' getFeaturesInCluster( treeListClusters, "chr1", 3)
+#'
+#' @export
+getFeaturesInCluster = function( treeListClusters, chrom, clustID){
+
+  idx = which( treeListClusters[[chrom]] == clustID )
+
+  clsts = treeListClusters[[chrom]][idx]
+
+  names(clsts)
+}
 
 
 

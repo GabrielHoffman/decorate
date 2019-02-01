@@ -10,14 +10,14 @@
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = c(100,
-  10000), adj.beta = 0, BPPARAM = SerialParam())
+  10000), adj.beta = -1, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), adj.beta = 0,
+  gr, clustList, npermute = c(100, 10000), adj.beta = -1,
   BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), adj.beta = 0,
+  gr, clustList, npermute = c(100, 10000), adj.beta = -1,
   BPPARAM = SerialParam())
 }
 \arguments{

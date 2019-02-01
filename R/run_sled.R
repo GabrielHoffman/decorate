@@ -54,7 +54,7 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=0, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
@@ -62,7 +62,7 @@ setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, nper
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY-method
 setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", 'ANY', "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000),  adj.beta=0, BPPARAM = SerialParam()){
+	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000),  adj.beta=-1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal$E, testVariable, gr, clustList, npermute, adj.beta, BPPARAM)
 	})
 
@@ -72,7 +72,7 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", 'ANY', "AN
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY-method
 setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", 'ANY',"ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=0, BPPARAM = SerialParam()){
+	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal, testVariable, gr, clustList, npermute, adj.beta, BPPARAM)
 	})
 
@@ -106,7 +106,7 @@ runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = sLED(X=Y1, Y=Y2, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
+	      	res = sLED(X=scale(Y1), Y=scale(Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -208,7 +208,7 @@ runSled2 = function( itObj, npermute, adj.beta){
 
 #' @import BiocParallel
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=0, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()){
 
 	if( nrow(epiSignal) != length(gr)){
 		stop("Number of rows in epiSignal must equal number of entries in gr")
