@@ -4,19 +4,21 @@
 \name{evalDiffCorr}
 \alias{evalDiffCorr}
 \alias{evalDiffCorr,EList,ANY,GRanges,list-method}
-\alias{evalDiffCorr,EList,ANY,GRanges,list,numeric,ANY-method}
+\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY-method}
 \alias{evalDiffCorr,matrix,ANY,GRanges,list-method}
-\alias{evalDiffCorr,matrix,ANY,GRanges,list,numeric,ANY-method}
+\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = c(100,
-  10000), mc.cores = 4)
+  10000), adj.beta = 0, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), mc.cores = 4)
+  gr, clustList, npermute = c(100, 10000), adj.beta = 0,
+  BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), mc.cores = 4)
+  gr, clustList, npermute = c(100, 10000), adj.beta = 0,
+  BPPARAM = SerialParam())
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -29,7 +31,9 @@ evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = c(100,
 
 \item{npermute}{array of two entries with min and max number of permutations}
 
-\item{mc.cores}{number of cores to permutations}
+\item{adj.beta}{parameter for sLED}
+
+\item{BPPARAM}{parameters for parallel evaluation by chromosome}
 }
 \value{
 list of result by chromosome and clustList
@@ -39,6 +43,7 @@ Evaluate Differential Correlation between two subsets of data
 }
 \details{
 Correlation sturucture between two subsets of the data is evaluated with sparse-Leading-Eigenvalue-Driven (sLED) test:
+
 Zhu, Lingxue, Jing Lei, Bernie Devlin, and Kathryn Roeder. 2017. Testing high-dimensional covariance matrices, with application to detecting schizophrenia risk genes. Annals of Applied Statistics. 11:3 1810-1831. doi:10.1214/17-AOAS1062
 }
 \examples{

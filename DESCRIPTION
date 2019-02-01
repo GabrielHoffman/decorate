@@ -33,6 +33,7 @@ Imports:
     adjclust,
     limma,
     sLED,
+    data.table,
     BiocParallel,
     Rcpp,
     RcppArmadillo,

@@ -253,7 +253,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     if(method == "adjclust"){
       C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE)
       h = min( adjacentCount, nrow(C)-1)
-      fitClust = adjClust( C, "similarity", h=h)
+      fitClust = suppressMessages(adjClust( C, "similarity", h=h))
       # fitClust = as.hclust(fitClust)
 
       res = new("epiclust", clust = fitClust, location=gr[idx], adjacentCount=adjacentCount, alpha=0, method=method, correlation=C)
