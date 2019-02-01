@@ -106,7 +106,10 @@ runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = sLED(X=scale(Y1), Y=scale(Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
+	      	Y1_scale = scale(Y1)
+	      	Y2_scale = scale(Y2)
+
+	      	res = sLED(X=Y1_scale, Y=Y2_scale, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -166,6 +169,10 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 		  	Y1 = t(epiSignal[peakIDs,set1])
 		  	Y2 = t(epiSignal[peakIDs,set2])
 
+		  	if( ncol(Y1) != ncol(Y2) ){
+		  		stop("ncol(Y1) != ncol(Y2): ", ncol(Y1), ncol(Y2), "\n", i)
+		  	}
+
 		  	res = list(Y1=Y1, Y2=Y2, CHROM=CHROM, CLST=CLST, i=i)
 		}
 		res
@@ -179,7 +186,10 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 #' @import sLED
 runSled2 = function( itObj, npermute, adj.beta){
 
-	if( min(c(ncol(itObj$Y1), ncol(itObj$Y2))) > 3 ){
+	ncol1 = ncol(itObj$Y1)
+	ncol2 = ncol(itObj$Y2)
+
+	if( min(ncol1, ncol2) > 3 ){
 
 	  	# perform permutations until p-values is precise enough
 	  	# if not precise enough
@@ -189,7 +199,7 @@ runSled2 = function( itObj, npermute, adj.beta){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = sLED(X=itObj$Y1, Y=itObj$Y2, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
+	      	res = sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -225,6 +235,10 @@ runSled2 = function( itObj, npermute, adj.beta){
 	if( length(npermute) != 2 || npermute[1] >= npermute[2] ){
 		stop("npermute must have two entries: min and max permutations")
 	}
+	if( any(!names(treeListClusters) %in% seqnames(peakLocs2)@values) ){
+		stop("Chromosomes from treeListClusters must be in peakLocs2")
+	} 
+
 
 	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
 
