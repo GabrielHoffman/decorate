@@ -244,6 +244,8 @@ runSled2 = function( itObj, npermute, adj.beta){
 	# get unique chrom and 
 	dfClustUnique = unique(dfClust[,1:2])
 
+	cat("# Clusters:", nrow(dfClustUnique), '\n')
+
 	# Evaluate statistics with permutations
 	#######################################
 
