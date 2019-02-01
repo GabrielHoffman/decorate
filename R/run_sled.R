@@ -166,8 +166,8 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 			peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
 
 			# get two subsets of data
-		  	Y1 = t(epiSignal[peakIDs,set1])
-		  	Y2 = t(epiSignal[peakIDs,set2])
+		  	Y1 = t(epiSignal[peakIDs,set1,drop=FALSE])
+		  	Y2 = t(epiSignal[peakIDs,set2,drop=FALSE])
 
 		  	if( ncol(Y1) != ncol(Y2) ){
 		  		stop("ncol(Y1) != ncol(Y2): ", ncol(Y1), ncol(Y2), "\n", i)
