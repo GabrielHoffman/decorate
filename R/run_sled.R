@@ -235,8 +235,8 @@ runSled2 = function( itObj, npermute, adj.beta){
 	if( length(npermute) != 2 || npermute[1] >= npermute[2] ){
 		stop("npermute must have two entries: min and max permutations")
 	}
-	if( any(!names(treeListClusters) %in% seqnames(peakLocs2)@values) ){
-		stop("Chromosomes from treeListClusters must be in peakLocs2")
+	if( any(!names(treeListClusters) %in% seqnames(gr)@values) ){
+		stop("Chromosomes from treeListClusters must be in gr")
 	} 
 
 
