@@ -11,7 +11,7 @@ install_github("lingxuez/sLED")
 # Install decorate
 # 	first, check for Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE)){
-    cat("Please insteall Bioconductor before continuing:\n")
+    cat("Please install Bioconductor before continuing:\n")
     cat("see http://bioconductor.org/install/\n\n")
 }else{
 	install_github('https://github.com/GabrielHoffman/decorate.git', 
