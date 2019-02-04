@@ -37,7 +37,7 @@ treeListClusters = createClusters( treeList )
 query = GRanges('chr1', IRanges(0, 1000))
 plotDecorate( treeList, treeListClusters, query)
 
- # Simulate variable to split dataset by
+# Simulate variable to split dataset by
 set.seed(1)
 metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
 
