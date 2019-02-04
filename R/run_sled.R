@@ -49,6 +49,14 @@
 #'
 #' # print results
 #' head(df)
+#'
+#' # extract peak ID's from most significant cluster
+#' peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+#'
+#' # plot comparison of correlation matrices for peaks in peakIDs
+#' #  where data is subset by metadata$Disease
+#' main = paste0(df$chrom[1], ': cluster ', df$cluster[1])
+#' plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle(main)
 #' 
 #' @importFrom GenomicRanges GRanges
 #' @import BiocParallel
@@ -272,6 +280,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	# 	this makes time estimate more accurate
 	# dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),],by="chrom"]
 	# sort by size across chromosomes
+	.SD = N = NA
 	dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),]]
 
 	cat("# Clusters:", nrow(dfClustCountsSort), '\n')

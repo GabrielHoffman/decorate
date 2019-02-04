@@ -78,4 +78,12 @@ df = summary( sledRes )
 # print results
 head(df)
 
+# extract peak ID's from most significant cluster
+peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+
+# plot comparison of correlation matrices for peaks in peakIDs
+#  where data is subset by metadata$Disease
+main = paste0(df$chrom[1], ': cluster ', df$cluster[1])
+plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle(main)
+
 }

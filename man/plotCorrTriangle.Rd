@@ -4,7 +4,8 @@
 \alias{plotCorrTriangle}
 \title{Plot triangle of correlation matrix}
 \usage{
-plotCorrTriangle(C, size = 1, stroke = 1.5, cols = c("white", "red"))
+plotCorrTriangle(C, size = 1, stroke = 1.5, cols = c("blue", "white",
+  "red"))
 }
 \arguments{
 \item{C}{correlation matrix}
@@ -23,10 +24,12 @@ Plot lower triangle of correlation matrix
 }
 \details{
 Adjust size and stroke of points in the plot to fix look of plot depending on dimensions
-
+}
+\examples{
 N = 1000
 p = 100
 X = matrix(rnorm(N*p), N,p)
 C = cor(X)
 plotCorrTriangle( C )
+
 }

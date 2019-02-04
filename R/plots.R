@@ -12,6 +12,7 @@
 #'
 #' @details Adjust size and stroke of points in the plot to fix look of plot depending on dimensions
 #'
+#' @examples
 #' N = 1000
 #' p = 100
 #' X = matrix(rnorm(N*p), N,p)
@@ -22,14 +23,14 @@
 #' @importFrom reshape2 melt
 #' @importFrom methods is
 #' @export 
-plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("white","red")){
+plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("blue", "white","red")){
 
   # to pass R CMD check
   x = y = value = NULL
 
   if( is(C, "matrix")){
     C[upper.tri(C, diag=TRUE)] = NA
-    df = melt(abs(C))
+    df = melt(C)
     df = df[!is.na(df$value),]    
     colnames(df)[1] = "x"
     colnames(df)[2] = "y"
@@ -57,7 +58,7 @@ plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("white","red")){
 
   # set aspect ratio to be sqrt(1/2) so that each box is square
   # due to Pythagorean ratio
-  fig = ggplot(df_rotate, aes(x, y)) + geom_point(aes(color=value, fill=value), size=size, stroke=stroke, shape=18) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(0,1), na.value="white") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(0,1), na.value="white")  + theme_void() + theme(aspect.ratio=1/sqrt(2), plot.title = element_text(hjust = 0.5), legend.position="bottom") #+ xlim(range(df_rotate$x)) # 
+  fig = ggplot(df_rotate, aes(x, y)) + geom_point(aes(color=value, fill=value), size=size, stroke=stroke, shape=18) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="white") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="white")  + theme_void() + theme(aspect.ratio=1/sqrt(2), plot.title = element_text(hjust = 0.5), legend.position="bottom") #+ xlim(range(df_rotate$x)) # 
 
   # get range along x-axis
   attr(fig, 'xrange') = range(df_rotate$x)
@@ -201,6 +202,77 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
   grid.newpage()
   grid.draw( figCombine )
 }
+
+
+
+#' Plot two correlation matrices together
+#'
+#' Combined plot of correlation matricies from cases and controls
+#'
+#' @param epiSignal matrix or EList of epigentic signal.  Rows are features and columns are samples
+#' @param peakIDs feature names to extract from rows of epiSignal
+#' @param testVariable factor indicating two subsets of the samples to compare
+#' @param size size of text
+#' @param cols array of 3 color values
+#'
+#' @return ggplot2 of combined correlation matrix
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clsutering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # get peak ID's from chr1, cluster 1
+#' peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1)
+#'
+#' # plot comparison of correlation matrices for peaks in peakIDs
+#' #  where data is subset by metadata$Disease
+#' plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle("chr1: cluster 1")
+#'
+#' @import ggplot2
+#' @importFrom reshape2 melt
+#' @export
+plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blue", "white","red")){
+
+  if( length(testVariable) != ncol(epiSignal) ){
+    stop("Number of columns in epiSignal must equal number of entries in testVariable")
+  }
+  if( ! is(testVariable, 'factor') || nlevels(testVariable) != 2 ){
+    stop("Entries in testVariable must be a factor with two levels")
+  }
+
+  # Divide data into two sets
+  set1 = which(testVariable == levels(testVariable)[1])
+  set2 = which(testVariable == levels(testVariable)[2])
+
+  # get features
+  set1 = set2 = Var1 = Var2 = value = NA
+  Y1 = scale(t(epiSignal[peakIDs, set1]))
+  Y2 = scale(t(epiSignal[peakIDs, set2]))
+
+  # evaluate correlation
+  C1 = cor(Y1)
+  C2 = cor(Y2)
+
+  # create combined correlation matrix
+  C = C1
+  C[lower.tri(C)] = C2[lower.tri(C2)]
+  diag(C) = NA
+
+  # convert matrix to data.frame to plot
+  df = melt( C )
+  N = nrow( C )
+
+  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(0.1*N,0.9*N), y=c(0.9*N,0.1*N), label=levels(testVariable),size=size)
+}
+
+
 
 
 
