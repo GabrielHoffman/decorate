@@ -239,7 +239,6 @@ runSled2 = function( itObj, npermute, adj.beta){
 		stop("Chromosomes from treeListClusters must be in gr")
 	} 
 
-
 	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
 
 	# Divide data into two sets
@@ -278,17 +277,30 @@ runSled2 = function( itObj, npermute, adj.beta){
 
 	# return list of lists
 	######################
+
+	cat("Combining results...\n")
+
 	resList = list()
 	chromArray = unique(vapply(combinedResults, function(x) x$chrom, "character"))
 	for( chrom in chromArray){
 
 		id = vapply(combinedResults, function(x) x$cluster, numeric(1))
 
-		idx = vapply(combinedResults, function(x){ x$cluster %in% id && x$chrom == chrom}, logical(1)) 
+		idx = vapply(combinedResults, function(x){ 
+			(x$cluster %in% id) && (x$chrom == chrom)
+			}, logical(1)) 
 
 		resList[[chrom]] = combinedResults[idx]
 		names(resList[[chrom]]) = vapply(resList[[chrom]], function(x) x$cluster, numeric(1))
 
+		# compute permutation p-value as (B+1) / (N+1)
+		resList[[chrom]] = lapply( resList[[chrom]], function(x){
+			if( ! is.na(x$stats) ){
+				x$pVal = (rowSums(x$Tn.permute > x$Tn)+1) / (length(x$Tn.permute)+1)
+			}
+			x
+			})
+		resList[[chrom]]
 	}
 	names(resList) = chromArray
 	
