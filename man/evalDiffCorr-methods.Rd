@@ -4,34 +4,37 @@
 \name{evalDiffCorr}
 \alias{evalDiffCorr}
 \alias{evalDiffCorr,EList,ANY,GRanges,list-method}
-\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY-method}
 \alias{evalDiffCorr,matrix,ANY,GRanges,list-method}
-\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
-evalDiffCorr(epiSignal, testVariable, gr, clustList, npermute = c(100,
-  10000), adj.beta = -1, BPPARAM = SerialParam())
+evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
+  npermute = c(100, 10000), adj.beta = -1, sumabs.seq = 0.2,
+  BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), adj.beta = -1,
-  BPPARAM = SerialParam())
+  gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
+  sumabs.seq = 0.2, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gr, clustList, npermute = c(100, 10000), adj.beta = -1,
-  BPPARAM = SerialParam())
+  gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
+  sumabs.seq = 0.2, BPPARAM = SerialParam())
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
 
 \item{testVariable}{factor indicating two subsets of the samples to compare}
 
-\item{gr}{GenomciRanges corresponding to the rows of epiSignal}
+\item{gRanges}{GenomciRanges corresponding to the rows of epiSignal}
 
 \item{clustList}{list of cluster assignments}
 
 \item{npermute}{array of two entries with min and max number of permutations}
 
 \item{adj.beta}{parameter for sLED}
+
+\item{sumabs.seq}{sparsity parameter}
 
 \item{BPPARAM}{parameters for parallel evaluation by chromosome}
 }

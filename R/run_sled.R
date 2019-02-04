@@ -7,10 +7,11 @@
 #' 
 #' @param epiSignal matrix or EList of epigentic signal.  Rows are features and columns are samples
 #' @param testVariable factor indicating two subsets of the samples to compare
-#' @param gr GenomciRanges corresponding to the rows of epiSignal
+#' @param gRanges GenomciRanges corresponding to the rows of epiSignal
 #' @param clustList list of cluster assignments
 #' @param npermute array of two entries with min and max number of permutations
 #' @param adj.beta parameter for sLED
+#' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation by chromosome
 #' 
 #' @return list of result by chromosome and clustList
@@ -54,26 +55,26 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, sumabs.seq = 0.2, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", 'ANY', "ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000),  adj.beta=-1, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal$E, testVariable, gr, clustList, npermute, adj.beta, BPPARAM)
+#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", 'ANY', "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000),  adj.beta=-1, sumabs.seq = 0.2, BPPARAM = SerialParam()){
+		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, sumabs.seq, BPPARAM)
 	})
 
 
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", 'ANY',"ANY"), 
-	function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal, testVariable, gr, clustList, npermute, adj.beta, BPPARAM)
+#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", 'ANY', "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, sumabs.seq = 0.2, BPPARAM = SerialParam()){
+		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, sumabs.seq, BPPARAM)
 	})
 
 
@@ -83,46 +84,46 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", 'ANY',"AN
 setClass("sLEDresults", representation("list"))
 
 #' @import sLED
-runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
+# runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
 
-	CHROM = dfClustUnique$chrom[i]
-	CLST = as.character(dfClustUnique$cluster[i])
+# 	CHROM = dfClustUnique$chrom[i]
+# 	CLST = as.character(dfClustUnique$cluster[i])
 
-	cat(CHROM, CLST, '\n')
+# 	cat(CHROM, CLST, '\n')
 
-	peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
+# 	peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
 
-	if( length(peakIDs) > 3 ){
+# 	if( length(peakIDs) > 3 ){
 
-		# get two subsets of data
-	  	Y1 = t(epiSignal[peakIDs,set1])
-	  	Y2 = t(epiSignal[peakIDs,set2])
+# 		# get two subsets of data
+# 	  	Y1 = t(epiSignal[peakIDs,set1])
+# 	  	Y2 = t(epiSignal[peakIDs,set2])
 
-	  	# perform permutations until p-values is precise enough
-	  	# if not precise enough
-	  	a = log10(npermute[1])
-	  	b = log10(npermute[2])
-	  	permArray = 10^seq(a,b, length.out=b-a +1)
+# 	  	# perform permutations until p-values is precise enough
+# 	  	# if not precise enough
+# 	  	a = log10(npermute[1])
+# 	  	b = log10(npermute[2])
+# 	  	permArray = 10^seq(a,b, length.out=b-a +1)
 
-	  	for( nperm in round(permArray) ){
-	      	# compare correlation structure with sLED
-	      	Y1_scale = scale(Y1)
-	      	Y2_scale = scale(Y2)
+# 	  	for( nperm in round(permArray) ){
+# 	      	# compare correlation structure with sLED
+# 	      	Y1_scale = scale(Y1)
+# 	      	Y2_scale = scale(Y2)
 
-	      	res = sLED(X=Y1_scale, Y=Y2_scale, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
+# 	      	res = sLED(X=Y1_scale, Y=Y2_scale, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
 
-	      	if( res$pVal * nperm > 10){
-	      		break
-	      	}
-	    }
+# 	      	if( res$pVal * nperm > 10){
+# 	      		break
+# 	      	}
+# 	    }
 
-	}else{
-	  	res = list(pVal=NA, stats=NA)
-	}
-	res$chrom = CHROM
-	res$cluster = CLST
-	res
-}
+# 	}else{
+# 	  	res = list(pVal=NA, stats=NA)
+# 	}
+# 	res$chrom = CHROM
+# 	res$cluster = CLST
+# 	res
+# }
 
 
 
@@ -184,7 +185,7 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 }
 
 #' @import sLED
-runSled2 = function( itObj, npermute, adj.beta){
+runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 
 	ncol1 = ncol(itObj$Y1)
 	ncol2 = ncol(itObj$Y2)
@@ -199,7 +200,7 @@ runSled2 = function( itObj, npermute, adj.beta){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
+	      	res = sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -218,10 +219,10 @@ runSled2 = function( itObj, npermute, adj.beta){
 
 #' @import BiocParallel
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gr, clustList, npermute = c(100, 10000), adj.beta=-1, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, sumabs.seq=0.2, BPPARAM = SerialParam()){
 
-	if( nrow(epiSignal) != length(gr)){
-		stop("Number of rows in epiSignal must equal number of entries in gr")
+	if( nrow(epiSignal) != length(gRanges)){
+		stop("Number of rows in epiSignal must equal number of entries in gRanges")
 	}
 	if( length(testVariable) != ncol(epiSignal) ){
 		stop("Number of columns in epiSignal must equal number of entries in testVariable")
@@ -235,9 +236,15 @@ runSled2 = function( itObj, npermute, adj.beta){
 	if( length(npermute) != 2 || npermute[1] >= npermute[2] ){
 		stop("npermute must have two entries: min and max permutations")
 	}
-	if( any(!names(treeListClusters) %in% seqnames(gr)@values) ){
-		stop("Chromosomes from treeListClusters must be in gr")
+	if( any(!names(treeListClusters) %in% seqnames(gRanges)@values) ){
+		stop("Chromosomes from treeListClusters must be in gRanges")
 	} 
+	if( length(adj.beta) > 1 ){
+		stop("adj.beta must be a scalar")
+	}
+	if( length(sumabs.seq) > 1 ){
+		stop("sumabs.seq must be a scalar")
+	}
 
 	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
 
@@ -273,7 +280,7 @@ runSled2 = function( itObj, npermute, adj.beta){
 	# run with iterators
 	it = clustIter( dfClustUnique, dfClust, epiSignal, set1, set2  )
 	
-	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, BPPARAM=BPPARAM)
+	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM=BPPARAM)
 
 	# return list of lists
 	######################
