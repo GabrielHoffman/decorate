@@ -227,7 +227,11 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
 #' 
 #' # Choose cutoffs and return clutsers
 #' treeListClusters = createClusters( treeList )
-#' 
+#'
+#' # Simulate variable to split dataset by
+#' set.seed(1)
+#' metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
+#'
 #' # get peak ID's from chr1, cluster 1
 #' peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1)
 #'
@@ -252,7 +256,7 @@ plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blu
   set2 = which(testVariable == levels(testVariable)[2])
 
   # get features
-  set1 = set2 = Var1 = Var2 = value = NA
+  Var1 = Var2 = value = NA
   Y1 = scale(t(epiSignal[peakIDs, set1]))
   Y2 = scale(t(epiSignal[peakIDs, set2]))
 
