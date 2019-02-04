@@ -8,8 +8,16 @@ library(devtools)
 # first install sLED
 install_github("lingxuez/sLED")
 
-# then install decorate
-install_github('https://github.com/GabrielHoffman/decorate.git')
+# Install decorate
+# 	first, check for Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+    cat("Please insteall Bioconductor before continuing:\n")
+    cat("see http://bioconductor.org/install/\n\n")
+}else{
+	install_github('https://github.com/GabrielHoffman/decorate.git', 
+		build_vignettes=TRUE, dependencies=TRUE,
+	  	repos=BiocInstaller::biocinstallRepos())
+}
 ```
 
 # Run example analysis
@@ -34,7 +42,8 @@ set.seed(1)
 metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
 
 # Evaluate Differential Correlation between two subsets of data
-sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
+# use between 100 and 1000 permutations
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(100, 1000))
 
 # get summary of results
 df = summary( sledRes )

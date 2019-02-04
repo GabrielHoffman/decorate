@@ -164,6 +164,7 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 			CHROM = dfClustUnique$chrom[i]
 			CLST = dfClustUnique$cluster[i]
 
+			chrom = cluster = peak = NA
 			peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
 
 			# get two subsets of data
@@ -236,8 +237,8 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	if( length(npermute) != 2 || npermute[1] >= npermute[2] ){
 		stop("npermute must have two entries: min and max permutations")
 	}
-	if( any(!names(treeListClusters) %in% seqnames(gRanges)@values) ){
-		stop("Chromosomes from treeListClusters must be in gRanges")
+	if( any(!names(clustList) %in% seqnames(gRanges)@values) ){
+		stop("Chromosomes from clustList must be in gRanges")
 	} 
 	if( length(adj.beta) > 1 ){
 		stop("adj.beta must be a scalar")
@@ -259,12 +260,21 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	dfClust = data.table(do.call('rbind', dfClust))
 
 	# only get peaks that are in the the epiSignal dataset
+	peak = NA
 	dfClust = dfClust[peak %in% rownames(epiSignal),]
 
-	# get unique chrom and 
-	dfClustUnique = unique(dfClust[,1:2])
+	# get unique chrom and size of cluster
+	.N = NA
+	dfClustCounts = dfClust[,.N, by=c("chrom", "cluster")]
 
-	cat("# Clusters:", nrow(dfClustUnique), '\n')
+	# sort by size within chromosomes
+	# evaluate sLED starting with largest gene set decreasing
+	# 	this makes time estimate more accurate
+	# dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),],by="chrom"]
+	# sort by size across chromosomes
+	dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),]]
+
+	cat("# Clusters:", nrow(dfClustCountsSort), '\n')
 
 	# Evaluate statistics with permutations
 	#######################################
@@ -278,7 +288,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	# combinedResults = bplapply( seq_len(nrow(dfClustUnique)), runSled, dfClustUnique, dfClust, epiSignal, set1, set2, npermute, BPPARAM=BPPARAM)
 	
 	# run with iterators
-	it = clustIter( dfClustUnique, dfClust, epiSignal, set1, set2  )
+	it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 	
 	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM=BPPARAM)
 
@@ -288,7 +298,8 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	cat("Combining results...\n")
 
 	resList = list()
-	chromArray = unique(vapply(combinedResults, function(x) x$chrom, "character"))
+	chromArray = unique(dfClustCounts$chrom)
+	# unique(vapply(combinedResults, function(x) x$chrom, "character"))
 	for( chrom in chromArray){
 
 		id = vapply(combinedResults, function(x) x$cluster, numeric(1))
@@ -324,6 +335,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 #' 
 #' @return data.frame
 #'
+#' @importFrom stats p.adjust
 #' @export
 setMethod("summary", "sLEDresults", function( object ){
 

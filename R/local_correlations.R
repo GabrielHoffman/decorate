@@ -208,6 +208,7 @@ setClass("epiclustList", representation('ANY'))
 #' @importFrom adjclust adjClust
 #' @importFrom methods new
 #' @importFrom stats cor
+#' @importFrom utils assignInNamespace
 #' @export
 runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500){
 
