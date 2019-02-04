@@ -43,7 +43,8 @@ metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)
 
 # Evaluate Differential Correlation between two subsets of data
 # use between 100 and 1000 permutations
-sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(100, 1000))
+npermute = c(100, 1000)
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute)
 
 # get summary of results
 df = summary( sledRes )
