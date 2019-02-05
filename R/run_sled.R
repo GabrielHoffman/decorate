@@ -228,6 +228,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 
 #' @import BiocParallel
 #' @import foreach
+#' @importFrom progress progress_bar
 #' @importFrom data.table data.table
 .evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, sumabs.seq=0.2, BPPARAM = SerialParam()){
 
@@ -286,7 +287,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 
 	n_clusters = nrow(dfClustCountsSort)
 
-	# cat("# Clusters:", nrow(dfClustCountsSort), '\n')
+	cat("# Clusters:", n_clusters, '\n')
 
 	# Evaluate statistics with permutations
 	#######################################
@@ -302,18 +303,23 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 	# run with iterators
 	# it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 	
-	# combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM, BPPARAM=SerialParam(progressbar=TRUE))
+	# combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM, BPPARAM=SerialParam())
 
+	pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",,
+			total = n_clusters, width= 60, clear=FALSE)
 
+	itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+	
 	count = 0
-	combinedResults = foreach( it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  ) ) %do% {
-
-		runSled2( it, npermute, adj.beta, sumabs.seq, BPPARAM )
-
+	combinedResults = list()
+	while( ! is.null( it <- itGlobal$nextElem() ) ){ 
+		# update progress bar
+		pb$update( count / n_clusters )
 		count = count + 1
-		cat( '\r', count, '/', n_clusters, '    ')
+		# run analysis
+		combinedResults[[count]] = runSled2( it, npermute, adj.beta, sumabs.seq, BPPARAM )
 	}
-
+	pb$update( 1.0 )
 
 	# return list of lists
 	######################
