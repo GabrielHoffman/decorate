@@ -194,7 +194,7 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 }
 
 #' @import sLED
-runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
+runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 
 	ncol1 = ncol(itObj$Y1)
 	ncol2 = ncol(itObj$Y2)
@@ -210,7 +210,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
 	      	# res = sLED::sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=TRUE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
-	      	res = sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
+	      	res = .sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -299,7 +299,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	# run with iterators
 	it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 	
-	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM=BPPARAM)
+	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM, BPPARAM=SerialParam(progressbar=TRUE))
 
 	# return list of lists
 	######################
@@ -362,6 +362,59 @@ setMethod("summary", "sLEDresults", function( object ){
 })
 
 
+#' @import sLED
+.sLED = function (X, Y, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
+    npermute = 100, useMC = FALSE, mc.cores = 1, seeds = NULL,
+    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
+{
+    D.hat <- sLED:::getDiffMatrix(X, Y, adj.beta)
+    pma.results <- sLED:::sLEDTestStat(Dmat = D.hat, rho = rho, sumabs.seq = sumabs.seq,
+        niter = niter, trace = trace)
+    Tn <- pma.results$stats
+    n1 <- nrow(X)
+    n2 <- nrow(Y)
+    Z <- rbind(X, Y)
+    permute.results <- .sLEDpermute(Z = Z, n1 = n1, n2 = n2, adj.beta = adj.beta,
+        rho = rho, sumabs.seq = sumabs.seq, npermute = npermute,
+        useMC = useMC, mc.cores = mc.cores, seeds = seeds, verbose = verbose,
+        niter = niter, trace = trace, BPPARAM=BPPARAM)
+    pVal = (rowSums(permute.results$Tn.permute > Tn)+1)/(npermute+1)
+    return(c(pma.results, permute.results, list(Tn = Tn, pVal = pVal)))
+}
 
 
+#' @import sLED
+#' @importFrom BiocParallel bplapply
+.sLEDpermute = function (Z, n1, n2, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
+    npermute = 100, useMC = FALSE, mc.cores = 1, seeds = NULL,
+    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
+{
+    if (verbose) {
+        cat(npermute, "permutation started:\n")
+    }
+    if (useMC) {
+        
+        perm.results <- bplapply(seq_len(npermute), sLED:::sLEDOnePermute,
+            Z = Z, n1 = n1, n2 = n2, seeds = seeds, sumabs.seq = sumabs.seq,
+            adj.beta = adj.beta, rho = rho, verbose = FALSE,
+            niter = niter, trace = trace, BPPARAM=BPPARAM)
+    }
+    else {
+        perm.results <- lapply(seq_len(npermute),  sLED:::sLEDOnePermute, Z = Z,
+            n1 = n1, n2 = n2, seeds = seeds, sumabs.seq = sumabs.seq,
+            adj.beta = adj.beta, rho = rho, verbose = verbose,
+            niter = niter, trace = trace)
+    }
+    ntest <- length(sumabs.seq)
+    Tn.permute <- matrix(NA, nrow = ntest, ncol = npermute)
+    Tn.permute.sign <- matrix(NA, nrow = ntest, ncol = npermute)
+    for (i in 1:npermute) {
+        Tn.permute[, i] <- perm.results[[i]]$Tn.permute
+        Tn.permute.sign[, i] <- perm.results[[i]]$Tn.permute.sign
+    }
+    if (verbose) {
+        cat("permutations finished.", fill = TRUE)
+    }
+    return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
+}
 
