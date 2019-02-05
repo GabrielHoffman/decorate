@@ -326,7 +326,6 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	npermute2 = sort(c(npermute[2]*10, npermute[3]))
 
 	count = 0
-	combinedResults = list()
 	while( ! is.null( it <- itGlobal$nextElem() ) ){ 
 
 		# fit location in df of the features set in it
