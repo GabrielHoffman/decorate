@@ -209,6 +209,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
+	      	# res = sLED::sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=TRUE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
 	      	res = sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
 
 	      	if( res$pVal * nperm > 10){
@@ -223,7 +224,6 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	res$cluster = itObj$CLST
 	res
 }
-
 
 
 #' @import BiocParallel
@@ -282,8 +282,6 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	# sort by size across chromosomes
 	.SD = N = NA
 	dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),]]
-
-	dfClustCountsSort = dfClustCountsSort[1:10,]
 
 	cat("# Clusters:", nrow(dfClustCountsSort), '\n')
 
