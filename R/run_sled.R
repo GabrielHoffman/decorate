@@ -283,6 +283,8 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq){
 	.SD = N = NA
 	dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),]]
 
+	dfClustCountsSort = dfClustCountsSort[1:10,]
+
 	cat("# Clusters:", nrow(dfClustCountsSort), '\n')
 
 	# Evaluate statistics with permutations
