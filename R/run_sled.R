@@ -314,7 +314,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	df$clustArray = vapply(combinedResults, function(x) x$cluster, numeric(1))
 	df = data.table(data.frame(df, stringsAsFactors=FALSE))
 
-	numPassCutoff = sum(df$permCounts < 10)
+	numPassCutoff = sum(df$permCounts < 10, na.rm=TRUE)
 
 	if( numPassCutoff > 0 ){
 		cat("Intensive second pass...\n")
