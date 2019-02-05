@@ -332,8 +332,9 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 			# fit location in df of the features set in it
 			i = which((df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
 
+			prmCnt = df$permCounts[i]
 			# if permCounts is too small, run intensive parallel analysis
-			if( (df$permCounts[i] < 10) & (length(npermute) >=3) ){
+			if( !is.na(prmCnt) & (prmCnt< 10) & (length(npermute) >=3) ){
 
 				# update progress bar
 				pb$update( min(count / numPassCutoff, 1) )
