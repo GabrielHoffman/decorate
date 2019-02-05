@@ -227,6 +227,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 
 
 #' @import BiocParallel
+#' @import foreach
 #' @importFrom data.table data.table
 .evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, sumabs.seq=0.2, BPPARAM = SerialParam()){
 
@@ -283,7 +284,9 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 	.SD = N = NA
 	dfClustCountsSort = dfClustCounts[,.SD[order(N, decreasing=TRUE),]]
 
-	cat("# Clusters:", nrow(dfClustCountsSort), '\n')
+	n_clusters = nrow(dfClustCountsSort)
+
+	# cat("# Clusters:", nrow(dfClustCountsSort), '\n')
 
 	# Evaluate statistics with permutations
 	#######################################
@@ -297,9 +300,20 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 	# combinedResults = bplapply( seq_len(nrow(dfClustUnique)), runSled, dfClustUnique, dfClust, epiSignal, set1, set2, npermute, BPPARAM=BPPARAM)
 	
 	# run with iterators
-	it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+	# it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 	
-	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM, BPPARAM=SerialParam(progressbar=TRUE))
+	# combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, sumabs.seq, BPPARAM, BPPARAM=SerialParam(progressbar=TRUE))
+
+
+	count = 0
+	combinedResults = foreach( it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  ) ) %do% {
+
+		runSled2( it, npermute, adj.beta, sumabs.seq, BPPARAM )
+
+		count = count + 1
+		cat( '\r', count, '/', n_clusters, '    ')
+	}
+
 
 	# return list of lists
 	######################
