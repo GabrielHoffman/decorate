@@ -131,7 +131,7 @@ plotClusterSegments = function( clusterValues ){
 #' @importFrom adjclust correct
 # @import BiocGenerics
 #' @export
-plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("white","red"), plotTree=TRUE){
+plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("blue", "white","red"), plotTree=TRUE){
 
   if( length(query) > 1){
     stop("Can only query one interval")

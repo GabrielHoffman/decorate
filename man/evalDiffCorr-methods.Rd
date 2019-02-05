@@ -4,22 +4,22 @@
 \name{evalDiffCorr}
 \alias{evalDiffCorr}
 \alias{evalDiffCorr,EList,ANY,GRanges,list-method}
-\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method}
 \alias{evalDiffCorr,matrix,ANY,GRanges,list-method}
-\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
-  npermute = c(100, 10000), adj.beta = -1, sumabs.seq = 0.2,
-  BPPARAM = SerialParam())
+  npermute = c(100, 10000), adj.beta = -1, rho = 1000,
+  sumabs.seq = 0.2, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
   gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
-  sumabs.seq = 0.2, BPPARAM = SerialParam())
+  rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
   gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
-  sumabs.seq = 0.2, BPPARAM = SerialParam())
+  rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam())
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -33,6 +33,8 @@ evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
 \item{npermute}{array of two entries with min and max number of permutations}
 
 \item{adj.beta}{parameter for sLED}
+
+\item{rho}{a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features}
 
 \item{sumabs.seq}{sparsity parameter}
 

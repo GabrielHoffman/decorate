@@ -5,7 +5,7 @@
 \title{Plot decorate analysis}
 \usage{
 plotDecorate(treeList, treeListClusters, query, size = 1, stroke = 1.5,
-  cols = c("white", "red"), plotTree = TRUE)
+  cols = c("blue", "white", "red"), plotTree = TRUE)
 }
 \arguments{
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
