@@ -306,7 +306,6 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	
 	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, rho, sumabs.seq, SerialParam(), BPPARAM=BPPARAM)
 
-	cat("Intensive second pass...\n")
 
 	# create data.frame
 	df = list()
@@ -317,32 +316,35 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	numPassCutoff = sum(df$permCounts < 10)
 
-	# parallelize run of each cluster
-	pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",,
-			total = numPassCutoff, width= 60, clear=FALSE)
+	if( numPassCutoff > 0 ){
+		cat("Intensive second pass...\n")
 
-	itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
-	
-	npermute2 = sort(c(npermute[2]*10, npermute[3]))
+		# parallelize run of each cluster
+		pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",	total = numPassCutoff, width= 60, clear=FALSE)
 
-	count = 0
-	while( ! is.null( it <- itGlobal$nextElem() ) ){ 
+		itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+		
+		npermute2 = sort(c(npermute[2]*10, npermute[3]))
 
-		# fit location in df of the features set in it
-		i = which((df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
+		count = 0
+		while( ! is.null( it <- itGlobal$nextElem() ) ){ 
 
-		# if permCounts is too small, run intensive parallel analysis
-		if( (df$permCounts[i] < 10) & (length(npermute) >=3 )){
+			# fit location in df of the features set in it
+			i = which((df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
 
-			# update progress bar
-			pb$update( count / numPassCutoff )
-			count = count + 1
+			# if permCounts is too small, run intensive parallel analysis
+			if( (df$permCounts[i] < 10) & (length(npermute) >=3) ){
 
-			# run analysis
-			combinedResults[[i]] = runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
+				# update progress bar
+				pb$update( min(count / numPassCutoff, 1) )
+				count = count + 1
+
+				# run analysis
+				combinedResults[[i]] = runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
+			}
 		}
+		pb$update( 1.0 )
 	}
-	pb$update( 1.0 )
 
 	# return list of lists
 	######################
