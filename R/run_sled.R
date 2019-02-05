@@ -210,7 +210,7 @@ runSled2 = function( itObj, npermute, adj.beta, sumabs.seq, BPPARAM){
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
 	      	# res = sLED::sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=TRUE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq)
-	      	res = .sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
+	      	res = .sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, adj.beta=adj.beta, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -384,7 +384,7 @@ setMethod("summary", "sLEDresults", function( object ){
 
 #' @import sLED
 .sLED = function (X, Y, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
-    npermute = 100, useMC = FALSE, mc.cores = 1, seeds = NULL,
+    npermute = 100, seeds = NULL,
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
 {
     D.hat <- sLED:::getDiffMatrix(X, Y, adj.beta)
@@ -396,7 +396,7 @@ setMethod("summary", "sLEDresults", function( object ){
     Z <- rbind(X, Y)
     permute.results <- .sLEDpermute(Z = Z, n1 = n1, n2 = n2, adj.beta = adj.beta,
         rho = rho, sumabs.seq = sumabs.seq, npermute = npermute,
-        useMC = useMC, mc.cores = mc.cores, seeds = seeds, verbose = verbose,
+        seeds = seeds, verbose = verbose,
         niter = niter, trace = trace, BPPARAM=BPPARAM)
     pVal = (rowSums(permute.results$Tn.permute > Tn)+1)/(npermute+1)
     return(c(pma.results, permute.results, list(Tn = Tn, pVal = pVal)))
@@ -406,25 +406,18 @@ setMethod("summary", "sLEDresults", function( object ){
 #' @import sLED
 #' @importFrom BiocParallel bplapply
 .sLEDpermute = function (Z, n1, n2, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
-    npermute = 100, useMC = FALSE, mc.cores = 1, seeds = NULL,
+    npermute = 100, seeds = NULL,
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
 {
     if (verbose) {
         cat(npermute, "permutation started:\n")
     }
-    if (useMC) {
-        
-        perm.results <- bplapply(seq_len(npermute), sLED:::sLEDOnePermute,
-            Z = Z, n1 = n1, n2 = n2, seeds = seeds, sumabs.seq = sumabs.seq,
-            adj.beta = adj.beta, rho = rho, verbose = FALSE,
-            niter = niter, trace = trace, BPPARAM=BPPARAM)
-    }
-    else {
-        perm.results <- lapply(seq_len(npermute),  sLED:::sLEDOnePermute, Z = Z,
-            n1 = n1, n2 = n2, seeds = seeds, sumabs.seq = sumabs.seq,
-            adj.beta = adj.beta, rho = rho, verbose = verbose,
-            niter = niter, trace = trace)
-    }
+            
+    perm.results <- bplapply(seq_len(npermute), sLED:::sLEDOnePermute,
+        Z = Z, n1 = n1, n2 = n2, seeds = seeds, sumabs.seq = sumabs.seq,
+        adj.beta = adj.beta, rho = rho, verbose = FALSE,
+        niter = niter, trace = trace, BPPARAM=BPPARAM)   
+    
     ntest <- length(sumabs.seq)
     Tn.permute <- matrix(NA, nrow = ntest, ncol = npermute)
     Tn.permute.sign <- matrix(NA, nrow = ntest, ncol = npermute)
