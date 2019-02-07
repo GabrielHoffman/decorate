@@ -447,30 +447,27 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
     }
 
     res = lapply(treeList, function(x){
-      v = select( x@clust, type=method, pct=pct)
-      new('epiclustDiscrete',v)
+      select( x@clust, type=method, pct=pct)
     })
     names(res) = names(treeList)     
   }
-  res
   new('epiclustDiscreteList',res)
 }
 
+# setClass("epiclustDiscrete", representation("array"))
 
+# setMethod("print", "epiclustDiscrete", function( x ){
+#   nFeatures = length(x)
+#   nClusters = length(unique(x))
+#   cat(nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+# })
 
-setClass("epiclustDiscrete", representation("data.frameRowLabels"))
+# setMethod("show", "epiclustDiscrete", function( object ){
+#   print( object )
+# })
+
 
 setClass("epiclustDiscreteList", representation('list'))
-
-setMethod("print", "epiclustDiscrete", function( x ){
-  nFeatures = length(x)
-  nClusters = length(unique(x))
-  cat(nFeatures, "features in", nClusters, "discrete clusters\n\n" )
-})
-
-setMethod("show", "epiclustDiscrete", function( object ){
-  print( object )
-})
 
 setMethod("print", "epiclustDiscreteList", function( x ){
   for( chrom in names(x) ){

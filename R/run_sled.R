@@ -64,15 +64,15 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000),  adj.beta=-1, rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam()){
+#' @aliases evalDiffCorr,EList,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "epiclustDiscreteList", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
 	})
 
@@ -80,9 +80,9 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'AN
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=-1, rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam()){
+#' @aliases evalDiffCorr,matrix,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "epiclustDiscreteList", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
 	})
 
@@ -91,6 +91,49 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'A
 #' @slot list
 #' @export
 setClass("sLEDresults", representation("list"))
+
+#' Summarize sLED analysis
+#' 
+#' extract statistic and p-value for each cluster
+#' 
+#' @param object sLEDresults
+#' 
+#' @return data.frame
+#'
+#' @importFrom stats p.adjust
+#' @export
+setMethod("summary", "sLEDresults", function( object ){
+
+	res = lapply( names(object), function(chrom){
+		res = lapply( names(object[[chrom]]), function(clst){
+			df = object[[chrom]][[clst]]
+			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
+		})
+		do.call("rbind", res)
+	})
+	res = do.call("rbind", res)
+
+	res$p.adjust = p.adjust( res$pValue, "fdr" )
+	res[order(res$pValue),]
+})
+
+
+setMethod("print", "sLEDresults", function( x ){
+	cat("Hypothesis tests of each cluster\n\n")
+	for( chrom in names(x) ){
+	    nTest = length(x[[chrom]])
+	    cat(paste0(chrom, ': Tests of'),nTest, "clusters\n" )
+  	}
+  	cat('\n')
+})
+
+
+
+setMethod("show", "sLEDresults", function( object ){
+	print( object )
+})
+
+
 
 #' @import sLED
 # runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
@@ -210,7 +253,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = .sLED(X=scale(itObj$Y1), Y=scale(itObj$Y2), npermute=nperm, verbose=FALSE, adj.beta=adj.beta, rho=rho, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
+	      	res = .sLED(X=itObj$Y1, Y=itObj$Y2, npermute=nperm, verbose=FALSE, adj.beta=adj.beta, rho=rho, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -230,7 +273,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #' @import foreach
 #' @importFrom progress progress_bar
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=-1, rho=1, sumabs.seq=0.2, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam()){
 
 	if( nrow(epiSignal) != length(gRanges)){
 		stop("Number of rows in epiSignal must equal number of entries in gRanges")
@@ -306,7 +349,6 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	
 	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, rho, sumabs.seq, SerialParam(), BPPARAM=BPPARAM)
 
-
 	# create data.frame
 	df = list()
 	df$permCounts = vapply(combinedResults, function(x) x$count, numeric(1))
@@ -373,34 +415,11 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 }
 
 
-#' Summarize sLED analysis
-#' 
-#' extract statistic and p-value for each cluster
-#' 
-#' @param object sLEDresults
-#' 
-#' @return data.frame
-#'
-#' @importFrom stats p.adjust
-#' @export
-setMethod("summary", "sLEDresults", function( object ){
 
-	res = lapply( names(object), function(chrom){
-		res = lapply( names(object[[chrom]]), function(clst){
-			df = object[[chrom]][[clst]]
-			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
-		})
-		do.call("rbind", res)
-	})
-	res = do.call("rbind", res)
-
-	res$p.adjust = p.adjust( res$pValue, "fdr" )
-	res[order(res$pValue),]
-})
 
 
 #' @import sLED
-.sLED = function (X, Y, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
+.sLED = function (X, Y, adj.beta=0, rho = 0, sumabs.seq = 1,
     npermute = 100, seeds = NULL,
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
 {
@@ -424,7 +443,7 @@ setMethod("summary", "sLEDresults", function( object ){
 
 #' @import sLED
 #' @importFrom BiocParallel bplapply
-.sLEDpermute = function (Z, n1, n2, adj.beta = -1, rho = 1000, sumabs.seq = 0.2,
+.sLEDpermute = function (Z, n1, n2, adj.beta=0, rho = 0, sumabs.seq = 1,
     npermute = 100, seeds = NULL,
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
 {

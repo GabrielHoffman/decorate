@@ -3,23 +3,24 @@
 \docType{methods}
 \name{evalDiffCorr}
 \alias{evalDiffCorr}
-\alias{evalDiffCorr,EList,ANY,GRanges,list-method}
-\alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method}
-\alias{evalDiffCorr,matrix,ANY,GRanges,list-method}
-\alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,EList,ANY,GRanges,epiclustDiscreteList-method}
+\alias{evalDiffCorr,EList,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,matrix,ANY,GRanges,epiclustDiscreteList-method}
+\alias{evalDiffCorr,matrix,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
-  npermute = c(100, 10000), adj.beta = -1, rho = 1000,
-  sumabs.seq = 0.2, BPPARAM = SerialParam())
+  npermute = c(100, 10000), adj.beta = 0, rho = 0, sumabs.seq = 1,
+  BPPARAM = SerialParam())
 
-\S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
-  rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam())
+\S4method{evalDiffCorr}{EList,ANY,GRanges,epiclustDiscreteList}(epiSignal,
+  testVariable, gRanges, clustList, npermute = c(100, 10000),
+  adj.beta = 0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam())
 
-\S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000), adj.beta = -1,
-  rho = 1000, sumabs.seq = 0.2, BPPARAM = SerialParam())
+
+  \S4method{evalDiffCorr}{matrix,ANY,GRanges,epiclustDiscreteList}(epiSignal,
+  testVariable, gRanges, clustList, npermute = c(100, 10000),
+  adj.beta = 0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam())
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
