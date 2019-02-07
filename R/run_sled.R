@@ -450,3 +450,7 @@ setMethod("summary", "sLEDresults", function( object ){
     return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
 }
 
+
+
+
+

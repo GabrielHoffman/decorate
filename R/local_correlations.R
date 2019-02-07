@@ -165,6 +165,31 @@ runOrderedClustering = function( X, gr, alpha=0.5 ){
 setClass("epiclust", representation(clust="ANY", location="GRanges", adjacentCount="numeric", alpha="numeric", method="character", correlation="ANY"))
 setClass("epiclustList", representation('ANY'))
 
+
+setMethod("print", "epiclustList", function( x ){
+
+  cat("List of hierarchical clustering for", length(x), "chromosomes:\n\n")
+
+  counts = lapply(x, function(x) length(x@clust$labels))
+
+  df = data.frame(chrom = names(counts), nFeatures = unlist(counts), stringsAsFactors=FALSE)
+  rownames(df) = c()
+  print(df, row.names=FALSE)
+  cat("\n")
+})
+
+setMethod("show", "epiclustList", function( object ){
+  print( object )
+})
+
+setMethod("print", "epiclust", function( x ){
+  cat("Hierarchical clustering for", length(x@clust$labels), "features\n\n")
+})
+
+setMethod("show", "epiclust", function( object ){
+  print( object )
+})
+
 #' Run hierarchical clustering preserving order
 #' 
 #' Run hierarchical clustering preserving sequential order of entries
@@ -422,12 +447,44 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
     }
 
     res = lapply(treeList, function(x){
-      select( x@clust, type=method, pct=pct)
+      v = select( x@clust, type=method, pct=pct)
+      new('epiclustDiscrete',v)
     })
     names(res) = names(treeList)     
   }
   res
+  new('epiclustDiscreteList',res)
 }
+
+
+
+setClass("epiclustDiscrete", representation("data.frameRowLabels"))
+
+setClass("epiclustDiscreteList", representation('list'))
+
+setMethod("print", "epiclustDiscrete", function( x ){
+  nFeatures = length(x)
+  nClusters = length(unique(x))
+  cat(nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+})
+
+setMethod("show", "epiclustDiscrete", function( object ){
+  print( object )
+})
+
+setMethod("print", "epiclustDiscreteList", function( x ){
+  for( chrom in names(x) ){
+    nFeatures = length(x[[chrom]])
+    nClusters = length(unique(x[[chrom]]))
+    cat(paste0(chrom, ':'),nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+  }
+})
+
+setMethod("show", "epiclustDiscreteList", function( object ){
+  print( object )
+})
+
+
 
 
 
