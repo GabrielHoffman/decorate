@@ -5,7 +5,7 @@
 \title{Plot decorate analysis}
 \usage{
 plotDecorate(treeList, treeListClusters, query, size = 1, stroke = 1.5,
-  cols = c("blue", "white", "red"), plotTree = TRUE)
+  cols = c("blue", "white", "red"), plotTree = TRUE, absCorr = TRUE)
 }
 \arguments{
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
@@ -21,6 +21,8 @@ plotDecorate(treeList, treeListClusters, query, size = 1, stroke = 1.5,
 \item{cols}{array of two colors for gradient in correlation triangle}
 
 \item{plotTree}{show tree from hierachical clustering}
+
+\item{absCorr}{show absolute correlations}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks

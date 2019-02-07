@@ -7,6 +7,7 @@
 #' @param size plotting argument to geom_point()
 #' @param stroke plotting argument to geom_point()
 #' @param cols array of two colors for gradient
+#' @param absCorr show absolute correlations
 #' 
 #' @return ggplot2 plot of correlation matrix
 #'
@@ -23,7 +24,7 @@
 #' @importFrom reshape2 melt
 #' @importFrom methods is
 #' @export 
-plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("blue", "white","red")){
+plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("blue", "white","red"), absCorr=FALSE){
 
   # to pass R CMD check
   x = y = value = NULL
@@ -54,11 +55,19 @@ plotCorrTriangle = function(C, size=1, stroke=1.5, cols=c("blue", "white","red")
     return(dfr)
   }
 
+  if( absCorr ){
+    limits=c(0,1)
+    cols = cols[2:3]
+    df$value = abs( df$value )
+  }else{
+    limits=c(-1,1)  
+  }
+
   df_rotate = rotate( df, degree=45 )
 
   # set aspect ratio to be sqrt(1/2) so that each box is square
   # due to Pythagorean ratio
-  fig = ggplot(df_rotate, aes(x, y)) + geom_point(aes(color=value, fill=value), size=size, stroke=stroke, shape=18) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="white") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="white")  + theme_void() + theme(aspect.ratio=1/sqrt(2), plot.title = element_text(hjust = 0.5), legend.position="bottom") #+ xlim(range(df_rotate$x)) # 
+  fig = ggplot(df_rotate, aes(x, y)) + geom_point(aes(color=value, fill=value), size=size, stroke=stroke, shape=18) + scale_color_gradientn(name = "Correlation", colours=cols, limits=limits, na.value="white") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=limits, na.value="white")  + theme_void() + theme(aspect.ratio=1/sqrt(2), plot.title = element_text(hjust = 0.5), legend.position="bottom") #+ xlim(range(df_rotate$x)) # 
 
   # get range along x-axis
   attr(fig, 'xrange') = range(df_rotate$x)
@@ -103,6 +112,7 @@ plotClusterSegments = function( clusterValues ){
 #' @param stroke plotting argument to geom_point() in correlation triangle
 #' @param cols array of two colors for gradient in correlation triangle
 #' @param plotTree show tree from hierachical clustering
+#' @param absCorr show absolute correlations
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
@@ -131,7 +141,7 @@ plotClusterSegments = function( clusterValues ){
 #' @importFrom adjclust correct
 # @import BiocGenerics
 #' @export
-plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("blue", "white","red"), plotTree=TRUE){
+plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("blue", "white","red"), plotTree=TRUE, absCorr = TRUE){
 
   if( length(query) > 1){
     stop("Can only query one interval")
@@ -155,7 +165,7 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
   }
 
   # plot correlation matix
-  fig1 = plotCorrTriangle( fit[[1]]@correlation, size=size, stroke=stroke, cols=cols )
+  fig1 = plotCorrTriangle( fit[[1]]@correlation, size=size, stroke=stroke, cols=cols, absCorr=absCorr )
 
   fig2 = plotClusterSegments( clst )
 
@@ -173,15 +183,15 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
   # to pass R CMD check
   x = y = NULL
 
-  fig_Scale = ggplot(df, aes(x,y)) + theme_bw() + 
-    theme(aspect.ratio=0.1,
-      plot.title = element_blank(),
-      axis.title.y=element_blank(),
-      axis.text.y=element_blank(), 
-      panel.grid.major = element_blank(), 
-      panel.grid.minor = element_blank(),
-      panel.border = element_blank(),
-      axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
+  # fig_Scale = ggplot(df, aes(x,y)) + theme_bw() + 
+  #   theme(aspect.ratio=0.1,
+  #     plot.title = element_blank(),
+  #     axis.title.y=element_blank(),
+  #     axis.text.y=element_blank(), 
+  #     panel.grid.major = element_blank(), 
+  #     panel.grid.minor = element_blank(),
+  #     panel.border = element_blank(),
+  #     axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
 
   if( plotTree ){
 
@@ -194,9 +204,11 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
 
     figTree = ggdendrogram(treeTmp, labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
 
-    figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+    figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
+    #, ggplotGrob(fig_Scale)
   }else{
-    figCombine = rbind( ggplotGrob(fig_Scale), ggplotGrob(fig2), ggplotGrob(fig1), size="last")
+    figCombine = rbind( ggplotGrob(fig2), ggplotGrob(fig1), size="last")
+    #, ggplotGrob(fig_Scale)
   }
    
   grid.newpage()

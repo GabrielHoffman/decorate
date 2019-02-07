@@ -5,7 +5,7 @@
 \title{Plot triangle of correlation matrix}
 \usage{
 plotCorrTriangle(C, size = 1, stroke = 1.5, cols = c("blue", "white",
-  "red"))
+  "red"), absCorr = FALSE)
 }
 \arguments{
 \item{C}{correlation matrix}
@@ -15,6 +15,8 @@ plotCorrTriangle(C, size = 1, stroke = 1.5, cols = c("blue", "white",
 \item{stroke}{plotting argument to geom_point()}
 
 \item{cols}{array of two colors for gradient}
+
+\item{absCorr}{show absolute correlations}
 }
 \value{
 ggplot2 plot of correlation matrix

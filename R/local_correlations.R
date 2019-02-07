@@ -279,7 +279,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     if(method == "adjclust"){
       C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE)
       h = min( adjacentCount, nrow(C)-1)
-      fitClust = suppressMessages(adjClust( C, "similarity", h=h))
+      fitClust = suppressMessages(adjClust( abs(C), "similarity", h=h))
       # fitClust = as.hclust(fitClust)
 
       res = new("epiclust", clust = fitClust, location=gr[idx], adjacentCount=adjacentCount, alpha=0, method=method, correlation=C)
@@ -359,14 +359,15 @@ setMethod("getSubset", c("epiclust", "GRanges"),
       if( N == 0 ){
         stop("Cannot select empty subset of entries")
       }
-      fitNew@clust$merge = fitNew@clust$merge[seq_len(N-1),]
-      fitNew@clust$height = fitNew@clust$height[seq_len(N-1)]
-      fitNew@clust$order = fitNew@clust$order[seq_len(N)]
-      fitNew@clust$labels = fitNew@clust$labels[seq_len(N)]
+      idx2 = idx[seq_len(length(idx)-1)]
+      fitNew@clust$merge = fitNew@clust$merge[idx2,]
+      fitNew@clust$height = fitNew@clust$height[idx2]
+      fitNew@clust$order = fitNew@clust$order[idx]
+      fitNew@clust$labels = fitNew@clust$labels[idx]
 
       fitNew@location = fitNew@location[idx]
 
-      fitNew@correlation = fitNew@correlation[seq_len(N),seq_len(N)]
+      fitNew@correlation = fitNew@correlation[idx,idx]
     }
     fitNew
   }
@@ -559,30 +560,44 @@ countClusters = function(treeListClusters){
 #' @export
 whichCluster = function(treeListClusters, id){
   # find cluster based on anem
-  res = vapply(treeListClusters, function(x){
-    idx = (names(x) == id)
-    if( sum(idx) == 0){
-      res = NA
-    }else{
-      res = x[idx]
-    }
-    res}, numeric(1))
+  res = lapply(names(treeListClusters), function(chrom){
+    x = treeListClusters[[chrom]]
+    idx = match(id, names(x))
+    data.frame( chrom, id, cluster=x[idx], stringsAsFactors=FALSE)
+    })
+  res = do.call('rbind', res)
 
-  res = res[!is.na(res)]
-
-  if( length(res) == 0){
-    chrom = cluster = NA
-  }else{
-    chrom = names(res)
-    cluster = res[1]
-  }
-  res = data.frame(chrom=chrom, cluster=cluster, stringsAsFactors=FALSE)
-  rownames(res) = c()
-  res
+  res[!is.na(res$cluster),]
 }
 
 
+# whichCluster = function(treeListClusters, id){
+#   # find cluster based on anem
+#   res = vapply(treeListClusters, function(x){
+#     idx = (names(x) == id)
+#     if( sum(idx) == 0){
+#       res = NA
+#     }else{
+#       res = x[idx]
+#     }
+#     res}, numeric(1))
 
+#   res = res[!is.na(res)]
+
+#   if( length(res) == 0){
+#     chrom = cluster = NA
+#   }else{
+#     chrom = names(res)
+#     cluster = res[1]
+#   }
+#   res = data.frame(chrom=chrom, cluster=cluster, stringsAsFactors=FALSE)
+#   rownames(res) = c()
+#   res
+# }
+
+
+# whichCluster(treeListClusters, 'Peak_143742')
+# whichCluster2(treeListClusters, 'Peak_143742')
 
 #' Get feature names in selected cluster
 #'
