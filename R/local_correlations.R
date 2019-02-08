@@ -279,7 +279,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     if(method == "adjclust"){
       C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE)
       h = min( adjacentCount, nrow(C)-1)
-      fitClust = suppressMessages(adjClust( abs(C), "similarity", h=h))
+      fitClust = suppressMessages(adjClust( C^2, "similarity", h=h))
       # fitClust = as.hclust(fitClust)
 
       res = new("epiclust", clust = fitClust, location=gr[idx], adjacentCount=adjacentCount, alpha=0, method=method, correlation=C)
@@ -635,6 +635,87 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID){
 
 
 
+#' Compute scores for each cluster
+#'
+#' For each cluster compute summary statistics for the cluster to measure how strong the correlation structure is.  Clusters with weak correlation structure can be dropped from downstream analysis.
+#'
+#' @param treeList list of hclust objects 
+#' @param treeListClusters from createClusters()
+#' @param BPPARAM parameters for parallel evaluation
+#' 
+#' @details For each cluster, extract the correlation matrix and return the mean absolute correlation; the 75th, 90th and 95th quantile absolute correlation, and LEF, the leading eigen-value fraction which is the fraction of variance explained by the leading eigen value of the matrix abs(C).
+#'
+#' @return for all pairs of peaks within windowSize, report distance 
+#' 
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#'
+#' # Evaluate score for each cluster
+#' clstScore = scoreClusters(treeList, treeListClusters )
+#' 
+#' @export
+#' @importFrom BiocParallel bplapply
+#' @importFrom stats quantile
+scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
+
+  # get data.frame of cluster names per chromosomes
+  clCount = countClusters( treeListClusters )
+
+  df_count = lapply( seq_len(length(clCount)), function(i){
+    x = clCount[i]
+    data.frame(chrom=rep(names(x), x), cluster=seq(x), stringsAsFactors=FALSE)
+    })
+  df_count = do.call("rbind", df_count)
+
+  # evaluate for each cluster
+  .score_clust = function(i, treeList, treeListClusters, df_count){
+    # get chrom and clsuter ID for this clsuter
+    chrom = df_count$chrom[i] 
+    clustID = df_count$cluster[i] 
+
+    cl = treeListClusters[[chrom]] 
+
+    peakIDs = names(cl[cl==clustID])
+
+    # Get correlation matrix
+    C = treeList[[chrom]]@correlation[peakIDs,peakIDs]
+
+    # eigen analysis
+    dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
+    LEF = dcmp$values[1] / sum(dcmp$values)
+
+    # get correlation values
+    diag(C) = -Inf
+    cor_values = C@x[is.finite(C@x)]
+
+    # compute statistics
+    data.frame( chrom = chrom, 
+        cluster = clustID, N = length(peakIDs),
+        mean_abs_corr = mean(abs(cor_values)), 
+        quantile75 = quantile(abs(cor_values), .75), 
+        quantile90 = quantile(abs(cor_values), .90), 
+        quantile95 = quantile(abs(cor_values), .95),
+        LEF=LEF)
+  }
+  
+  # .score_clust(2, treeList, treeListClusters, df_count)
+  
+  # Evaluate score for each cluster
+  clustScores = bplapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, BPPARAM=BPPARAM)
+
+  # format for return
+  clustScores = do.call("rbind", clustScores)
+  rownames(clustScores) = c()
+  clustScores
+}
 
 
 

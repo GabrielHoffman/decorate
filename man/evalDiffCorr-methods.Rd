@@ -39,7 +39,7 @@ evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
 
 \item{sumabs.seq}{sparsity parameter}
 
-\item{BPPARAM}{parameters for parallel evaluation by chromosome}
+\item{BPPARAM}{parameters for parallel evaluation}
 }
 \value{
 list of result by chromosome and clustList

@@ -13,7 +13,7 @@
 #' @param adj.beta parameter for sLED
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
-#' @param BPPARAM parameters for parallel evaluation by chromosome
+#' @param BPPARAM parameters for parallel evaluation
 #' 
 #' @return list of result by chromosome and clustList
 #'
