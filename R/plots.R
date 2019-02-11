@@ -96,9 +96,8 @@ plotClusterSegments = function( clusterValues ){
   # to pass R CMD check
   x = y = cluster = NULL
 
-  ggplot(dfclust, aes(x, y, fill=cluster)) + geom_tile()  + coord_flip() + theme_void() + theme(legend.position="none", aspect.ratio=0.05)
+  ggplot(dfclust, aes(x, y, fill=cluster)) + geom_tile()  + coord_flip() + theme_void() + theme(legend.position="none", aspect.ratio=0.05) + scale_fill_discrete(na.value = 'white')
 }
-
 
 
 #' Plot decorate analysis
@@ -159,6 +158,13 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
   idx = names(clst) %in% fit[[1]]@clust$labels
   clst = clst[idx]
 
+  # create new set of clusters including non-clusters
+  clstComplete = rep(NA,nrow(fit[[1]]@correlation))
+  names(clstComplete) = rownames(fit[[1]]@correlation)
+
+  idx2 = match(names(clst), names(clstComplete))
+  clstComplete[idx2] = clst
+
   if( any(!idx) & plotTree){
     cat("Cannot plot tree when features are dropped\n")
     plotTree = FALSE
@@ -167,7 +173,7 @@ plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, 
   # plot correlation matix
   fig1 = plotCorrTriangle( fit[[1]]@correlation, size=size, stroke=stroke, cols=cols, absCorr=absCorr )
 
-  fig2 = plotClusterSegments( clst )
+  fig2 = plotClusterSegments( clstComplete )
 
   # scale
   rng = range(fit[[1]]@location)

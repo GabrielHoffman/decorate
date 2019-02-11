@@ -383,7 +383,10 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 				count = count + 1
 
 				# run analysis
-				combinedResults[[i]] = runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
+				# suppress progressbar
+				suppressMessages({
+				combinedResults[[i]] <- runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
+				})
 			}
 		}
 		pb$update( 1.0 )

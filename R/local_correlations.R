@@ -662,8 +662,8 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID){
 #' clstScore = scoreClusters(treeList, treeListClusters )
 #' 
 #' @export
-#' @importFrom BiocParallel bplapply
 #' @importFrom stats quantile
+#' @importFrom progress progress_bar
 scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
   # get data.frame of cluster names per chromosomes
@@ -676,7 +676,10 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   df_count = do.call("rbind", df_count)
 
   # evaluate for each cluster
-  .score_clust = function(i, treeList, treeListClusters, df_count){
+  .score_clust = function(i, treeList, treeListClusters, df_count, pb){
+    
+    pb$update( i / nrow(df_count) )      
+
     # get chrom and clsuter ID for this clsuter
     chrom = df_count$chrom[i] 
     clustID = df_count$cluster[i] 
@@ -685,31 +688,41 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
     peakIDs = names(cl[cl==clustID])
 
-    # Get correlation matrix
-    C = treeList[[chrom]]@correlation[peakIDs,peakIDs]
+    N = length(peakIDs)
 
-    # eigen analysis
-    dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
-    LEF = dcmp$values[1] / sum(dcmp$values)
+    if( N > 1){
+      # Get correlation matrix
+      C = treeList[[chrom]]@correlation[peakIDs,peakIDs]
 
-    # get correlation values
-    diag(C) = -Inf
-    cor_values = C@x[is.finite(C@x)]
+      # eigen analysis
+      dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
+      LEF = dcmp$values[1] / sum(dcmp$values)
 
+      # get correlation values
+      diag(C) = -Inf
+      cor_values = C@x[is.finite(C@x)]
+    }else{
+      cor_values = 1
+      LEF = 1
+    }
     # compute statistics
     data.frame( chrom = chrom, 
-        cluster = clustID, N = length(peakIDs),
+        cluster = clustID, N=N,
         mean_abs_corr = mean(abs(cor_values)), 
         quantile75 = quantile(abs(cor_values), .75), 
         quantile90 = quantile(abs(cor_values), .90), 
         quantile95 = quantile(abs(cor_values), .95),
-        LEF=LEF)
+        LEF=LEF, stringsAsFactors=FALSE)
   }
   
-  # .score_clust(2, treeList, treeListClusters, df_count)
+  # .score_clust(2477, treeList, treeListClusters, df_count, pb)
   
+  pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(clCount), width= 60, clear=FALSE)
+
+  cat("Evaluating strength of each cluster\n\n")
+
   # Evaluate score for each cluster
-  clustScores = bplapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, BPPARAM=BPPARAM)
+  clustScores = lapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, pb)
 
   # format for return
   clustScores = do.call("rbind", clustScores)
@@ -717,7 +730,70 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   clustScores
 }
 
+#' Extract subset of clusters
+#'
+#' Extract subset of clusters based on entries in chroms and clusters
+#'
+#' @param treeListClusters from createClusters()
+#' @param chroms array of chromosome names for the clusters to retain
+#' @param clusters array of cluster names for the clusters to retain
+#' 
+#' @details Each cluster has a unique identifier: c(chroms[i], clusters[i]).  Return epiclustDiscreteList object like treeListClusters but retaining on the specified clusters.
+#'
+#' @return epiclustDiscreteList of specified clusters
+#' 
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clutsers
+#' treeListClusters = createClusters( treeList )
+#'
+#' # Evaluate score for each cluster
+#' clstScore = scoreClusters(treeList, treeListClusters )
+#' 
+#' # Retain clusters that pass this criteria
+#' clustInclude = clstScore[clstScore$LEF > 0.2,]
+#' 
+#' # get retained clusters
+#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude$chrom, clustInclude$cluster)
+#' 
+#' @export
+filterClusters = function( treeListClusters, chroms, clusters){
 
+  if( ! is(treeListClusters, 'epiclustDiscreteList') ){
+    stop("treeListClusters must be of class 'epiclustDiscreteList'")
+  }
+
+  if( length(chroms) < 1 ){
+    stop("length of chroms must be >= 1: ", length(chroms), ' < 1')
+  }
+  if( length(chroms) != length(clusters) ){
+    stop("chroms and clusters must have same length: ",  length(chroms), ' != ', length(clusters))
+  }
+
+  # convert to data.frame
+  df = data.frame(chrom = chroms, cluster=clusters, stringsAsFactors=FALSE)
+
+  # extract from treeListClusters entries corresponding to chroms and clusters
+  resList = lapply( unique(df$chrom), function(chrom){
+    # get indecies in df
+    idx = which(chrom == df$chrom)
+
+    # get indeces in treeListClusters
+    idx2 = treeListClusters[[chrom]] %in% df$cluster[idx]
+
+    # get clusters in treeListClusters
+    treeListClusters[[chrom]][idx2]
+    })
+  names(resList) = unique(df$chrom)
+
+  new('epiclustDiscreteList', resList)
+}
 
 
 
