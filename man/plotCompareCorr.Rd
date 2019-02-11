@@ -32,7 +32,7 @@ data('decorateData')
 # Evaluate hierarchical clsutering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
-# Choose cutoffs and return clutsers
+# Choose cutoffs and return clusters
 treeListClusters = createClusters( treeList )
 
 # Simulate variable to split dataset by

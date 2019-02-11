@@ -27,7 +27,7 @@ data('decorateData')
 # Evaluate hierarchical clustering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
-# Choose cutoffs and return clutsers
+# Choose cutoffs and return clusters
 treeListClusters = createClusters( treeList )
 
 # Find chromsome and cluster of peak_204

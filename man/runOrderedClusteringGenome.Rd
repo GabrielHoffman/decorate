@@ -43,7 +43,7 @@ data('decorateData')
 # Evaluate hierarchical clustering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
-# Choose cutoffs and return clutsers
+# Choose cutoffs and return clusters
 treeListClusters = createClusters( treeList )
 
 # Plot correlations and clusters in region defind by query

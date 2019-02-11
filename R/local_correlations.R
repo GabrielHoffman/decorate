@@ -220,7 +220,7 @@ setMethod("show", "epiclust", function( object ){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
@@ -405,7 +405,7 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
@@ -522,7 +522,7 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Count clusters on each chromsome
@@ -551,7 +551,7 @@ countClusters = function(treeListClusters){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Find chromsome and cluster of peak_204
@@ -617,7 +617,7 @@ whichCluster = function(treeListClusters, id){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Find chromsome and cluster of peak_204
@@ -655,7 +655,7 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #'
 #' # Evaluate score for each cluster
@@ -750,7 +750,7 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
-#' # Choose cutoffs and return clutsers
+#' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList )
 #'
 #' # Evaluate score for each cluster
