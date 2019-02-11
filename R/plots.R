@@ -401,7 +401,7 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
   # Plot segments
   ###############
 
-  cols = rainbow( length(unique(clstComplete)))[clstComplete]
+  cols = rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
 
   N = length(clstComplete)
 
