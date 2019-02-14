@@ -14,7 +14,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 	cat("Please install Bioconductor before continuing:\n")
 	cat("see http://bioconductor.org/install/\n\n")
 }else{
-	install_github(GabrielHoffman/decorate', 
+	install_github('GabrielHoffman/decorate', 
 		build_vignettes=TRUE, dependencies=TRUE,
 		repos=BiocInstaller::biocinstallRepos())
 }
