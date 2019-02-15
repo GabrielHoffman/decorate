@@ -16,7 +16,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 }else{
 	install_github('GabrielHoffman/decorate', 
 		build_vignettes=TRUE, dependencies=TRUE,
-		repos=BiocInstaller::biocinstallRepos())
+		repos=BiocManager::repositories())
 }
 ```
 
