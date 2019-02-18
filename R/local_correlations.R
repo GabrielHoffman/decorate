@@ -796,4 +796,66 @@ filterClusters = function( treeListClusters, chroms, clusters){
 }
 
 
+#' Evaluate the decay of correlation versus distance between features
+#'
+#' For pairs of features evaluate the physical distance and the correlation
+#'
+#' @param treeList list of hclust objects
+#' @param gr GenomicRanges object corresponding to features clustered in treeList
+#'
+#' @return a data.frame of distance and correlation value for all pairs of features already evalauted in treeList.  Note that runOrderedClusteringGenome() that returns treeList only evalutes correlation between a specified number of adjacent peaks 
+#' 
+#' @examples
+#' library(GenomicRanges)
+#' library(ggplot2)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#'
+#' # Evaluate how correlation between features decays with distance
+#' dfDist = evaluateCorrDecay( treeList, simLocation )
+#' 
+#' # make plot
+#' ggplot(dfDist, aes(distance, abs(correlation))) + theme_bw(17) + theme(aspect.ratio=1) + geom_smooth(se=FALSE)
+#'
+#' @import methods
+#' @import Matrix
+#' @import GenomicRanges
+#' @importFrom data.table data.table
+#' @export
+evaluateCorrDecay = function( treeList, gr){
+
+  distList = lapply( levels(seqnames(gr)), function( chrom ){
+    # get GenomicRange for this chromosome
+    gRange = gr[seqnames(gr) == chrom]
+
+    # get correlation matrix for this chromosome
+    C = treeList[[chrom]]@correlation
+
+    # convert format of sparse correlation matrix
+    A = as(C, 'TsparseMatrix')
+
+    # extract index and correlation value for each non-zero pair
+    dfDist = data.frame( chrom=chrom,
+      feature_i=rownames(A)[A@i+1], i=A@i+1, 
+                         feature_j=rownames(A)[A@j+1], j=A@j+1, 
+                         correlation = A@x,
+                         stringsAsFactors=FALSE ) 
+
+    # compute chromsomal distance between pairs with non-zero correlation
+    dfDist$distance = distance(gRange[dfDist$i],gRange[dfDist$j])
+    dfDist
+  })
+
+  feature_i = feature_j = NA
+  
+  dfDist = do.call("rbind", distList)
+  dfDist = data.table(dfDist)
+  dfDist = dfDist[feature_i!=feature_j,]
+
+  dfDist[,c("chrom", "feature_i", "feature_j", "correlation", "distance")]
+}
+
 

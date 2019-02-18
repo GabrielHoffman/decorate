@@ -1,7 +1,7 @@
 Package: decorate
 Type: Package
 Title: Differential Epigenetic Coregulation Test
-Version: 1.0.0
+Version: 1.0.1
 Date: 2019-02-11
 Author: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
 Maintainer: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
@@ -40,6 +40,9 @@ Imports:
     Rcpp,
     RcppArmadillo,
     labeling,
+    cowplot,
+    colorRamps,
+    grDevices,
     iterators,
     ggdendro,
     Matrix,

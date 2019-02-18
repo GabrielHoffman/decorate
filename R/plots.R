@@ -234,7 +234,7 @@ plotClusterSegments = function( clusterValues ){
 #'
 #' @param nrow nrow(C)
 #' @param ncol ncol(C)
-#' @param entries of C convertned to color
+#' @param cols entries of C converted to color
 #' @param name name of the plot
 #' @param byrow process C by row
 #' @param cutoff retain correlations up to cutoff features away 
@@ -251,12 +251,13 @@ makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE, cutoff=100) {
     top <- rep(yy, ncol)
   }
 
+  # fast plot
   i = (right-top)^2 < cutoff/nrow
 
   rectGrob(x=right[i], y=top[i], 
            width=1/ncol, height=1/nrow, 
            just=c("right", "top"), 
-           gp=gpar(col=NA, fill=cols[i]),
+           gp=gpar(col=NA, fill=cols[i], alpha=1),
            name=name)
 }
 
@@ -289,6 +290,7 @@ addLegend <- function(color, vp){
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
 #' @param query GRanges object indiecating region to plot
+#' @param cols vector of two colors
 #' @param plotTree show tree from hierachical clustering
 #' @param windowWidth for each feature plot correlation with windowWidth adjacent features 
 #'
@@ -318,7 +320,9 @@ addLegend <- function(color, vp){
 #' @importFrom stats as.hclust
 #' @importFrom ggdendro ggdendrogram
 #' @importFrom reshape2 melt
+#' @importFrom cowplot ggdraw draw_grob
 #' @importFrom adjclust correct
+#' @importFrom grDevices rainbow colorRampPalette
 #' @export
 plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red"), plotTree=TRUE, windowWidth=1000){
 
@@ -362,7 +366,7 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
                         name="straight")
 
   # rotate correlation plot
-  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=.6, angle=-45, name="flipVP")
+  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=.6, angle=-45, name="flipVP", gp=gpar(fill="black"))
 
   pushViewport(heatmapVP)
 
@@ -377,7 +381,7 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
 
   cols = c("white","red")
   colsFun = colorRampPalette( (cols ))
-  color = colsFun(100)
+  color = c('grey90', colsFun(1000))
 
   flip=TRUE
   # Flip or not, determines way data is read into the display
@@ -387,6 +391,7 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
   C[lower.tri(C, diag=TRUE)] = NA
 
   mybreak <- 0:length(color)/length(color)
+  mybreak[2] = 1e-7
 
   fill = as.character(cut(C^2,mybreak,labels=as.character(color), include.lowest=TRUE))
 
@@ -425,28 +430,28 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
       treeTmp = as.hclust(correct( treeTmp ))
     }
 
-    figTree = ggdendrogram(treeTmp, labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
+    figTree = ggdendrogram(treeTmp, labels=FALSE, leaf_labels=FALSE, size=.2) + theme(axis.text.x=element_blank(), axis.text.y=element_blank(), plot.background = element_rect(fill="white", color = NA))
 
     treeVP <- viewport(y = unit(.8, "npc"), width = unit(.96, "snpc"), height = unit(w2/3, "snpc"), name="straight")
 
     plot.grob <- ggplotGrob(figTree)
 
     grid.newpage()
-    grid.draw(gTree(children=gList(plot.grob, title), vp=treeVP))
-    grid.draw(gTree(children=gList(figSegments), vp=heatmapVP))
-    grid.draw(heatMap)
+    ggdraw(heatMap) + theme(plot.background = element_rect(fill="white", color = NA)) + 
+      draw_grob(gTree(children=gList(plot.grob, title), vp=treeVP)) + 
+      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))
+    # grid.draw(gTree(children=gList(plot.grob, title), vp=treeVP))
+    # grid.draw(gTree(children=gList(figSegments), vp=heatmapVP))
+    # grid.draw(heatMap)
   }else{
 
     Segs = gTree(children=gList(figSegments, title), name="segs")
 
     grid.newpage()
-    grid.draw(heatMap)
-    grid.draw(gTree(children=gList(figSegments), vp=heatmapVP))
+    # grid.draw(heatMap)
+    ggdraw(heatMap) + draw_grob(gTree(children=gList(figSegments), vp=heatmapVP)) + theme(plot.background = element_rect(fill="white", color = NA))
   }
 }
-
-
-
 
 
 
@@ -518,12 +523,7 @@ plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blu
   df = melt( C )
   N = nrow( C )
 
-  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(0.1*N,0.9*N), y=c(0.9*N,0.1*N), label=levels(testVariable),size=size)
+  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(0.1*N,0.9*N), y=c(0.9*N,0.1*N), label=levels(testVariable),size=size, hjust=c(0,1))
 }
-
-
-
-
-
 
 

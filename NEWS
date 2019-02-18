@@ -1,3 +1,9 @@
+1.0.1
+	- add evaluateCorrDecay()
+	- fix plotting for plotDecorate() and plotCompareCorr()
+
+1.0.0
+	- Release
 
 0.99.3:
 	- fix issues with ploting trees
