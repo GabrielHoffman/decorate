@@ -14,6 +14,8 @@ plotDecorate(treeList, treeListClusters, query, cols = c("white", "red"),
 
 \item{query}{GRanges object indiecating region to plot}
 
+\item{cols}{vector of two colors}
+
 \item{plotTree}{show tree from hierachical clustering}
 
 \item{windowWidth}{for each feature plot correlation with windowWidth adjacent features}

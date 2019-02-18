@@ -1,0 +1,116 @@
+
+---
+title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>egul<u>a</u>tion <u>Te</u>st"
+author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
+date: "Run on `r Sys.Date()`"
+documentclass: article
+output: 
+  html_document:
+  toc: true
+  smart: false
+vignette: >
+  %\VignetteIndexEntry{decorate: Differential Epigenetic Coregulation Test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+<!--- 
+# run analysis
+cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
+# cd /hpc/users/hoffmg01/work/pinnacle/vignettes
+# cd ~/work//decorate/
+rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html")
+--->
+
+Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  Here we present a test of differential correlation.
+
+\item 1) Compute correlations between local pairs of features
+
+\item 2) Perform hierarchical clustering of features
+
+\item 3) Produce discrete clusters of features
+
+\item 4) Statistical test of differential correlation 
+
+\item 5) Data visualization
+
+
+```{r load.packages, echo=FALSE, message=FALSE, results='hide'}
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(xtable))
+
+options(xtable.type="html")
+
+knitr::opts_chunk$set(
+  echo=FALSE,
+  warning=FALSE,
+  message=TRUE,
+  error = FALSE,
+  tidy = FALSE,
+  cache = TRUE,
+  cache.lazy = FALSE,
+  dev = c("png"), 
+  fig.width=7, fig.height=7)
+
+options(markdown.HTML.stylesheet = 'css/custom.css')
+```
+
+
+```{r run.analysis, echo=TRUE, message=FALSE, results='hide'}
+library(decorate)
+library(GenomicRanges)
+
+# load data
+data('decorateData')
+
+# Evaluate hierarchical clustering
+# adjacentCount is the number of adjacent peaks considered in correlation
+treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
+
+# Choose cutoffs and return cluster
+treeListClusters = createClusters( treeList )
+
+# Plot correlations and clusters in region defind by query
+query = GRanges('chr1', IRanges(0, 1000)) 
+ 
+plotDecorate( treeList, treeListClusters, query )
+```
+
+### Run test of differential correlation
+```{r compare, echo=TRUE, message=FALSE, results="hide"}
+# Simulate variable to split dataset by
+set.seed(1)
+metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
+
+# Evaluate Differential Correlation between two subsets of data
+# increase npermute on real data
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
+
+# get summary of results
+df = summary( sledRes )
+
+# print results
+head(df)
+```
+```{r print.table}
+head(df)
+```
+
+### Compare correlation structure in two subsets of the data
+```{r plotCompareCorr, fig.width=4}
+# extract peak ID's from most significant cluster
+peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+
+# plot comparison of correlation matrices for peaks in peakIDs
+#  where data is subset by metadata$Disease
+main = paste0(df$chrom[1], ': cluster ', df$cluster[1])
+plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle(main)
+```
+
+
+
+
+
+
+
