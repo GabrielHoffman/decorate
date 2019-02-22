@@ -60,7 +60,7 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clusters
-treeListClusters = createClusters( treeList )
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20) )
 
 # Plot correlations and clusters in region defind by query
 query = range(simLocation)
@@ -78,7 +78,7 @@ df = summary( sledRes )
 head(df)
 
 # extract peak ID's from most significant cluster
-peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1], "20")
 
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease

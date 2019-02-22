@@ -7,3 +7,9 @@
 \description{
 An S4 class that stores results of sLED analysis
 }
+\section{Slots}{
+
+\describe{
+\item{\code{.Data}}{list of sLED results}
+}}
+

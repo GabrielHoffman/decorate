@@ -33,14 +33,14 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clusters
-treeListClusters = createClusters( treeList )
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20) )
 
 # Simulate variable to split dataset by
 set.seed(1)
 metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
 
 # get peak ID's from chr1, cluster 1
-peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1)
+peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1, "10")
 
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease

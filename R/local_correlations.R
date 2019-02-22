@@ -32,6 +32,8 @@ getPeakDistances = function( query, windowSize=10000 ){
   ovlapsDF = data.frame(ovlaps)
   rm(ovlaps);
 
+  queryHits = subjectHits = NULL
+
   # get only top triangle because matrix is symmatrix
   ovlapsDF = ovlapsDF[with(ovlapsDF, which(queryHits >= subjectHits)),]
 
@@ -119,6 +121,22 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
 #' @details Use hclustgeo in ClustGeo package to generate hierarchical clustering that preserves sequential order.
 #'
 #' Chavent, et al. 2017. ClustGeo: an R package for hierarchical clustering with spatial constraints. arXiv:1707.03897v2 doi:10.1007/s00180-018-0791-1
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clusters
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # Plot correlations and clusters in region defind by query
+#' query = range(simLocation)
+#' 
+#' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' @import vegan 
 #' @importFrom ClustGeo hclustgeo
@@ -707,8 +725,8 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
       LEF = 1
     }
     # compute statistics
-    data.frame( chrom = chrom, 
-        cluster = clustID, msc, N=N,
+    data.frame( id=msc, chrom = chrom, 
+        cluster = clustID, N=N,
         mean_abs_corr = mean(abs(cor_values)), 
         quantile75 = quantile(abs(cor_values), .75), 
         quantile90 = quantile(abs(cor_values), .90), 
@@ -727,7 +745,7 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   mscArray = unique(df_count$meanClusterSize)
   clustScoresList = lapply( mscArray, function(msc){
       idx = vapply(res, function(x){
-        x$msc == msc
+        x$id == msc
         }, logical(1))
       locRet = do.call("rbind", res[idx])
       rownames(locRet) = c()
@@ -773,7 +791,7 @@ filterClusters = function( treeListClusters, clustInclude){
     tlc = treeListClusters[[as.character(msc)]]
 
     resList = lapply( names(tlc), function(chrom){ 
-      idx = which(chrom == clustInclude$chrom & msc == clustInclude$msc)     
+      idx = which(chrom == clustInclude$chrom & msc == clustInclude$id)     
       idx2 = tlc[[chrom]] %in% clustInclude$cluster[idx]
       tlc[[chrom]][idx2]
     })
@@ -857,12 +875,34 @@ evaluateCorrDecay = function( treeList, gr){
 #' @param metric column of clstScore to use in filtering
 #' @param cutoff retain cluster than exceed the cutoff for metric
 #'
+#' @return data.frame of chrom, clutser, id (the clustering parameter value), and the specified metric
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clusters
+#' treeListClusters = createClusters( treeList )
+#'
+#' # Evaluate score for each cluster
+#' clstScore = scoreClusters(treeList, treeListClusters )
+#' 
+#' # Retain clusters that pass this criteria
+#' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+#' 
+#' # get retained clusters
+#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+#'
 #' @export
 retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
 
   clstScoreDF = do.call("rbind", clstScore)
 
-  clstScoreDF[clstScoreDF[[metric]] >= cutoff,c("chrom", "cluster", "msc", metric)]
+  clstScoreDF[clstScoreDF[[metric]] >= cutoff,c("id", "chrom", "cluster", metric)]
 }
 
 
@@ -875,7 +915,13 @@ retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
 #' @param a set 1
 #' @param b set 2
 #'
+#' @examples
+#' a = 1:10
+#' b = 5:15
+#' jaccard(a,b)
+#'
 #' @return Jaccard index
+#' @export
 jaccard = function(a,b){
   n_I = length(intersect(a,b))
   n_U = length(union(a,b))
@@ -894,6 +940,30 @@ jaccard = function(a,b){
 #'
 #' @return subset of clusters in treeListClusters that passes cutoff
 #'
+#' library(GenomicRanges)
+#' 
+#' # load data
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' # adjacentCount is the number of adjacent peaks considered in correlation
+#' treeList = runOrderedClusteringGenome( simData, simLocation)
+#' 
+#' # Choose cutoffs and return cluster
+#' treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
+#' 
+#' # Evaluate strength of correlation for each cluster
+#' clstScore = scoreClusters(treeList, treeListClusters )
+#' 
+#' # Filter to retain only strong clusters
+#' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+#' 
+#' # get retained clusters
+#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+#' 
+#' # collapse similar clusters
+#' treeListClusters_collapse = collapseCluster( treeListClusters_filter, simLocation)
+#' 
 #' @importFrom utils combn
 #' @importFrom data.table data.table
 #' @export
@@ -903,7 +973,7 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
   clCount = lapply(treeListClusters, countClusters)
 
   # get entries with at least 1 clusters
-  idx = sapply(clCount, function(x) sum(x) > 0)
+  idx = vapply(clCount, function(x) sum(x) > 0, logical(1))
 
   cat("Extracting feature sets from each cluster...\n")
 
@@ -1004,7 +1074,7 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
   clCount = lapply(treeListClusters, countClusters)
 
   # create now object without these clusters
-  idx = sapply(clCount, function(x) sum(x) > 0)
+  idx = vapply(clCount, function(x) sum(x) > 0, logical(1))
 
   # get clusters stats for each cutoff and chromsome
   res = lapply(names(treeListClusters)[idx], function(id){
@@ -1020,8 +1090,8 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
       clsts[!idx]
     })
     names(res) = names(treeListClusters[[id]])
-    count = countClusters( res )    
-    new('epiclustDiscreteList',res[count > 0])
+    count = countClusters( new('epiclustDiscreteList',res) )    
+    new('epiclustDiscreteList', res[count > 0])
   })
   names(res) = names(treeListClusters)[idx]
 
@@ -1034,9 +1104,7 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
     }, logical(1))
 
   # drop entries in res if does't contain clusters after filtering
-  treeListClusters_filter = res[idx]
-
-  treeListClusters_filter
+  res[idx]
 }
 
 

@@ -13,6 +13,30 @@ retainClusters(clstScore, metric = "LEF", cutoff = 0.4)
 
 \item{cutoff}{retain cluster than exceed the cutoff for metric}
 }
+\value{
+data.frame of chrom, clutser, id (the clustering parameter value), and the specified metric
+}
 \description{
 Retain clusters by applying filter
+}
+\examples{
+library(GenomicRanges)
+
+data('decorateData')
+
+# Evaluate hierarchical clustering
+treeList = runOrderedClusteringGenome( simData, simLocation ) 
+
+# Choose cutoffs and return clusters
+treeListClusters = createClusters( treeList )
+
+# Evaluate score for each cluster
+clstScore = scoreClusters(treeList, treeListClusters )
+
+# Retain clusters that pass this criteria
+clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+
+# get retained clusters
+treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+
 }

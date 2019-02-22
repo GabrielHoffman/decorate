@@ -1,11 +1,13 @@
+1.0.3: Feb 22, 2019
+	- add retainClusters() to process results of scoreClusters()
+	- chance synatax of filterClusters()
+	- add collapseCluster() to drop redundant clusters
+	- countClusters() fix
+
 1.0.2: Feb 21, 2019
 	- Add genes to plotDecorate()
 	- add handling of multiple clustering cutoff parameters
 	- parallelize scoreClusters()
-	- add retainClusters() to process results of scoreClusters()
-	- chance synatax of filterClusters()
-	- add collapseCluster() to drop redundant clusters
-
 
 1.0.1
 	- add evaluateCorrDecay()

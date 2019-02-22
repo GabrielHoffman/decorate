@@ -24,3 +24,20 @@ Use hclustgeo in ClustGeo package to generate hierarchical clustering that prese
 
 Chavent, et al. 2017. ClustGeo: an R package for hierarchical clustering with spatial constraints. arXiv:1707.03897v2 doi:10.1007/s00180-018-0791-1
 }
+\examples{
+library(GenomicRanges)
+
+data('decorateData')
+
+# Evaluate hierarchical clustering
+treeList = runOrderedClusteringGenome( simData, simLocation ) 
+
+# Choose cutoffs and return clusters
+treeListClusters = createClusters( treeList )
+
+# Plot correlations and clusters in region defind by query
+query = range(simLocation)
+
+plotDecorate( treeList, treeListClusters, simLocation, query)
+
+}

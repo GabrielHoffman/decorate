@@ -103,10 +103,6 @@ plotDecorate( treeList, treeListClusters_collapse, simLocation, query, showTree=
 
 ### Run test of differential correlation
 ```{r compare, echo=TRUE, message=FALSE, results="hide"}
-# Simulate variable to split dataset by
-set.seed(1)
-metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
-
 # Evaluate Differential Correlation between two subsets of data
 # increase npermute on real data
 sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
@@ -124,7 +120,7 @@ head(df)
 ### Compare correlation structure in two subsets of the data
 ```{r plotCompareCorr, fig.width=4}
 # extract peak ID's from most significant cluster
-peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1], df$id[1])
 
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease

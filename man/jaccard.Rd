@@ -17,3 +17,9 @@ Jaccard index
 \description{
 Evaluate Jaccard index
 }
+\examples{
+a = 1:10
+b = 5:15
+jaccard(a,b)
+
+}

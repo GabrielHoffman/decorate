@@ -111,6 +111,7 @@ plotClusterSegments = function( clusterValues ){
 #' @param byrow process C by row
 # @param cutoff retain correlations up to cutoff features away 
 #'
+#' @return rectGrob 
 makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE) {
   xx <- (1:ncol)/ncol   
   yy <- (1:nrow)/nrow
@@ -300,7 +301,12 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   yval = sort(rep(rep(.7+incr*0:(N-1)), n_features))
   cols = unlist(clustColsLst)
 
-  figSegments = segmentsGrob( x0=rep(xval,N), x1=rep(xval+1/n_features,N), y0=yval, y1=yval, gp=gpar(lwd=3, col=cols, lineend="butt"))
+  if( length(xval) > 0){
+    figSegments = segmentsGrob( x0=rep(xval,N), 
+          x1 = rep(xval+1/n_features,N), y0=yval, y1=yval, gp=gpar(lwd=3, col=cols, lineend="butt"))
+  }else{
+    figSegments = segmentsGrob()
+  }
 
   ####################################
   # Plot feature locations  and grid # 
@@ -412,14 +418,14 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
+#' treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20) )
 #'
 #' # Simulate variable to split dataset by
 #' set.seed(1)
 #' metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
 #'
 #' # get peak ID's from chr1, cluster 1
-#' peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1)
+#' peakIDs = getFeaturesInCluster( treeListClusters, "chr1", 1, "10")
 #'
 #' # plot comparison of correlation matrices for peaks in peakIDs
 #' #  where data is subset by metadata$Disease
@@ -459,7 +465,7 @@ plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blu
   df = melt( C )
   N = nrow( C )
 
-  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(0.1*N,0.9*N), y=c(0.9*N,0.1*N), label=levels(testVariable),size=size, hjust=c(0,1))
+  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(1-.2,N+.2), y=c(N,1), label=levels(testVariable), size=size, hjust=c(0,1), vjust=c(.5,.5))
 }
 
 

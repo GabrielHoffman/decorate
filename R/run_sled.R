@@ -31,7 +31,7 @@
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
+#' treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20) )
 #' 
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
@@ -49,7 +49,7 @@
 #' head(df)
 #'
 #' # extract peak ID's from most significant cluster
-#' peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1])
+#' peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1], "20")
 #'
 #' # plot comparison of correlation matrices for peaks in peakIDs
 #' #  where data is subset by metadata$Disease
@@ -86,7 +86,7 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'A
 
 #' An S4 class that stores results of sLED analysis
 #'
-#' @slot list
+#' @slot .Data list of sLED results
 #' @export
 setClass("sLEDresults", representation("list"))
 
@@ -426,7 +426,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
     ntest <- length(sumabs.seq)
     Tn.permute <- matrix(NA, nrow = ntest, ncol = npermute)
     Tn.permute.sign <- matrix(NA, nrow = ntest, ncol = npermute)
-    for (i in 1:npermute) {
+    for (i in seq_len(npermute)) {
         Tn.permute[, i] <- perm.results[[i]]$Tn.permute
         Tn.permute.sign[, i] <- perm.results[[i]]$Tn.permute.sign
     }

@@ -17,6 +17,9 @@ makeImageRect(nrow, ncol, cols, name, byrow = TRUE)
 
 \item{byrow}{process C by row}
 }
+\value{
+rectGrob
+}
 \description{
 Adapted from LDheatmap
 }

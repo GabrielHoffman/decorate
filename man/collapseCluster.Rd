@@ -15,6 +15,30 @@ collapseCluster(treeListClusters, featurePositions, jaccardCutoff = 0.9)
 }
 \value{
 subset of clusters in treeListClusters that passes cutoff
+
+library(GenomicRanges)
+
+# load data
+data('decorateData')
+
+# Evaluate hierarchical clustering
+# adjacentCount is the number of adjacent peaks considered in correlation
+treeList = runOrderedClusteringGenome( simData, simLocation)
+
+# Choose cutoffs and return cluster
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
+
+# Evaluate strength of correlation for each cluster
+clstScore = scoreClusters(treeList, treeListClusters )
+
+# Filter to retain only strong clusters
+clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+
+# get retained clusters
+treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+
+# collapse similar clusters
+treeListClusters_collapse = collapseCluster( treeListClusters_filter, simLocation)
 }
 \description{
 Collapse clusters if jaccard index between clusters excceds a cutoff
