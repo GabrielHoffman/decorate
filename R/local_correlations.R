@@ -607,17 +607,17 @@ whichCluster = function(treeListClusters, id){
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
+#' treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize = 50 )
 #' 
 #' # Find chromsome and cluster of peak_204
-#' getFeaturesInCluster( treeListClusters, "chr1", 3)
+#' getFeaturesInCluster( treeListClusters, "chr20", 3, "50")
 #'
 #' @export
-getFeaturesInCluster = function( treeListClusters, chrom, clustID){
+getFeaturesInCluster = function( treeListClusters, chrom, clustID, id){
 
-  idx = which( treeListClusters[[chrom]] == clustID )
+  idx = which( treeListClusters[[id]][[chrom]] == clustID )
 
-  clsts = treeListClusters[[chrom]][idx]
+  clsts = treeListClusters[[id]][[chrom]][idx]
 
   names(clsts)
 }

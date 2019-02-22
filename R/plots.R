@@ -202,7 +202,7 @@ addLegend <- function(color, vp){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=TRUE, showGenes=TRUE){
+plotDecorate = function( treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=TRUE, showGenes=FALSE){
 
   if( length(query) > 1){
     stop("Can only query one interval")

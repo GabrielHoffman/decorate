@@ -36,6 +36,7 @@
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
 #' 
+#' # Plot clusters
 #' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' # Evaluate Differential Correlation between two subsets of data
@@ -66,8 +67,8 @@ setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList,
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,EList,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "epiclustDiscreteList", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
+#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
 	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
 	})
@@ -76,8 +77,8 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "epiclustDiscreteList", "
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,matrix,ANY,GRanges,epiclustDiscreteList,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "epiclustDiscreteList", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
+#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
 	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
 		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
 	})
@@ -101,9 +102,11 @@ setClass("sLEDresults", representation("list"))
 setMethod("summary", "sLEDresults", function( object ){
 
 	res = lapply( names(object), function(chrom){
-		res = lapply( names(object[[chrom]]), function(clst){
-			df = object[[chrom]][[clst]]
-			data.frame(chrom=chrom, cluster=clst, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
+		res = lapply( names(object[[chrom]]), function(clstKey){
+			df = object[[chrom]][[clstKey]]
+			id = unlist(strsplit(clstKey,' '))[1]
+			clust = unlist(strsplit(clstKey,' '))[2]
+			data.frame(id=id, chrom=chrom, cluster=clust, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
 		})
 		do.call("rbind", res)
 	})
@@ -165,11 +168,12 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 		if( is.null(i) || i > n_clusters){
 			res = NULL
 		}else{
+			ID = dfClustUnique$id[i]
 			CHROM = dfClustUnique$chrom[i]
 			CLST = dfClustUnique$cluster[i]
 
-			chrom = cluster = peak = NA
-			peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
+			id = chrom = cluster = peak = NA
+			peakIDs = dfClust[(id==ID) & (chrom==CHROM) & (cluster==CLST),peak]
 
 			# get two subsets of data
 		  	Y1 = t(epiSignal[peakIDs,set1,drop=FALSE])
@@ -179,7 +183,7 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 		  		stop("ncol(Y1) != ncol(Y2): ", ncol(Y1), ncol(Y2), "\n", i)
 		  	}
 
-		  	res = list(Y1=Y1, Y2=Y2, CHROM=CHROM, CLST=CLST, i=i)
+		  	res = list(Y1=Y1, Y2=Y2, ID=ID, CHROM=CHROM, CLST=CLST, i=i)
 		}
 		res
 	}
@@ -215,6 +219,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	}else{
 	  	res = list(pVal=NA, stats=NA, count=NA)
 	}
+	res$id = itObj$ID
 	res$chrom = itObj$CHROM
 	res$cluster = itObj$CLST
 	res
@@ -242,7 +247,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	if( length(npermute) < 2 || is.unsorted(npermute) ){
 		stop("npermute must have 2 or 3 increasing entries")
 	}
-	if( any(!names(clustList) %in% seqnames(gRanges)@values) ){
+	if( any(!unique(unlist(lapply(clustList, names))) %in% seqnames(gRanges)@values) ){
 		stop("Chromosomes from clustList must be in gRanges")
 	} 
 	if( length(adj.beta) > 1 ){
@@ -252,15 +257,18 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 		stop("sumabs.seq must be a scalar")
 	}
 
-	allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
+	# allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
 
 	# Divide data into two sets
 	set1 = which(testVariable == levels(testVariable)[1])
 	set2 = which(testVariable == levels(testVariable)[2])
 
 	# create single data.table with cluster and peak info
-	dfClust = lapply( names(clustList), function(chrom){
-		data.frame(chrom=chrom, cluster=clustList[[chrom]], peak=names(clustList[[chrom]]), stringsAsFactors=FALSE)
+	dfClust = lapply(names(clustList), function(id){
+		res = lapply( names(clustList[[id]]), function(chrom){
+			data.frame(id=id, chrom=chrom, cluster=clustList[[id]][[chrom]], peak=names(clustList[[id]][[chrom]]), stringsAsFactors=FALSE)
+		})
+		do.call("rbind", res)
 	})
 	dfClust = data.table(do.call('rbind', dfClust))
 
@@ -270,7 +278,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	# get unique chrom and size of cluster
 	.N = NA
-	dfClustCounts = dfClust[,.N, by=c("chrom", "cluster")]
+	dfClustCounts = dfClust[,.N, by=c("id", "chrom", "cluster")]
 
 	# sort by size within chromosomes
 	# evaluate sLED starting with largest gene set decreasing
@@ -304,6 +312,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	# create data.frame
 	df = list()
 	df$permCounts = vapply(combinedResults, function(x) x$count, numeric(1))
+	df$id = vapply(combinedResults, function(x) x$id, 'character')
 	df$chromArray = vapply(combinedResults, function(x) x$chrom, 'character')
 	df$clustArray = vapply(combinedResults, function(x) x$cluster, numeric(1))
 	df = data.table(data.frame(df, stringsAsFactors=FALSE))
@@ -324,7 +333,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 		while( ! is.null( it <- itGlobal$nextElem() ) ){ 
 
 			# fit location in df of the features set in it
-			i = which((df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
+			i = which( (df$id == it$ID) & (df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
 
 			prmCnt = df$permCounts[i]
 			# if permCounts is too small, run intensive parallel analysis
@@ -351,17 +360,19 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	resList = list()
 	chromArray = unique(dfClustCounts$chrom)
+	idArray = unique(dfClustCounts$id)
+
 	# unique(vapply(combinedResults, function(x) x$chrom, "character"))
 	for( chrom in chromArray){
 
-		id = vapply(combinedResults, function(x) x$cluster, numeric(1))
+		key = vapply(combinedResults, function(x) paste(x$id, x$cluster), 'character')
 
 		idx = vapply(combinedResults, function(x){ 
-			(x$cluster %in% id) && (x$chrom == chrom)
+			(paste(x$id, x$cluster) %in% key) && (x$chrom == chrom)
 			}, logical(1)) 
 
 		resList[[chrom]] = combinedResults[idx]
-		names(resList[[chrom]]) = vapply(resList[[chrom]], function(x) x$cluster, numeric(1))
+		names(resList[[chrom]]) = vapply(resList[[chrom]], function(x) paste(x$id, x$cluster), 'character')
 	}
 	names(resList) = chromArray
 	

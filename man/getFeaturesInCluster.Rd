@@ -4,7 +4,7 @@
 \alias{getFeaturesInCluster}
 \title{Get feature names in selected cluster}
 \usage{
-getFeaturesInCluster(treeListClusters, chrom, clustID)
+getFeaturesInCluster(treeListClusters, chrom, clustID, id)
 }
 \arguments{
 \item{treeListClusters}{from createClusters()}
@@ -28,9 +28,9 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clusters
-treeListClusters = createClusters( treeList )
+treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize = 50 )
 
 # Find chromsome and cluster of peak_204
-getFeaturesInCluster( treeListClusters, "chr1", 3)
+getFeaturesInCluster( treeListClusters, "chr20", 3, "50")
 
 }
