@@ -60,9 +60,6 @@ options(markdown.HTML.stylesheet = 'css/custom.css')
 
 
 ```{r run.analysis, echo=TRUE, message=FALSE, results='hide'}
-
-q()
-R
 library(decorate)
 library(GenomicRanges)
 
@@ -74,7 +71,7 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
 
 # Choose cutoffs and return clusters using multiple values for meanClusterSize 
-treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 2, 10, 30, 40, 50) )
 
 # Evaluate strength of correlation for each cluster
 clstScore = scoreClusters(treeList, treeListClusters )
@@ -86,16 +83,22 @@ clustInclude = retainClusters( clstScore, "LEF", 0.30 )
 treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 
 # collapse similar clusters
-treeListClusters_collapse = collapseCluster(treeListClusters_filter)
+treeListClusters_collapse = collapseCluster( treeListClusters_filter, simLocation)
 
 # Plot correlations and clusters in region defind by query
-query = range(simLocation) 
- 
-# Plot Region 
-plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=FALSE )
+query = range(simLocation)  
+```
 
+```{r plot2Decorate, fig.width=15}
+fig1 = plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=FALSE )
+fig2 = plotDecorate( treeList, treeListClusters_filter, simLocation, query, showTree=FALSE, showGenes=FALSE )
+library(cowplot)     
+plot_grid( fig1, fig2, ncol=2, labels=c('A', 'B') )
+```
 
-
+## Filter and collase
+```{r plotCollapse, echo=TRUE}
+plotDecorate( treeList, treeListClusters_collapse, simLocation, query, showTree=FALSE, showGenes=FALSE )
 ```
 
 ### Run test of differential correlation

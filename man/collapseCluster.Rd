@@ -4,10 +4,12 @@
 \alias{collapseCluster}
 \title{Collapse clusters based on jaccard index}
 \usage{
-collapseCluster(treeListClusters, jaccardCutoff = 0.9)
+collapseCluster(treeListClusters, featurePositions, jaccardCutoff = 0.9)
 }
 \arguments{
 \item{treeListClusters}{from createClusters()}
+
+\item{featurePositions}{GRanges object storing location of each feature}
 
 \item{jaccardCutoff}{cutoff value for jaccard index}
 }

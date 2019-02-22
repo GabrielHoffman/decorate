@@ -668,16 +668,16 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   df_count = do.call("rbind", unlist(df_count, recursive=FALSE))
 
   # evaluate for each cluster
-  .score_clust = function(i, treeList, tlc, df_count, pb){
+  .score_clust = function(i, treeList, treeListClusters, df_count){
     
-    pb$update( i / nrow(df_count) )      
+    # pb$update( i / nrow(df_count) )      
 
     # get chrom and clsuter ID for this clsuter
     chrom = df_count$chrom[i] 
     clustID = df_count$cluster[i] 
     msc = df_count$meanClusterSize[i]
 
-    cl = tlc[[chrom]] 
+    cl = treeListClusters[[as.character(msc)]][[chrom]] 
 
     peakIDs = names(cl[cl==clustID])
 
@@ -714,25 +714,22 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   
   # .score_clust(2477, treeList, treeListClusters, df_count, pb)
   
-  pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(unlist(clCount)), width= 60, clear=FALSE)
+  # pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(unlist(clCount)), width= 60, clear=FALSE)
 
-  cat("Evaluating strength of each cluster\n\n")
+  cat("Evaluating strength of each cluster...\n\n")
 
-  # Evaluate score for each cluster
-  clustScoresList = lapply(names(treeListClusters), function(msc){
+  res = bplapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, BPPARAM=BPPARAM)
 
-    tlc = treeListClusters[[as.character(msc)]]
-
-    idx = which(df_count$meanClusterSize == msc)
-
-    clustScores = lapply(idx, .score_clust, treeList, tlc, df_count, pb)
-
-    # format for return
-    clustScores = do.call("rbind", clustScores)
-    rownames(clustScores) = c()
-    clustScores
-  })
-  names(clustScoresList) = names(treeListClusters)
+  mscArray = unique(df_count$meanClusterSize)
+  clustScoresList = lapply( mscArray, function(msc){
+      idx = vapply(res, function(x){
+        x$msc == msc
+        }, logical(1))
+      locRet = do.call("rbind", res[idx])
+      rownames(locRet) = c()
+      locRet
+    })
+  names(clustScoresList) = mscArray
   clustScoresList
 }
 
@@ -887,6 +884,7 @@ jaccard = function(a,b){
 #' 
 #' 
 #' @param treeListClusters from createClusters()
+#' @param featurePositions GRanges object storing location of each feature
 #' @param jaccardCutoff cutoff value for jaccard index
 #'
 #' @return subset of clusters in treeListClusters that passes cutoff
@@ -894,73 +892,105 @@ jaccard = function(a,b){
 #' @importFrom utils combn
 #' @importFrom data.table data.table
 #' @export
-collapseCluster = function(treeListClusters, jaccardCutoff=0.9){
+collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
 
   # count clusters for each cutoff and chromsome
   clCount = lapply(treeListClusters, countClusters)
 
   # get entries with at least 1 clusters
-  idx = sapply(clCount, function(x) x > 0)
+  idx = sapply(clCount, function(x) sum(x) > 0)
+
+  cat("Extracting feature sets from each cluster...\n")
 
   # get clusters stats for each cutoff and chromsome
   res = lapply(names(treeListClusters)[idx], function(id){
     res = lapply(names(treeListClusters[[id]]), function(chrom){
-      features = treeListClusters[[id]][[chrom]]
-      tbl = table(features)
-      data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), stringsAsFactors=FALSE)
-      })
-    do.call("rbind", res)
-    })
-  res = do.call("rbind", res)
+      cat("\r", id, '\t', chrom)
+        features = treeListClusters[[id]][[chrom]]
+        tbl = table(features)
 
+        # get entries from this chrom for faster searching
+        fp_chrom = featurePositions[seqnames(featurePositions) == chrom]
+
+        # for each cluster, get range
+        clustRange = lapply(names(tbl), function(clustID){
+            idxf = fp_chrom$name %in% names(features)[features == clustID]
+            loc = range(fp_chrom[idxf])
+            data.frame(clustID=clustID, start=start(loc), end=end(loc))
+            })
+        clustRange = do.call("rbind", clustRange)
+
+        # combine attributes
+        data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), start=clustRange$start, end=clustRange$end,   stringsAsFactors=FALSE)
+      })
+      do.call("rbind", res)
+  })
+  res = do.call("rbind", res)
+  cat("\n")
 
   # Get all pairs of clusters, then filter out pairs with same cutoff or different chromsome
   ###################
 
+  cat("Identifying redundant clusters...\n")
+
   msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = NULL
 
-  # get all combinations of pairs of clusters
-  idx = t(combn(nrow(res), 2))
+  resDrop = lapply( unique(res$chrom), function(chrom){
 
-  # all pairs a a data.table
-  res_1 = res[idx[,1],]
-  colnames(res_1) = paste0(colnames(res_1), '.x')
-  res_2 = res[idx[,2],]
-  colnames(res_2) = paste0(colnames(res_2), '.y')
+    # get only 1 chromosome
+    resChrom = res[res$chrom == chrom,]
 
-  # get all combinations
-  df_combo = data.table(cbind( res_1, res_2))
+    # get all combinations
+    # idx = t(combn(nrow(resChrom), 2))
 
-  # filter combinations
-  res = df_combo[(msc.x!=msc.y)&(chrom.x==chrom.y),]
+    # get only cluster combos that have overlapping ranges
+    gr = GRanges(resChrom$chrom, IRanges(resChrom$start, resChrom$end), name=resChrom$cluster)
+    fnd = findOverlaps( gr, gr)
 
-  # get jaccard similarity between plairs of clusters
-  res$jaccard = vapply( seq_len(nrow(res)), function(k){
+    # remove self matches
+    # fnd = fnd[which(fnd@from != fnd@to)]
+    # remove cases where A matches B, and B matches A
+    fnd = fnd[which(fnd@from < fnd@to)]
 
-    clst.x = treeListClusters[[res$msc.x[k]]][[res$chrom.x[k]]]
-    clusters.x = names(clst.x)[clst.x == res$cluster.x[k]]
+    res_1 = resChrom[fnd@from,]
+    colnames(res_1) = paste0(colnames(res_1), '.x')
+    res_2 = resChrom[fnd@to,]
+    colnames(res_2) = paste0(colnames(res_2), '.y')
 
-    clst.y = treeListClusters[[res$msc.y[k]]][[res$chrom.y[k]]]
-    clusters.y = names(clst.y)[clst.y == res$cluster.y[k]]
+    # get all combinations
+    df_combo = data.table(cbind( res_1, res_2))
 
-    jaccard( clusters.x, clusters.y)
-  }, numeric(1))
+    # filter combinations
+    resLoc = df_combo[(msc.x!=msc.y)&(chrom.x==chrom.y),]
 
+    # get jaccard similarity between plairs of clusters
+    resLoc$jaccard = vapply( seq_len(nrow(resLoc)), function(k){
 
-  # if jaccard index is larger than cutoff, drop the smaller cluster
-  resSub = res[res$jaccard > jaccardCutoff,]
-  drop.x = resSub[,N.x < N.y] 
-  drop.y = resSub[,N.x >= N.y] 
+      clst.x = treeListClusters[[resLoc$msc.x[k]]][[resLoc$chrom.x[k]]]
+      clusters.x = names(clst.x)[clst.x == resLoc$cluster.x[k]]
 
-  dfDrop.X = resSub[which(drop.x),1:4]
-  dfDrop.Y = resSub[which(drop.y),5:8]
-  
-  colnames(dfDrop.X) = gsub(".x", '', colnames(dfDrop.X))
-  colnames(dfDrop.Y) = gsub(".y", '', colnames(dfDrop.Y))
+      clst.y = treeListClusters[[resLoc$msc.y[k]]][[resLoc$chrom.y[k]]]
+      clusters.y = names(clst.y)[clst.y == resLoc$cluster.y[k]]
 
-  # clusters to drop
-  resDrop = rbind(unique(dfDrop.X), unique(dfDrop.Y))
+      jaccard( clusters.x, clusters.y)
+    }, numeric(1))
 
+    # if jaccard index is larger than cutoff, drop the smaller cluster
+    resSub = resLoc[resLoc$jaccard > jaccardCutoff,]
+    drop.x = resSub[,N.x < N.y] 
+    drop.y = resSub[,N.x >= N.y] 
+
+    dfDrop.X = data.frame(resSub[which(drop.x),1:6])
+    dfDrop.Y = data.frame(resSub[which(drop.y),7:12])
+    
+    colnames(dfDrop.X) = gsub(".x", '', colnames(dfDrop.X))
+    colnames(dfDrop.Y) = gsub(".y", '', colnames(dfDrop.Y))
+
+    # clusters to drop
+    rbind(unique(dfDrop.X), unique(dfDrop.Y))
+  })
+  resDrop = do.call("rbind", resDrop)
+  resDrop = data.table(resDrop)
 
   # Drop clusters in resDrop from treeListClusters
   ################################################
@@ -969,7 +999,7 @@ collapseCluster = function(treeListClusters, jaccardCutoff=0.9){
   clCount = lapply(treeListClusters, countClusters)
 
   # create now object without these clusters
-  idx = sapply(clCount, function(x) x > 0)
+  idx = sapply(clCount, function(x) sum(x) > 0)
 
   # get clusters stats for each cutoff and chromsome
   res = lapply(names(treeListClusters)[idx], function(id){

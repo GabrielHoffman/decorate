@@ -166,7 +166,7 @@ addLegend <- function(color, vp){
 #'
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
-#' @param featurePositions GGRanges object storing location of each feature
+#' @param featurePositions GRanges object storing location of each feature
 #' @param query GRanges object indiecating region to plot
 #' @param cols vector of two colors
 #' @param showTree show tree from hierachical clustering

@@ -12,7 +12,7 @@ plotDecorate(treeList, treeListClusters, featurePositions, query,
 
 \item{treeListClusters}{assign regions to clusters after cutting tree with createClusters()}
 
-\item{featurePositions}{GGRanges object storing location of each feature}
+\item{featurePositions}{GRanges object storing location of each feature}
 
 \item{query}{GRanges object indiecating region to plot}
 
