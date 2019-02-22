@@ -462,7 +462,7 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
     })
     names(res) = pct
   }
-  res
+  new('epiclustDiscreteListContain',res)
 }
 
 # setClass("epiclustDiscrete", representation("array"))
@@ -494,8 +494,21 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 
 
 
+# epiclustDiscreteListContain is a list containing epiclustDiscreteList objects
+setClass("epiclustDiscreteListContain", representation('list'))
 
+setMethod("print", "epiclustDiscreteListContain", function( x ){
+  cat("Clusters defind using", length(x), "parameter values:",  paste(names(x), collapse=', '), '\n\n' ) 
 
+  for( id in names(x) ){
+    cat("parameter:", id, '\n')
+    print(x[[id]])
+  }
+})
+
+setMethod("show", "epiclustDiscreteListContain", function( object ){
+  print( object )
+})
 
 #' Simulated data to show correlation clustering
 #'
@@ -523,40 +536,13 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 "metadata"
 
 
-#' Count clusters on each chromosome
-#'
-#' Count clusters on each chromosome
-#'
-#' @param treeListClusters from createClusters()
-#'
-#' @return  count number of clusters on each chromsome
-#'
-#' @examples
-#' library(GenomicRanges)
-#' 
-#' data('decorateData')
-#' 
-#' # Evaluate hierarchical clustering
-#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
-#' 
-#' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
-#' 
-#' # Count clusters on each chromsome
-#' countClusters( treeListClusters )
-#'
-#' @export
-countClusters = function(treeListClusters){
- vapply(treeListClusters, function(x) length(unique(x)), numeric(1))
-}
-
-
 #' Find which cluster a peak is in
 #'
 #' Find which cluster a peak is in
 #'
 #' @param treeListClusters from createClusters()
-#' @param id name of query peak
+#' @param feature_id name of query feature
+#' @param id clustering parameter identifier
 #'
 #' @return data.frame of chromosome and cluster
 #'
@@ -569,22 +555,39 @@ countClusters = function(treeListClusters){
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
+#' treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize = c(50, 100) )
 #' 
-#' # Find chromsome and cluster of peak_204
-#' whichCluster( treeListClusters, 'peak_204')
+#' # Find chromsome and cluster of peak_20
+#' whichCluster( treeListClusters, 'peak_20')
+#'
+#' # Find chromsome and cluster of peak_20 with clustering parameter 50 
+#' #  corresponding to meanClusterSize 
+#' whichCluster( treeListClusters, 'peak_20', "50")
 #'
 #' @export
-whichCluster = function(treeListClusters, id){
+whichCluster = function(treeListClusters, feature_id, id=NULL){
   # find cluster based on anem
-  res = lapply(names(treeListClusters), function(chrom){
-    x = treeListClusters[[chrom]]
-    idx = match(id, names(x))
-    data.frame( chrom, id, cluster=x[idx], stringsAsFactors=FALSE)
+  res = lapply( names(treeListClusters), function(msc){
+    res = lapply(names(treeListClusters[[msc]]), function(chrom){
+      x = treeListClusters[[msc]][[chrom]]
+      idx = match(feature_id, names(x))
+      clust = x[idx]
+      if( is.na(clust)){
+        clust = NA
+      }
+      data.frame( id=msc, chrom, feature_id, cluster=clust, stringsAsFactors=FALSE)
     })
+    do.call('rbind', res)
+  })
   res = do.call('rbind', res)
 
-  res[!is.na(res$cluster),]
+  res = res[!is.na(res$cluster),]
+
+  # if specified, filter by ID
+  if(!is.null(id) ){
+    res = res[res$id==as.character(id),]
+  }
+  res
 }
 
 
@@ -595,6 +598,7 @@ whichCluster = function(treeListClusters, id){
 #' @param treeListClusters from createClusters()
 #' @param chrom chromosome name of cluster
 #' @param clustID cluster identifier
+#' @param id clustering parameter identifier
 #'
 #' @return array of feature names
 #'
@@ -777,7 +781,8 @@ filterClusters = function( treeListClusters, clustInclude){
     new('epiclustDiscreteList', resList)
   })
   names(res) = names(treeListClusters)
-  res
+  
+  new('epiclustDiscreteListContain',res)
 }
 
 
@@ -1020,6 +1025,8 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
   })
   names(res) = names(treeListClusters)[idx]
 
+  res = new('epiclustDiscreteListContain',res)
+
   clCount = lapply(res, countClusters)
 
   idx = vapply(clCount, function(x){
@@ -1033,6 +1040,53 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
 }
 
 
+
+#' Count clusters on each chromosome
+#'
+#' Count clusters on each chromosome
+#'
+#' @param treeListClusters from createClusters()
+#'
+#' @return  count number of clusters on each chromsome
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clusters
+#' treeListClusters = createClusters( treeList )
+#' 
+#' # Count clusters on each chromsome
+#' countClusters( treeListClusters )
+#'
+#' @export
+#' @rdname countClusters-methods
+setGeneric("countClusters", function(treeListClusters) standardGeneric("countClusters"))
+
+#' @export
+#' @rdname countClusters-methods
+#' @aliases countClusters,epiclustDiscreteList-method
+setMethod("countClusters", c("epiclustDiscreteList"),
+  function(treeListClusters){
+    .countClusters( treeListClusters )
+})
+
+
+#' @export
+#' @rdname countClusters-methods
+#' @aliases countClusters,epiclustDiscreteListContain-method
+setMethod("countClusters", c("epiclustDiscreteListContain"),
+  function(treeListClusters){
+    sum(unlist(lapply( treeListClusters, .countClusters )))
+})
+
+.countClusters = function(treeListClusters){
+    vapply(treeListClusters, function(obj) length(unique(obj)), numeric(1))
+}
 
 
 

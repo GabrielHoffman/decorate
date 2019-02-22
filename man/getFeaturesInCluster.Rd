@@ -12,6 +12,8 @@ getFeaturesInCluster(treeListClusters, chrom, clustID, id)
 \item{chrom}{chromosome name of cluster}
 
 \item{clustID}{cluster identifier}
+
+\item{id}{clustering parameter identifier}
 }
 \value{
 array of feature names

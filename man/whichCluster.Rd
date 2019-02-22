@@ -4,12 +4,14 @@
 \alias{whichCluster}
 \title{Find which cluster a peak is in}
 \usage{
-whichCluster(treeListClusters, id)
+whichCluster(treeListClusters, feature_id, id = NULL)
 }
 \arguments{
 \item{treeListClusters}{from createClusters()}
 
-\item{id}{name of query peak}
+\item{feature_id}{name of query feature}
+
+\item{id}{clustering parameter identifier}
 }
 \value{
 data.frame of chromosome and cluster
@@ -26,9 +28,13 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clusters
-treeListClusters = createClusters( treeList )
+treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize = c(50, 100) )
 
-# Find chromsome and cluster of peak_204
-whichCluster( treeListClusters, 'peak_204')
+# Find chromsome and cluster of peak_20
+whichCluster( treeListClusters, 'peak_20')
+
+# Find chromsome and cluster of peak_20 with clustering parameter 50 
+#  corresponding to meanClusterSize 
+whichCluster( treeListClusters, 'peak_20', "50")
 
 }

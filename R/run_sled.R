@@ -85,6 +85,7 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'A
 
 
 #' An S4 class that stores results of sLED analysis
+#'
 #' @slot list
 #' @export
 setClass("sLEDresults", representation("list"))
