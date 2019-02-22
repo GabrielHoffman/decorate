@@ -5,9 +5,12 @@
 \alias{decorateData}
 \alias{simData}
 \alias{simLocation}
+\alias{metadata}
 \title{Simulated data to show correlation clustering}
-\format{An object of class \code{matrix} with 433 rows and 1000 columns.}
+\format{An object of class \code{matrix} with 448 rows and 1000 columns.}
 \usage{
+data(decorateData)
+
 data(decorateData)
 
 data(decorateData)
@@ -16,5 +19,7 @@ data(decorateData)
 Simulated data to show correlation clustering
 
 Simulated data to show correlation clustering. GRanges object indicating genomic position of data in rows of simData
+
+Simulated disease status for differential analysis
 }
 \keyword{decorateData}

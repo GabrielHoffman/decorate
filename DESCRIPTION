@@ -1,8 +1,8 @@
 Package: decorate
 Type: Package
 Title: Differential Epigenetic Coregulation Test
-Version: 1.0.1
-Date: 2019-02-11
+Version: 1.0.2
+Date: 2019-02-21
 Author: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
 Maintainer: Gabriel E. Hoffman <gabrie.hoffman@mssm.edu>
 Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.
@@ -41,11 +41,13 @@ Imports:
     RcppArmadillo,
     labeling,
     cowplot,
-    colorRamps,
     grDevices,
     iterators,
     ggdendro,
+    GenomeInfoDb,
+    IRanges,
     Matrix,
+    rtracklayer,
     reshape2,
     GenomicRanges,
     utils,

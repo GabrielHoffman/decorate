@@ -4,23 +4,18 @@
 \alias{filterClusters}
 \title{Extract subset of clusters}
 \usage{
-filterClusters(treeListClusters, chroms, clusters)
+filterClusters(treeListClusters, clustInclude)
 }
 \arguments{
 \item{treeListClusters}{from createClusters()}
 
-\item{chroms}{array of chromosome names for the clusters to retain}
-
-\item{clusters}{array of cluster names for the clusters to retain}
+\item{clustInclude}{data.frame from retainClusters() indcating which clusters to include}
 }
 \value{
 epiclustDiscreteList of specified clusters
 }
 \description{
 Extract subset of clusters based on entries in chroms and clusters
-}
-\details{
-Each cluster has a unique identifier: c(chroms[i], clusters[i]).  Return epiclustDiscreteList object like treeListClusters but retaining on the specified clusters.
 }
 \examples{
 library(GenomicRanges)
@@ -37,9 +32,9 @@ treeListClusters = createClusters( treeList )
 clstScore = scoreClusters(treeList, treeListClusters )
 
 # Retain clusters that pass this criteria
-clustInclude = clstScore[clstScore$LEF > 0.2,]
+clustInclude = retainClusters( clstScore, "LEF", 0.30 )
 
 # get retained clusters
-treeListClusters_filter = filterClusters( treeListClusters, clustInclude$chrom, clustInclude$cluster)
+treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 
 }

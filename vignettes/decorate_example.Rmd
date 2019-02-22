@@ -31,9 +31,11 @@ Standard analysis compares the differences in magnitude in epigenetic signal bet
 
 \item 3) Produce discrete clusters of features
 
-\item 4) Statistical test of differential correlation 
+\item 4) Filter clusters based on strength of correlation
 
-\item 5) Data visualization
+\item 5) Statistical test of differential correlation 
+
+\item 6) Data visualization
 
 
 ```{r load.packages, echo=FALSE, message=FALSE, results='hide'}
@@ -58,6 +60,9 @@ options(markdown.HTML.stylesheet = 'css/custom.css')
 
 
 ```{r run.analysis, echo=TRUE, message=FALSE, results='hide'}
+
+q()
+R
 library(decorate)
 library(GenomicRanges)
 
@@ -68,13 +73,29 @@ data('decorateData')
 # adjacentCount is the number of adjacent peaks considered in correlation
 treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
 
-# Choose cutoffs and return cluster
-treeListClusters = createClusters( treeList )
+# Choose cutoffs and return clusters using multiple values for meanClusterSize 
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
+
+# Evaluate strength of correlation for each cluster
+clstScore = scoreClusters(treeList, treeListClusters )
+
+# Filter to retain only strong clusters
+clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+
+# get retained clusters
+treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+
+# collapse similar clusters
+treeListClusters_collapse = collapseCluster(treeListClusters_filter)
 
 # Plot correlations and clusters in region defind by query
-query = GRanges('chr1', IRanges(0, 1000)) 
+query = range(simLocation) 
  
-plotDecorate( treeList, treeListClusters, query )
+# Plot Region 
+plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=FALSE )
+
+
+
 ```
 
 ### Run test of differential correlation

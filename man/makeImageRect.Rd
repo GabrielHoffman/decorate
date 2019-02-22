@@ -4,7 +4,7 @@
 \alias{makeImageRect}
 \title{Convert correlation matrix into triangle plot}
 \usage{
-makeImageRect(nrow, ncol, cols, name, byrow = TRUE, cutoff = 100)
+makeImageRect(nrow, ncol, cols, name, byrow = TRUE)
 }
 \arguments{
 \item{nrow}{nrow(C)}
@@ -16,8 +16,6 @@ makeImageRect(nrow, ncol, cols, name, byrow = TRUE, cutoff = 100)
 \item{name}{name of the plot}
 
 \item{byrow}{process C by row}
-
-\item{cutoff}{retain correlations up to cutoff features away}
 }
 \description{
 Adapted from LDheatmap

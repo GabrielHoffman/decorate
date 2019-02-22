@@ -100,134 +100,6 @@ plotClusterSegments = function( clusterValues ){
 }
 
 
-# ' Plot decorate analysis
-# '
-# ' Plot decorate analysis for clusters and correlations
-# '
-# ' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
-# ' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
-# ' @param query GRanges object indiecating region to plot
-# ' @param size plotting argument to geom_point() in correlation triangle
-# ' @param stroke plotting argument to geom_point() in correlation triangle
-# ' @param cols array of two colors for gradient in correlation triangle
-# ' @param plotTree show tree from hierachical clustering
-# ' @param absCorr show absolute correlations
-# '
-# ' @return ggplot2 of cluster assignments and correlation between peaks
-# '
-# ' @examples
-# ' library(GenomicRanges)
-# ' 
-# ' data('decorateData')
-# ' 
-# ' # Evaluate hierarchical clsutering
-# ' treeList = runOrderedClusteringGenome( simData, simLocation ) 
-# ' 
-# ' # Choose cutoffs and return clusters
-# ' treeListClusters = createClusters( treeList )
-# ' 
-# ' # Plot correlations and clusters in region defind by query
-# ' query = GRanges('chr1', IRanges(0, 1000))
-# ' 
-# ' plotDecorate( treeList, treeListClusters, query)
-# '
-# ' @import ggplot2
-# ' @import grid
-# ' @import Biobase
-# ' @importFrom labeling extended
-# ' @importFrom stats as.hclust
-# ' @importFrom ggdendro ggdendrogram
-# ' @importFrom adjclust correct
-# @import BiocGenerics
-# ' @export
-# plotDecorate = function( treeList, treeListClusters, query, size=1, stroke=1.5, cols=c("blue", "white","red"), plotTree=TRUE, absCorr = TRUE){
-
-#   if( length(query) > 1){
-#     stop("Can only query one interval")
-#   }
-
-#   fit = getSubset( treeList, query )
-
-#   if( length(fit) == 0){
-#     stop("No data left after filtering by query region")
-#   }
-
-#   chrom = names(fit)
-
-#   clst = treeListClusters[[chrom]]
-#   idx = names(clst) %in% fit[[1]]@clust$labels
-#   clst = clst[idx]
-
-#   # create new set of clusters including non-clusters
-#   clstComplete = rep(NA,nrow(fit[[1]]@correlation))
-#   names(clstComplete) = rownames(fit[[1]]@correlation)
-
-#   idx2 = match(names(clst), names(clstComplete))
-#   clstComplete[idx2] = clst
-
-#   if( any(!idx) & plotTree){
-#     cat("Cannot plot tree when features are dropped\n")
-#     plotTree = FALSE
-#   }
-
-#   # plot correlation matix
-#   fig1 = plotCorrTriangle( fit[[1]]@correlation, size=size, stroke=stroke, cols=cols, absCorr=absCorr )
-
-
-#   fig1 = plotCorrTriangle2( fit[[1]]@correlation )
-
-#   fig2 = plotClusterSegments( clstComplete )
-
-#   # scale
-#   # rng = range(fit[[1]]@location)
-#   # v1 = start(rng) 
-#   # v2 = end(rng) 
-
-#   # m = 5
-#   # breaks = extended(v1, v2, m)
-
-#   # # df = data.frame(x=c(v1,v2), y=c(0,0))
-#   # df = data.frame(x=c(min(breaks[1], v1),max(v2, breaks[m])), y=c(0,0))
-
-#   # # to pass R CMD check
-#   # x = y = NULL
-
-#   # fig_Scale = ggplot(df, aes(x,y)) + theme_bw() + 
-#   #   theme(aspect.ratio=0.1,
-#   #     plot.title = element_blank(),
-#   #     axis.title.y=element_blank(),
-#   #     axis.text.y=element_blank(), 
-#   #     panel.grid.major = element_blank(), 
-#   #     panel.grid.minor = element_blank(),
-#   #     panel.border = element_blank(),
-#   #     axis.ticks.y=element_blank()) + geom_line() + xlab('') + scale_y_continuous(expand=c(0,0), limits=c(0,1)) + xlab('') + scale_x_continuous(limits=range(df$x), breaks=breaks) 
-
-#   if( plotTree ){
-
-#     treeTmp = fit[[1]]@clust 
-
-#     # if tree is chac from adjclust, use correct() to get positive branch lengths
-#     if( is(treeTmp, 'chac') ){
-#       treeTmp = as.hclust(correct( treeTmp ))
-#     }
-
-#     figTree = ggdendrogram(treeTmp, labels=FALSE, leaf_labels=FALSE) + theme(axis.text.x=element_blank(), axis.text.y=element_blank())
-
-#     figCombine = rbind(ggplotGrob(figTree), ggplotGrob(fig2), ggplotGrob(fig1), size="last" )
-#     #, ggplotGrob(fig_Scale)
-#   }else{
-#     figCombine = rbind( ggplotGrob(fig2), ggplotGrob(fig1$LDheatmapGrob), size="last")
-#     #, ggplotGrob(fig_Scale)
-#   }
-   
-#   grid.newpage()
-#   grid.draw( figCombine )
-# }
-
-
-
-
-
 #' Convert correlation matrix into triangle plot
 #'
 #' Adapted from LDheatmap
@@ -237,9 +109,9 @@ plotClusterSegments = function( clusterValues ){
 #' @param cols entries of C converted to color
 #' @param name name of the plot
 #' @param byrow process C by row
-#' @param cutoff retain correlations up to cutoff features away 
+# @param cutoff retain correlations up to cutoff features away 
 #'
-makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE, cutoff=100) {
+makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE) {
   xx <- (1:ncol)/ncol   
   yy <- (1:nrow)/nrow
   # Creates coordinate pairs, repeating either column numbers (if byrow = TRUE) or row numbers (if byrow = FALSE) to force that type of fill
@@ -252,23 +124,28 @@ makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE, cutoff=100) {
   }
 
   # fast plot
-  i = (right-top)^2 < cutoff/nrow
+  # i = (right-top)^2 < cutoff/nrow
 
-  rectGrob(x=right[i], y=top[i], 
+  # rectGrob(x=right[i], y=top[i], 
+  #          width=1/ncol, height=1/nrow, 
+  #          just=c("right", "top"), 
+  #          gp=gpar(col=NA, fill=cols[i], alpha=1),
+  #          name=name)
+
+  rectGrob(x=right, y=top, 
            width=1/ncol, height=1/nrow, 
            just=c("right", "top"), 
-           gp=gpar(col=NA, fill=cols[i], alpha=1),
+           gp=gpar(col=NA, fill=cols, alpha=1),
            name=name)
 }
 
 
 addLegend <- function(color, vp){
-  ImageRect<- makeImageRect(2,length(color), cols=c(rep(NA,length(color)),color[length(color):1]), "colorKey", cutoff=1000)
+  ImageRect<- makeImageRect(2,length(color), cols=c(rep(NA,length(color)),color[length(color):1]), "colorKey")
 
   keyVP <- viewport(x=.94, y=.03, height=.05, width=.2, just=c("right","bottom"), name="keyVP")
   
-  ttt<-expression(paste(R^2))  
-  title<-textGrob(ttt, x=0.5, y=1.25, name="title", gp=gpar(cex=0.8))
+  title<-textGrob("abs(Correlation)", x=0.5, y=1.25, name="title", gp=gpar(cex=0.8))
   
   #Adding labels to the color key
   labels<-textGrob(paste(0.2*0:5), x=0.2*0:5,y=0.25, gp=gpar(cex=0.6), name="labels")
@@ -289,10 +166,11 @@ addLegend <- function(color, vp){
 #'
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
+#' @param featurePositions GGRanges object storing location of each feature
 #' @param query GRanges object indiecating region to plot
 #' @param cols vector of two colors
-#' @param plotTree show tree from hierachical clustering
-#' @param windowWidth for each feature plot correlation with windowWidth adjacent features 
+#' @param showTree show tree from hierachical clustering
+#' @param showGenes plot genes
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
@@ -308,9 +186,9 @@ addLegend <- function(color, vp){
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
-#' query = GRanges('chr1', IRanges(0, 1000))
+#' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, query)
+#' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' @import ggplot2
 #' @import grid
@@ -324,7 +202,7 @@ addLegend <- function(color, vp){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red"), plotTree=TRUE, windowWidth=1000){
+plotDecorate = function( treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=TRUE, showGenes=TRUE){
 
   if( length(query) > 1){
     stop("Can only query one interval")
@@ -336,22 +214,15 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
     stop("No data left after filtering by query region")
   }
 
+  if( ! is(treeListClusters, 'list') && ! is(treeListClusters[[1]], 'epiclustDiscreteList') ){
+    stop("treeListClusters must be the result of createClusters") 
+  }
+
   chrom = names(fit)
 
-  clst = treeListClusters[[chrom]]
-  idx = names(clst) %in% fit[[1]]@clust$labels
-  clst = clst[idx]
-
-  # create new set of clusters including non-clusters
-  clstComplete = rep(NA,nrow(fit[[1]]@correlation))
-  names(clstComplete) = rownames(fit[[1]]@correlation)
-
-  idx2 = match(names(clst), names(clstComplete))
-  clstComplete[idx2] = clst
-
-  if( any(!idx) & plotTree){
-    cat("Cannot plot tree when features are dropped\n")
-    plotTree = FALSE
+  if( showTree){
+    cat("Cannot plot tree unless entire chromosome is plotted\n")
+    showTree = FALSE
   }
 
   # Make Views
@@ -366,9 +237,9 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
                         name="straight")
 
   # rotate correlation plot
-  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=.6, angle=-45, name="flipVP", gp=gpar(fill="black"))
+  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=.65, angle=-45, name="flipVP", gp=gpar(fill="black"))
 
-  pushViewport(heatmapVP)
+   flipVP2 <- viewport(width = unit(0.705, "snpc"), height= unit(0.705, "snpc"), angle=-45, name="flipVP2", y=0.7)
 
   # Title
   ########
@@ -379,7 +250,6 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
   # Plot Triangle
   ################
 
-  cols = c("white","red")
   colsFun = colorRampPalette( (cols ))
   color = c('grey90', colsFun(1000))
 
@@ -390,36 +260,98 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
   C = as.matrix(fit[[1]]@correlation )
   C[lower.tri(C, diag=TRUE)] = NA
 
+  n_features = nrow(C)
+
   mybreak <- 0:length(color)/length(color)
   mybreak[2] = 1e-7
 
-  fill = as.character(cut(C^2,mybreak,labels=as.character(color), include.lowest=TRUE))
+  fill = as.character(cut(abs(C),mybreak,labels=as.character(color), include.lowest=TRUE))
 
-  ImageRect = makeImageRect( nrow(C), ncol(C), fill, name='heatmap', byrow=byrow, cutoff=windowWidth)   
-
+  ImageRect = makeImageRect( nrow(C), ncol(C), fill, name='heatmap', byrow=byrow)
   ImageRect <- editGrob(ImageRect, vp=flipVP)
 
   key = addLegend(rev(color), heatmapVP)
   
   heatMap <- gTree(children=gList(ImageRect, key), name="heatMap")
 
-  # Plot segments
-  ###############
+  #################
+  # Plot segments #
+  #################
 
-  cols = rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
+  y_feature_locs = 0.75
 
-  N = length(clstComplete)
+  clustColsLst = lapply(treeListClusters, function(tlc){
+     clst = tlc[[chrom]]
+    idx = names(clst) %in% fit[[1]]@clust$labels
+    clst = clst[idx]
 
-  figSegments = rectGrob(x=c(1:N)/N, y=.7, 
-             width=1/N, height=1/20, 
-             just=c("right", "top"), 
-             gp=gpar(col=NA, fill=cols),
-             name='d')
+    # create new set of clusters including non-clusters
+    clstComplete = rep(NA,nrow(fit[[1]]@correlation))
+    names(clstComplete) = rownames(fit[[1]]@correlation)
+
+    idx2 = match(names(clst), names(clstComplete))
+    clstComplete[idx2] = clst
+    rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
+  })
+
+  N = length(clustColsLst)
+  xval = seq(0, 1, length.out=n_features+1)[1:n_features]
+  incr = (y_feature_locs - 0.7) /(N+1)
+  yval = sort(rep(rep(.7+incr*0:(N-1)), n_features))
+  cols = unlist(clustColsLst)
+
+  figSegments = segmentsGrob( x0=rep(xval,N), x1=rep(xval+1/n_features,N), y0=yval, y1=yval, gp=gpar(lwd=3, col=cols, lineend="butt"))
+
+  ####################################
+  # Plot feature locations  and grid # 
+  ####################################
+
+  # subset of featurePositions based on query
+  featurePositions = featurePositions[findOverlaps(featurePositions, query)@from]
+
+  pos1 = (start(featurePositions) - start(query)) / width(query) 
+  pos2 = (end(featurePositions) - start(query)) / width(query)
+  midpoint = pos1 + (pos2 -pos1)/2
+
+  # cbind(pos1, pos2, pos1 + (pos2-pos1)/2, midpoint)
+
+  figFeatLocations = segmentsGrob( x0=pos1, x1=pos2, y0=y_feature_locs, y1=y_feature_locs, gp=gpar(lwd=3, col='navy', lineend="butt"))
+
+  xval = seq(0, 1, length.out=n_features+1)[1:n_features] + 1/n_features/2
+
+  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval), y1=y_feature_locs, gp=gpar(lwd=1, col="grey80", lineend="butt"))
+
+  ##############
+  # Plot title #
+  ##############
+
+  txt = with(data.frame(query), paste0(seqnames, ':',format(start,big.mark=','),'-',format(end, big.mark=',')))
+
+  plot_title <- textGrob(txt,
+        gp = gpar(fontsize = 12, fontfamily = "mono"), y = 1,
+        just = c("centre", "center"), name = "gene_plot_title",
+        default.units = "native")
+
+  ##############
+  # Plot Genes #
+  #############
+
+  if( showGenes ){
+
+    if( width(query) > 1e6){
+      stop("Range is too wide (>1e6 bp) to plot genes: ", width(query), " bp")
+    }
+    cat("Downloading gene coordinates from UCSC.\nMust have internet connection\n\n")
+
+    # library(LDheatmap)
+    transcripts <- plotGenes(start(query), end(query), seqnames(query),
+        genome="hg38", plot_lines_distance = 0.04, splice_variants=FALSE, non_coding=FALSE)
+  }
 
   # Combine and plot
   ###################
 
-  if( plotTree ){
+  if( showTree ){
 
     Segs = gTree(children=gList(figSegments), name="segs")
 
@@ -439,17 +371,21 @@ plotDecorate = function( treeList, treeListClusters, query, cols=c( "white","red
     grid.newpage()
     ggdraw(heatMap) + theme(plot.background = element_rect(fill="white", color = NA)) + 
       draw_grob(gTree(children=gList(plot.grob, title), vp=treeVP)) + 
-      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))
-    # grid.draw(gTree(children=gList(plot.grob, title), vp=treeVP))
-    # grid.draw(gTree(children=gList(figSegments), vp=heatmapVP))
-    # grid.draw(heatMap)
+      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP)) + 
+      draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
   }else{
 
-    Segs = gTree(children=gList(figSegments, title), name="segs")
-
     grid.newpage()
-    # grid.draw(heatMap)
-    ggdraw(heatMap) + draw_grob(gTree(children=gList(figSegments), vp=heatmapVP)) + theme(plot.background = element_rect(fill="white", color = NA))
+    fig = ggdraw()
+
+    if( showGenes ){
+      fig = fig + draw_grob(gTree(children=gList(transcripts), vp=heatmapVP))
+    }
+
+    fig + draw_grob(gTree(children=gList(figPos), vp=heatmapVP)) +
+      draw_grob(gTree(children=gList(figFeatLocations), vp=heatmapVP)) + 
+      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))  + 
+      draw_grob(heatMap) + draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
   }
 }
 

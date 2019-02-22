@@ -12,9 +12,9 @@ createClusters(treeList, method = c("capushe", "bstick",
 
 \item{method}{'capushe': slope heuristic. 'bstick': broken stick. 'meanClusterSize': create clusters based on target mean value.}
 
-\item{meanClusterSize}{select target mean cluster size}
+\item{meanClusterSize}{select target mean cluster size.  Can be an array of values}
 
-\item{pct}{minimum percentage of points for the plateau selection in capushe selection.}
+\item{pct}{minimum percentage of points for the plateau selection in capushe selection. Can be an array of values}
 }
 \value{
 Convert hierarchical clustering into discrete clusters based on selection criteria method
@@ -34,8 +34,8 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Plot correlations and clusters in region defind by query
-query = GRanges('chr1', IRanges(0, 1000))
+query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, query)
+plotDecorate( treeList, treeListClusters, simLocation, query)
 
 }

@@ -64,13 +64,9 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Plot correlations and clusters in region defind by query
-query = GRanges('chr1', IRanges(0, 1000))
+query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, query)
-
-# Simulate variable to split dataset by
-set.seed(1)
-metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
+plotDecorate( treeList, treeListClusters, simLocation, query)
 
 # Evaluate Differential Correlation between two subsets of data
 sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))

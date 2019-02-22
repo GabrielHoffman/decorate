@@ -224,9 +224,9 @@ setMethod("show", "epiclust", function( object ){
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
-#' query = GRanges('chr1', IRanges(0, 1000))
+#' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, query)
+#' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' @importFrom rlist list.reverse
 #' @importFrom GenomicRanges seqnames
@@ -392,8 +392,8 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #'
 #' @param treeList list of hclust objects 
 #' @param method 'capushe': slope heuristic. 'bstick': broken stick. 'meanClusterSize': create clusters based on target mean value. 
-#' @param meanClusterSize select target mean cluster size
-#' @param pct minimum percentage of points for the plateau selection in capushe selection.
+#' @param meanClusterSize select target mean cluster size.  Can be an array of values
+#' @param pct minimum percentage of points for the plateau selection in capushe selection. Can be an array of values
 #'
 #' @return  Convert hierarchical clustering into discrete clusters based on selection criteria method
 #'
@@ -409,9 +409,9 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
-#' query = GRanges('chr1', IRanges(0, 1000))
+#' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, query)
+#' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' @import adjclust
 #' @importFrom stats cutree
@@ -423,23 +423,29 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
   cat("Method:", method, '\n')
 
   if( method == "meanClusterSize"){
-    # get counts on each chromosome
-    n_features = vapply(treeList, function(x){
-       length(x@clust$order)
-    }, FUN.VALUE=numeric(1))
-    # combine counts across chromosomes
-    n_features_total = sum(n_features)
 
-    n_total_clusters = round(n_features_total / meanClusterSize)
+    # loop over values in meanClusterSize
+    res = lapply( meanClusterSize, function(mcs){
+      # get counts on each chromosome
+      n_features = vapply(treeList, function(x){
+         length(x@clust$order)
+      }, FUN.VALUE=numeric(1))
+      # combine counts across chromosomes
+      n_features_total = sum(n_features)
 
-    # cut tree to get average of meanClusterSize
-    res = lapply(treeList, function(x){
-      N = length(x@clust$order)
-      frac = N / n_features_total
-      n_clust = round( frac*n_total_clusters )
-      cutree(x@clust, k=n_clust)
+      n_total_clusters = round(n_features_total / mcs)
+
+      # cut tree to get average of meanClusterSize
+      res = lapply(treeList, function(x){
+        N = length(x@clust$order)
+        frac = N / n_features_total
+        n_clust = round( frac*n_total_clusters )
+        cutree(x@clust, k=n_clust)
+      })
+      names(res) = names(treeList)
+      new('epiclustDiscreteList',res)
     })
-    names(res) = names(treeList)
+    names(res) = meanClusterSize
 
   }else{
 
@@ -447,12 +453,16 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
       stop("Method '", method, "' is only compatible with result of\nrunOrderedClusteringGenome(...,method ='adjclust')")
     }
 
-    res = lapply(treeList, function(x){
-      select( x@clust, type=method, pct=pct)
+    res = lapply(pct, function(val){
+      res = lapply(treeList, function(x){
+        select( x@clust, type=method, pct=val)
+      })
+      names(res) = names(treeList)  
+      new('epiclustDiscreteList',res)   
     })
-    names(res) = names(treeList)     
+    names(res) = pct
   }
-  new('epiclustDiscreteList',res)
+  res
 }
 
 # setClass("epiclustDiscrete", representation("array"))
@@ -504,6 +514,13 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 "simLocation"
 
 
+#' Simulated disease status for differential analysis
+#'
+#' @docType data
+#' @keywords decorateData
+#' @name decorateData
+#' @usage data(decorateData)
+"metadata"
 
 
 #' Count clusters on each chromosome
@@ -570,34 +587,6 @@ whichCluster = function(treeListClusters, id){
   res[!is.na(res$cluster),]
 }
 
-
-# whichCluster = function(treeListClusters, id){
-#   # find cluster based on anem
-#   res = vapply(treeListClusters, function(x){
-#     idx = (names(x) == id)
-#     if( sum(idx) == 0){
-#       res = NA
-#     }else{
-#       res = x[idx]
-#     }
-#     res}, numeric(1))
-
-#   res = res[!is.na(res)]
-
-#   if( length(res) == 0){
-#     chrom = cluster = NA
-#   }else{
-#     chrom = names(res)
-#     cluster = res[1]
-#   }
-#   res = data.frame(chrom=chrom, cluster=cluster, stringsAsFactors=FALSE)
-#   rownames(res) = c()
-#   res
-# }
-
-
-# whichCluster(treeListClusters, 'Peak_143742')
-# whichCluster2(treeListClusters, 'Peak_143742')
 
 #' Get feature names in selected cluster
 #'
@@ -667,24 +656,28 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID){
 scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
   # get data.frame of cluster names per chromosomes
-  clCount = countClusters( treeListClusters )
+  # clCount = countClusters( treeListClusters )
+  clCount = lapply(treeListClusters, countClusters)
 
-  df_count = lapply( seq_len(length(clCount)), function(i){
-    x = clCount[i]
-    data.frame(chrom=rep(names(x), x), cluster=seq(x), stringsAsFactors=FALSE)
+  df_count = lapply(names(clCount), function(id){
+    lapply( seq_len(length(clCount[[id]])), function(i){
+    x = clCount[[id]][i]
+    data.frame(chrom=rep(names(x), x), cluster=seq(x), meanClusterSize=as.numeric(id), stringsAsFactors=FALSE)
     })
-  df_count = do.call("rbind", df_count)
+  })
+  df_count = do.call("rbind", unlist(df_count, recursive=FALSE))
 
   # evaluate for each cluster
-  .score_clust = function(i, treeList, treeListClusters, df_count, pb){
+  .score_clust = function(i, treeList, tlc, df_count, pb){
     
     pb$update( i / nrow(df_count) )      
 
     # get chrom and clsuter ID for this clsuter
     chrom = df_count$chrom[i] 
     clustID = df_count$cluster[i] 
+    msc = df_count$meanClusterSize[i]
 
-    cl = treeListClusters[[chrom]] 
+    cl = tlc[[chrom]] 
 
     peakIDs = names(cl[cl==clustID])
 
@@ -699,15 +692,19 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
       LEF = dcmp$values[1] / sum(dcmp$values)
 
       # get correlation values
-      diag(C) = -Inf
-      cor_values = C@x[is.finite(C@x)]
+      if( is(C, 'CsparseMatrix') ){
+        diag(C) = -Inf
+        cor_values = C@x[is.finite(C@x)]
+      }else{        
+        cor_values = C[lower.tri(C)]
+      }
     }else{
       cor_values = 1
       LEF = 1
     }
     # compute statistics
     data.frame( chrom = chrom, 
-        cluster = clustID, N=N,
+        cluster = clustID, msc, N=N,
         mean_abs_corr = mean(abs(cor_values)), 
         quantile75 = quantile(abs(cor_values), .75), 
         quantile90 = quantile(abs(cor_values), .90), 
@@ -717,17 +714,26 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   
   # .score_clust(2477, treeList, treeListClusters, df_count, pb)
   
-  pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(clCount), width= 60, clear=FALSE)
+  pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(unlist(clCount)), width= 60, clear=FALSE)
 
   cat("Evaluating strength of each cluster\n\n")
 
   # Evaluate score for each cluster
-  clustScores = lapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, pb)
+  clustScoresList = lapply(names(treeListClusters), function(msc){
 
-  # format for return
-  clustScores = do.call("rbind", clustScores)
-  rownames(clustScores) = c()
-  clustScores
+    tlc = treeListClusters[[as.character(msc)]]
+
+    idx = which(df_count$meanClusterSize == msc)
+
+    clustScores = lapply(idx, .score_clust, treeList, tlc, df_count, pb)
+
+    # format for return
+    clustScores = do.call("rbind", clustScores)
+    rownames(clustScores) = c()
+    clustScores
+  })
+  names(clustScoresList) = names(treeListClusters)
+  clustScoresList
 }
 
 #' Extract subset of clusters
@@ -735,11 +741,8 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 #' Extract subset of clusters based on entries in chroms and clusters
 #'
 #' @param treeListClusters from createClusters()
-#' @param chroms array of chromosome names for the clusters to retain
-#' @param clusters array of cluster names for the clusters to retain
+#' @param clustInclude data.frame from retainClusters() indcating which clusters to include
 #' 
-#' @details Each cluster has a unique identifier: c(chroms[i], clusters[i]).  Return epiclustDiscreteList object like treeListClusters but retaining on the specified clusters.
-#'
 #' @return epiclustDiscreteList of specified clusters
 #' 
 #' @examples
@@ -757,42 +760,27 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 #' clstScore = scoreClusters(treeList, treeListClusters )
 #' 
 #' # Retain clusters that pass this criteria
-#' clustInclude = clstScore[clstScore$LEF > 0.2,]
+#' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
 #' 
 #' # get retained clusters
-#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude$chrom, clustInclude$cluster)
+#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 #' 
 #' @export
-filterClusters = function( treeListClusters, chroms, clusters){
+filterClusters = function( treeListClusters, clustInclude){
 
-  if( ! is(treeListClusters, 'epiclustDiscreteList') ){
-    stop("treeListClusters must be of class 'epiclustDiscreteList'")
-  }
+  res = lapply( names(treeListClusters), function(msc){
+    tlc = treeListClusters[[as.character(msc)]]
 
-  if( length(chroms) < 1 ){
-    stop("length of chroms must be >= 1: ", length(chroms), ' < 1')
-  }
-  if( length(chroms) != length(clusters) ){
-    stop("chroms and clusters must have same length: ",  length(chroms), ' != ', length(clusters))
-  }
-
-  # convert to data.frame
-  df = data.frame(chrom = chroms, cluster=clusters, stringsAsFactors=FALSE)
-
-  # extract from treeListClusters entries corresponding to chroms and clusters
-  resList = lapply( unique(df$chrom), function(chrom){
-    # get indecies in df
-    idx = which(chrom == df$chrom)
-
-    # get indeces in treeListClusters
-    idx2 = treeListClusters[[chrom]] %in% df$cluster[idx]
-
-    # get clusters in treeListClusters
-    treeListClusters[[chrom]][idx2]
+    resList = lapply( names(tlc), function(chrom){ 
+      idx = which(chrom == clustInclude$chrom & msc == clustInclude$msc)     
+      idx2 = tlc[[chrom]] %in% clustInclude$cluster[idx]
+      tlc[[chrom]][idx2]
     })
-  names(resList) = unique(df$chrom)
-
-  new('epiclustDiscreteList', resList)
+    names(resList) = names(tlc)
+    new('epiclustDiscreteList', resList)
+  })
+  names(res) = names(treeListClusters)
+  res
 }
 
 
@@ -857,5 +845,166 @@ evaluateCorrDecay = function( treeList, gr){
 
   dfDist[,c("chrom", "feature_i", "feature_j", "correlation", "distance")]
 }
+
+
+#' Retain clusters by applying filter
+#'
+#' Retain clusters by applying filter
+#' 
+#' @param clstScore score each cluster using scoreClusters()
+#' @param metric column of clstScore to use in filtering
+#' @param cutoff retain cluster than exceed the cutoff for metric
+#'
+#' @export
+retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
+
+  clstScoreDF = do.call("rbind", clstScore)
+
+  clstScoreDF[clstScoreDF[[metric]] >= cutoff,c("chrom", "cluster", "msc", metric)]
+}
+
+
+
+
+#' Evaluate Jaccard index
+#' 
+#' Evaluate Jaccard index
+#' 
+#' @param a set 1
+#' @param b set 2
+#'
+#' @return Jaccard index
+jaccard = function(a,b){
+  n_I = length(intersect(a,b))
+  n_U = length(union(a,b))
+  n_I / n_U
+}
+
+
+#' Collapse clusters based on jaccard index
+#' 
+#' Collapse clusters if jaccard index between clusters excceds a cutoff
+#' 
+#' 
+#' @param treeListClusters from createClusters()
+#' @param jaccardCutoff cutoff value for jaccard index
+#'
+#' @return subset of clusters in treeListClusters that passes cutoff
+#'
+#' @importFrom utils combn
+#' @importFrom data.table data.table
+#' @export
+collapseCluster = function(treeListClusters, jaccardCutoff=0.9){
+
+  # count clusters for each cutoff and chromsome
+  clCount = lapply(treeListClusters, countClusters)
+
+  # get entries with at least 1 clusters
+  idx = sapply(clCount, function(x) x > 0)
+
+  # get clusters stats for each cutoff and chromsome
+  res = lapply(names(treeListClusters)[idx], function(id){
+    res = lapply(names(treeListClusters[[id]]), function(chrom){
+      features = treeListClusters[[id]][[chrom]]
+      tbl = table(features)
+      data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), stringsAsFactors=FALSE)
+      })
+    do.call("rbind", res)
+    })
+  res = do.call("rbind", res)
+
+
+  # Get all pairs of clusters, then filter out pairs with same cutoff or different chromsome
+  ###################
+
+  msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = NULL
+
+  # get all combinations of pairs of clusters
+  idx = t(combn(nrow(res), 2))
+
+  # all pairs a a data.table
+  res_1 = res[idx[,1],]
+  colnames(res_1) = paste0(colnames(res_1), '.x')
+  res_2 = res[idx[,2],]
+  colnames(res_2) = paste0(colnames(res_2), '.y')
+
+  # get all combinations
+  df_combo = data.table(cbind( res_1, res_2))
+
+  # filter combinations
+  res = df_combo[(msc.x!=msc.y)&(chrom.x==chrom.y),]
+
+  # get jaccard similarity between plairs of clusters
+  res$jaccard = vapply( seq_len(nrow(res)), function(k){
+
+    clst.x = treeListClusters[[res$msc.x[k]]][[res$chrom.x[k]]]
+    clusters.x = names(clst.x)[clst.x == res$cluster.x[k]]
+
+    clst.y = treeListClusters[[res$msc.y[k]]][[res$chrom.y[k]]]
+    clusters.y = names(clst.y)[clst.y == res$cluster.y[k]]
+
+    jaccard( clusters.x, clusters.y)
+  }, numeric(1))
+
+
+  # if jaccard index is larger than cutoff, drop the smaller cluster
+  resSub = res[res$jaccard > jaccardCutoff,]
+  drop.x = resSub[,N.x < N.y] 
+  drop.y = resSub[,N.x >= N.y] 
+
+  dfDrop.X = resSub[which(drop.x),1:4]
+  dfDrop.Y = resSub[which(drop.y),5:8]
+  
+  colnames(dfDrop.X) = gsub(".x", '', colnames(dfDrop.X))
+  colnames(dfDrop.Y) = gsub(".y", '', colnames(dfDrop.Y))
+
+  # clusters to drop
+  resDrop = rbind(unique(dfDrop.X), unique(dfDrop.Y))
+
+
+  # Drop clusters in resDrop from treeListClusters
+  ################################################
+
+  # count clusters for each cutoff and chromsome
+  clCount = lapply(treeListClusters, countClusters)
+
+  # create now object without these clusters
+  idx = sapply(clCount, function(x) x > 0)
+
+  # get clusters stats for each cutoff and chromsome
+  res = lapply(names(treeListClusters)[idx], function(id){
+    res = lapply(names(treeListClusters[[id]]), function(chr){
+
+      # get clusters
+      clsts = treeListClusters[[id]][[chr]]
+      
+      # find clusters that overlap drop list
+      idx = clsts %in% resDrop[msc==id & chrom==chr,cluster]
+
+      # drop clusters
+      clsts[!idx]
+    })
+    names(res) = names(treeListClusters[[id]])
+    count = countClusters( res )    
+    new('epiclustDiscreteList',res[count > 0])
+  })
+  names(res) = names(treeListClusters)[idx]
+
+  clCount = lapply(res, countClusters)
+
+  idx = vapply(clCount, function(x){
+      length(x) > 0 && x > 0
+    }, logical(1))
+
+  # drop entries in res if does't contain clusters after filtering
+  treeListClusters_filter = res[idx]
+
+  treeListClusters_filter
+}
+
+
+
+
+
 
 

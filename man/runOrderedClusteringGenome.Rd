@@ -47,8 +47,8 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Plot correlations and clusters in region defind by query
-query = GRanges('chr1', IRanges(0, 1000))
+query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, query)
+plotDecorate( treeList, treeListClusters, simLocation, query)
 
 }

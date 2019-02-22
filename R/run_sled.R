@@ -34,13 +34,9 @@
 #' treeListClusters = createClusters( treeList )
 #' 
 #' # Plot correlations and clusters in region defind by query
-#' query = GRanges('chr1', IRanges(0, 1000))
+#' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, query)
-#'
-#' # Simulate variable to split dataset by
-#' set.seed(1)
-#' metadata = data.frame( Disease = factor(sample(0:1, ncol(simData), replace=TRUE)))
+#' plotDecorate( treeList, treeListClusters, simLocation, query)
 #'
 #' # Evaluate Differential Correlation between two subsets of data
 #' sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
@@ -132,50 +128,6 @@ setMethod("print", "sLEDresults", function( x ){
 setMethod("show", "sLEDresults", function( object ){
 	print( object )
 })
-
-
-
-#' @import sLED
-# runSled = function(i, dfClustUnique, dfClust, epiSignal, set1, set2, npermute){
-
-# 	CHROM = dfClustUnique$chrom[i]
-# 	CLST = as.character(dfClustUnique$cluster[i])
-
-# 	cat(CHROM, CLST, '\n')
-
-# 	peakIDs = dfClust[(chrom==CHROM) & (cluster==CLST),peak]
-
-# 	if( length(peakIDs) > 3 ){
-
-# 		# get two subsets of data
-# 	  	Y1 = t(epiSignal[peakIDs,set1])
-# 	  	Y2 = t(epiSignal[peakIDs,set2])
-
-# 	  	# perform permutations until p-values is precise enough
-# 	  	# if not precise enough
-# 	  	a = log10(npermute[1])
-# 	  	b = log10(npermute[2])
-# 	  	permArray = 10^seq(a,b, length.out=b-a +1)
-
-# 	  	for( nperm in round(permArray) ){
-# 	      	# compare correlation structure with sLED
-# 	      	Y1_scale = scale(Y1)
-# 	      	Y2_scale = scale(Y2)
-
-# 	      	res = sLED(X=Y1_scale, Y=Y2_scale, npermute=nperm, verbose=FALSE, mc.cores=1, useMC=FALSE, adj.beta=adj.beta)
-
-# 	      	if( res$pVal * nperm > 10){
-# 	      		break
-# 	      	}
-# 	    }
-
-# 	}else{
-# 	  	res = list(pVal=NA, stats=NA)
-# 	}
-# 	res$chrom = CHROM
-# 	res$cluster = CLST
-# 	res
-# }
 
 
 

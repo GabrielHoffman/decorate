@@ -4,21 +4,23 @@
 \alias{plotDecorate}
 \title{Plot decorate analysis}
 \usage{
-plotDecorate(treeList, treeListClusters, query, cols = c("white", "red"),
-  plotTree = TRUE, windowWidth = 1000)
+plotDecorate(treeList, treeListClusters, featurePositions, query,
+  cols = c("lightyellow", "red"), showTree = TRUE, showGenes = TRUE)
 }
 \arguments{
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
 
 \item{treeListClusters}{assign regions to clusters after cutting tree with createClusters()}
 
+\item{featurePositions}{GGRanges object storing location of each feature}
+
 \item{query}{GRanges object indiecating region to plot}
 
 \item{cols}{vector of two colors}
 
-\item{plotTree}{show tree from hierachical clustering}
+\item{showTree}{show tree from hierachical clustering}
 
-\item{windowWidth}{for each feature plot correlation with windowWidth adjacent features}
+\item{showGenes}{plot genes}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks
@@ -38,8 +40,8 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Plot correlations and clusters in region defind by query
-query = GRanges('chr1', IRanges(0, 1000))
+query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, query)
+plotDecorate( treeList, treeListClusters, simLocation, query)
 
 }
