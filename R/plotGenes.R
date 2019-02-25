@@ -245,7 +245,7 @@ plotGenes = function (minRange, maxRange, chromosome, genome = "hg19", plot_line
             "name"])
         Transcripts <- addGrob(Transcripts, transcript)
     }
-    grid.draw(Transcripts)
+    # grid.draw(Transcripts)
     return(Transcripts)
 }
 

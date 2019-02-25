@@ -34,7 +34,7 @@ getPeakDistances = function( query, windowSize=10000 ){
 
   queryHits = subjectHits = NULL
 
-  # get only top triangle because matrix is symmatrix
+  # get only top triangle because matrix is symmatric
   ovlapsDF = ovlapsDF[with(ovlapsDF, which(queryHits >= subjectHits)),]
 
   # compute distances
@@ -675,6 +675,7 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID, id){
 #' @export
 #' @importFrom stats quantile
 #' @importFrom progress progress_bar
+#' @import BiocParallel 
 scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
   # get data.frame of cluster names per chromosomes
@@ -940,6 +941,7 @@ jaccard = function(a,b){
 #'
 #' @return subset of clusters in treeListClusters that passes cutoff
 #'
+#' @examples
 #' library(GenomicRanges)
 #' 
 #' # load data
@@ -962,12 +964,12 @@ jaccard = function(a,b){
 #' treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 #' 
 #' # collapse similar clusters
-#' treeListClusters_collapse = collapseCluster( treeListClusters_filter, simLocation)
+#' treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation)
 #' 
 #' @importFrom utils combn
 #' @importFrom data.table data.table
 #' @export
-collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
+collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
 
   # count clusters for each cutoff and chromsome
   clCount = lapply(treeListClusters, countClusters)
@@ -1104,9 +1106,22 @@ collapseCluster = function(treeListClusters, featurePositions, jaccardCutoff=0.9
     }, logical(1))
 
   # drop entries in res if does't contain clusters after filtering
-  res[idx]
+  new('epiclustDiscreteListContain', res[idx])
 }
 
+
+# allow subsetting of epiclustDiscreteListContain
+setMethod("[", "epiclustDiscreteListContain",
+  function(x, i, j, ..., drop) {
+    # new("epiclustDiscreteListContain", x[i])
+    keys = names(x)[i]
+
+    obj = lapply(keys, function(key){
+      x[[key]]
+      })
+    names(obj) = keys
+    new('epiclustDiscreteListContain', obj)
+  })
 
 
 #' Count clusters on each chromosome

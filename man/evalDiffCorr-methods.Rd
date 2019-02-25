@@ -10,15 +10,15 @@
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
-  npermute = c(100, 10000), adj.beta = 0, rho = 0, sumabs.seq = 1,
-  BPPARAM = SerialParam())
+  npermute = c(100, 10000, 1e+05), adj.beta = 0, rho = 0,
+  sumabs.seq = 1, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000), adj.beta = 0,
+  gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
   rho = 0, sumabs.seq = 1, BPPARAM = SerialParam())
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000), adj.beta = 0,
+  gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
   rho = 0, sumabs.seq = 1, BPPARAM = SerialParam())
 }
 \arguments{
@@ -69,7 +69,7 @@ query = range(simLocation)
 plotDecorate( treeList, treeListClusters, simLocation, query)
 
 # Evaluate Differential Correlation between two subsets of data
-sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200, 2000))
 
 # get summary of results
 df = summary( sledRes )

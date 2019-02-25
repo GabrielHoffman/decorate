@@ -23,19 +23,41 @@ cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
 rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html")
 --->
 
-Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  Here we present a test of differential correlation.
+Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.
+
+decorate v`r packageVersion("decorate")`
+
+# Workflow
+\item 0) Data normalization and covariate correction
+
+    + We assume this has already been perform using standard method for your assay
 
 \item 1) Compute correlations between local pairs of features
 
+    + `runOrderedClusteringGenome()`
+
 \item 2) Perform hierarchical clustering of features
+
+    + built into `runOrderedClusteringGenome()`
 
 \item 3) Produce discrete clusters of features
 
+    + `createClusters():` can take multiple parameter values to return multiple sets of clusters
+
 \item 4) Filter clusters based on strength of correlation
+
+    + `scoreClusters():` evaluate the strength of the correlation structure of each cluster
+    + `retainClusters():` identify clusters with pass a cutoff for strength of the correlation structure
+    + `filterClusters():` apply filter to clusters based on this cutoff
+    + `collapseClusters():` Collapse redundant clusters identified from using multiple parameter values in step (3)
 
 \item 5) Statistical test of differential correlation 
 
+    + `evalDiffCorr():` run permutations tests in parallel on multicore machine
+
 \item 6) Data visualization
+    + `plotDecorate():` plot local correlation structure, clusters of features and gene in the region
+    + `plotCompareCorr():` plot correlation structure for two subsets of the data
 
 
 ```{r load.packages, echo=FALSE, message=FALSE, results='hide'}
@@ -58,10 +80,11 @@ knitr::opts_chunk$set(
 options(markdown.HTML.stylesheet = 'css/custom.css')
 ```
 
-
+# Analysis of simulated data
 ```{r run.analysis, echo=TRUE, message=FALSE, results='hide'}
 library(decorate)
 library(GenomicRanges)
+library(cowplot)     
 
 # load data
 data('decorateData')
@@ -71,41 +94,68 @@ data('decorateData')
 treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
 
 # Choose cutoffs and return clusters using multiple values for meanClusterSize 
-treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 2, 10, 30, 40, 50) )
+# Clusters corresponding to each parameter value are returned 
+# and then processed downstream
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c(10, 30, 40, 50) )
 
 # Evaluate strength of correlation for each cluster
 clstScore = scoreClusters(treeList, treeListClusters )
 
 # Filter to retain only strong clusters
-clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+# If lead eigen value fraction (LEF) > 30% then keep clusters
+# LEF is the fraction of variance explained by the first eigen-value
+clustInclude = retainClusters( clstScore, "LEF", 0.40 )
 
 # get retained clusters
 treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 
 # collapse similar clusters
-treeListClusters_collapse = collapseCluster( treeListClusters_filter, simLocation)
+treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation)
 
 # Plot correlations and clusters in region defind by query
+# get single entry giving range of the region
 query = range(simLocation)  
 ```
 
-```{r plot2Decorate, fig.width=15}
-fig1 = plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=FALSE )
-fig2 = plotDecorate( treeList, treeListClusters_filter, simLocation, query, showTree=FALSE, showGenes=FALSE )
-library(cowplot)     
+### Summary of clustering
+Number of cluster parameters: `r length(treeList)`
+Number of total clusters: `r sum(countClusters(treeListClusters))`
+Number of clusters after filtering: `r sum(countClusters(treeListClusters_filter))`
+Number of clusters after collapsing: `r sum(countClusters(treeListClusters_collapse))`
+
+
+## Make plots
+```{r plot2Decorate.text, eval=FALSE, echo=TRUE}
+# A) plot all clusters
+plotDecorate( treeList, treeListClusters, simLocation, query, showGenes=FALSE )
+
+# B) plot clusters after filtering
+plotDecorate( treeList, treeListClusters_filter, simLocation, query, showGenes=FALSE )
+```
+
+```{r plot2Decorate, fig.width=15, message=FALSE, results="hide", echo=FALSE}
+fig1 = plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=TRUE )
+fig2 = plotDecorate( treeList, treeListClusters_filter, simLocation, query, showTree=FALSE, showGenes=TRUE )
 plot_grid( fig1, fig2, ncol=2, labels=c('A', 'B') )
 ```
 
-## Filter and collase
-```{r plotCollapse, echo=TRUE}
-plotDecorate( treeList, treeListClusters_collapse, simLocation, query, showTree=FALSE, showGenes=FALSE )
+## Plot after collapsing redundant clusters
+```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE}
+plotDecorate( treeList, treeListClusters_collapse, simLocation, query, showGenes=TRUE, showTree=FALSE )
 ```
 
+
 ### Run test of differential correlation
+Evaluate `treeListClusters_collapse`, the filtered collapsed set of clusters
 ```{r compare, echo=TRUE, message=FALSE, results="hide"}
 # Evaluate Differential Correlation between two subsets of data
 # increase npermute on real data
-sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200))
+# Perform a minimum of 20 permutations and a max of 200 in first round
+# For real data, add a 3rd value like 1e6 to perform a second round 
+# of permutations in parallel
+sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, 
+  treeListClusters_collapse, 
+  npermute=c(20, 200, 2000))
 
 # get summary of results
 df = summary( sledRes )
@@ -114,13 +164,15 @@ df = summary( sledRes )
 head(df)
 ```
 ```{r print.table}
-head(df)
+head(df)    
 ```
+The id column gives the clustering parameter from `runOrderedClusteringGenome()`, so cluster 6 with id 10 is different from cluster 6 with id 50.
+Note that n.perm can vary across clusters because decorate uses a data-adaptive method to select the number of permutations.  Decorate devotes more permutations to clusters with smaller p-values 
 
 ### Compare correlation structure in two subsets of the data
-```{r plotCompareCorr, fig.width=4}
-# extract peak ID's from most significant cluster
-peakIDs = getFeaturesInCluster( treeListClusters, df$chrom[1], df$cluster[1], df$id[1])
+```{r plotCompareCorr, fig.width=4, echo=TRUE}
+# extract feature identifiers from most significant cluster
+peakIDs = getFeaturesInCluster( treeListClusters_collapse, df$chrom[1], df$cluster[1], df$id[1])
 
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease

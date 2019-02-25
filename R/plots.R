@@ -209,6 +209,7 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
     stop("Can only query one interval")
   }
 
+  # get clusters in query
   fit = getSubset( treeList, query )
 
   if( length(fit) == 0){
@@ -221,10 +222,10 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
 
   chrom = names(fit)
 
-  if( showTree){
-    cat("Cannot plot tree unless entire chromosome is plotted\n")
-    showTree = FALSE
-  }
+  # if( showTree){
+  #   cat("Dropping tree plot tree unless entire chromosome is plotted\n")
+  #   showTree = FALSE
+  # }
 
   # Make Views
   #############
@@ -252,7 +253,7 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   ################
 
   colsFun = colorRampPalette( (cols ))
-  color = c('grey90', colsFun(1000))
+  color = c('white', colsFun(1000))
 
   flip=TRUE
   # Flip or not, determines way data is read into the display
@@ -262,6 +263,11 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   C[lower.tri(C, diag=TRUE)] = NA
 
   n_features = nrow(C)
+
+  if( !identical(rownames(C), featurePositions$name)){
+    cat("Processing subset of features in query...\n")
+    showTree = FALSE
+  }
 
   mybreak <- 0:length(color)/length(color)
   mybreak[2] = 1e-7
@@ -313,7 +319,8 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   ####################################
 
   # subset of featurePositions based on query
-  featurePositions = featurePositions[findOverlaps(featurePositions, query)@from]
+  fnd = findOverlaps(featurePositions, query)
+  featurePositions = featurePositions[fnd@from]
 
   pos1 = (start(featurePositions) - start(query)) / width(query) 
   pos2 = (end(featurePositions) - start(query)) / width(query)
@@ -377,8 +384,8 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
     grid.newpage()
     ggdraw(heatMap) + theme(plot.background = element_rect(fill="white", color = NA)) + 
       draw_grob(gTree(children=gList(plot.grob, title), vp=treeVP)) + 
-      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP)) + 
-      draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
+      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))  
+      # draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
   }else{
 
     grid.newpage()
