@@ -74,7 +74,7 @@ knitr::opts_chunk$set(
   tidy = FALSE,
   cache = TRUE,
   cache.lazy = FALSE,
-  dev = c("png"), 
+  dev = c("png", "pdf"), 
   fig.width=7, fig.height=7)
 
 options(markdown.HTML.stylesheet = 'css/custom.css')

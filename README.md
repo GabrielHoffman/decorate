@@ -1,5 +1,5 @@
 
-## decorate: Differential Epigenetic Coregeulation Test
+# decorate: Differential Epigenetic Coregeulation Test
 
 ![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_image.png)
 
@@ -20,6 +20,4 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 }
 ```
 
-
-
-## [Vignette](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example2.html): Run example analysis
+## Vignette: [Run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example2.html)
