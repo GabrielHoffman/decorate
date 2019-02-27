@@ -986,40 +986,6 @@ jaccard = function(a,b){
 #' @export
 collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.7){
 
-  # count clusters for each cutoff and chromsome
-  # clCount = lapply(treeListClusters, countClusters)
-
-  # # get entries with at least 1 clusters
-  # idx = vapply(clCount, function(x) sum(x) > 0, logical(1))
-
-  # cat("Extracting feature sets from each cluster...\n")
-
-  # # get clusters stats for each cutoff and chromsome
-  # res = lapply(names(treeListClusters)[idx], function(id){
-  #   res = lapply(names(treeListClusters[[id]]), function(chrom){
-  #     cat("\r", id, '\t', chrom)
-  #       features = treeListClusters[[id]][[chrom]]
-  #       tbl = table(features)
-
-  #       # get entries from this chrom for faster searching
-  #       fp_chrom = featurePositions[seqnames(featurePositions) == chrom]
-
-  #       # for each cluster, get range
-  #       clustRange = lapply(names(tbl), function(clustID){
-  #           idxf = fp_chrom$name %in% names(features)[features == clustID]
-  #           loc = range(fp_chrom[idxf])
-  #           data.frame(clustID=clustID, start=start(loc), end=end(loc))
-  #           })
-  #       clustRange = do.call("rbind", clustRange)
-
-  #       # combine attributes
-  #       data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), start=clustRange$start, end=clustRange$end,   stringsAsFactors=FALSE)
-  #     })
-  #     do.call("rbind", res)
-  # })
-  # res = do.call("rbind", res)
-  # cat("\n")
-
   # for each cluster in each chrom and cutoff value, get range
   flattened = unlist( treeListClusters )
   splt = strsplit(  names(flattened), '\\.')
@@ -1044,10 +1010,11 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
 
   msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = NULL
 
-  resDrop = lapply( unique(res$chrom), function(chrom){
+  resRetain = lapply( unique(res$chrom), function(CHROM){
 
     # get only 1 chromosome
-    resChrom = res[res$chrom == chrom,]
+    resChrom = res[chrom == CHROM,]
+    resChrom[, key:=do.call(paste,.SD)]
 
     # get all combinations
     # idx = t(combn(nrow(resChrom), 2))
@@ -1086,20 +1053,13 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
 
     # if jaccard index is larger than cutoff, drop the smaller cluster
     resSub = resLoc[resLoc$jaccard > jaccardCutoff,]
-    drop.x = resSub[,N.x < N.y] 
-    drop.y = resSub[,N.x >= N.y] 
+    drop.x = resSub[N.x < N.y,key.x] 
+    drop.y = resSub[N.x >= N.y,key.y] 
 
-    dfDrop.X = data.frame(resSub[which(drop.x),1:6])
-    dfDrop.Y = data.frame(resSub[which(drop.y),7:12])
-    
-    colnames(dfDrop.X) = gsub(".x", '', colnames(dfDrop.X))
-    colnames(dfDrop.Y) = gsub(".y", '', colnames(dfDrop.Y))
-
-    # clusters to drop
-    rbind(unique(dfDrop.X), unique(dfDrop.Y))
+    resChrom[!(key %in% c(drop.x, drop.y)),]
   })
-  resDrop = do.call("rbind", resDrop)
-  resDrop = data.table(resDrop)
+
+  resRetain = do.call("rbind", resRetain)
 
   # Drop clusters in resDrop from treeListClusters
   ################################################
@@ -1117,11 +1077,8 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
       # get clusters
       clsts = treeListClusters[[id]][[chr]]
       
-      # find clusters that overlap drop list
-      idx = clsts %in% resDrop[msc==id & chrom==chr,cluster]
-
-      # drop clusters
-      clsts[!idx]
+      # of cluster in in the retain set
+      clsts[clsts %in% resRetain[msc==id & chrom==chr,cluster]]
     })
     names(res) = names(treeListClusters[[id]])
     count = countClusters( new('epiclustDiscreteList',res) )    
