@@ -1,7 +1,7 @@
 
 # decorate: Differential Epigenetic Coregeulation Test
 
-![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_image.png)
+![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_image_small.png)
 
 # Install
 ```r
