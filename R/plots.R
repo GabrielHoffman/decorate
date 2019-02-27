@@ -249,7 +249,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     # transcripts <- plotGenes(start(query), end(query), seqnames(query),
         # genome="hg38", plot_lines_distance = 0.04, splice_variants=FALSE, non_coding=FALSE)
 
-    transcripts <- plotEnsGenes(ensdb, start(query), end(query), seqnames(query), plot_lines_distance = 0.05, non_coding=non_coding, splice_variants=splice_variants)
+    transcripts <- plotEnsGenes(ensdb, start(query), end(query), seqnames(query), plot_lines_distance = 0.03, non_coding=non_coding, splice_variants=splice_variants)
 
     startHeight = attr(transcripts, 'height') 
   }else{
@@ -262,7 +262,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   y_feature_locs = 1 - startHeight
   feat_mark_y = 0.085
-  cluster_mark_y = 0.05
+  cluster_mark_y = 0.07
 
   # browser()
 
@@ -313,7 +313,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   xval = seq(0, 1, length.out=n_features+1)[1:n_features] + 1/n_features/2
 
-  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval)+0.01, y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=1, col="grey80", lineend="butt"))
+  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval), y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=1, col="grey80", lineend="butt"))
 
   # Make Views
   #############

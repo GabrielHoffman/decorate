@@ -20,4 +20,4 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 }
 ```
 
-## Vignette: [Run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example2.html)
+## Vignette: [Run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
