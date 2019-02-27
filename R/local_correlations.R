@@ -124,9 +124,14 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
 #'
 #' @examples
 #' library(GenomicRanges)
-#' 
+#' library(EnsDb.Hsapiens.v86)
+#'
+#' # load data
 #' data('decorateData')
-#' 
+#'
+#' # load gene locations
+#' ensdb = EnsDb.Hsapiens.v86
+#'
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
@@ -136,7 +141,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, simLocation, query)
+#' plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 #'
 #' @import vegan 
 #' @importFrom ClustGeo hclustgeo
@@ -232,8 +237,13 @@ setMethod("show", "epiclust", function( object ){
 #'
 #' @examples
 #' library(GenomicRanges)
-#' 
+#' library(EnsDb.Hsapiens.v86)
+#'
+#' # load data
 #' data('decorateData')
+#'
+#' # load gene locations
+#' ensdb = EnsDb.Hsapiens.v86
 #' 
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
@@ -244,7 +254,7 @@ setMethod("show", "epiclust", function( object ){
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, simLocation, query)
+#' plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 #'
 #' @importFrom rlist list.reverse
 #' @importFrom GenomicRanges seqnames
@@ -417,8 +427,13 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #'
 #' @examples
 #' library(GenomicRanges)
-#' 
+#' library(EnsDb.Hsapiens.v86)
+#'
+#' # load data
 #' data('decorateData')
+#'
+#' # load gene locations
+#' ensdb = EnsDb.Hsapiens.v86
 #' 
 #' # Evaluate hierarchical clustering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
@@ -429,7 +444,7 @@ setMethod("getSubset", c("epiclustList", "GRanges"),
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, simLocation, query)
+#' plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 #'
 #' @import adjclust
 #' @importFrom stats cutree
@@ -969,41 +984,58 @@ jaccard = function(a,b){
 #' @importFrom utils combn
 #' @importFrom data.table data.table
 #' @export
-collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
+collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.7){
 
   # count clusters for each cutoff and chromsome
-  clCount = lapply(treeListClusters, countClusters)
+  # clCount = lapply(treeListClusters, countClusters)
 
-  # get entries with at least 1 clusters
-  idx = vapply(clCount, function(x) sum(x) > 0, logical(1))
+  # # get entries with at least 1 clusters
+  # idx = vapply(clCount, function(x) sum(x) > 0, logical(1))
 
-  cat("Extracting feature sets from each cluster...\n")
+  # cat("Extracting feature sets from each cluster...\n")
 
-  # get clusters stats for each cutoff and chromsome
-  res = lapply(names(treeListClusters)[idx], function(id){
-    res = lapply(names(treeListClusters[[id]]), function(chrom){
-      cat("\r", id, '\t', chrom)
-        features = treeListClusters[[id]][[chrom]]
-        tbl = table(features)
+  # # get clusters stats for each cutoff and chromsome
+  # res = lapply(names(treeListClusters)[idx], function(id){
+  #   res = lapply(names(treeListClusters[[id]]), function(chrom){
+  #     cat("\r", id, '\t', chrom)
+  #       features = treeListClusters[[id]][[chrom]]
+  #       tbl = table(features)
 
-        # get entries from this chrom for faster searching
-        fp_chrom = featurePositions[seqnames(featurePositions) == chrom]
+  #       # get entries from this chrom for faster searching
+  #       fp_chrom = featurePositions[seqnames(featurePositions) == chrom]
 
-        # for each cluster, get range
-        clustRange = lapply(names(tbl), function(clustID){
-            idxf = fp_chrom$name %in% names(features)[features == clustID]
-            loc = range(fp_chrom[idxf])
-            data.frame(clustID=clustID, start=start(loc), end=end(loc))
-            })
-        clustRange = do.call("rbind", clustRange)
+  #       # for each cluster, get range
+  #       clustRange = lapply(names(tbl), function(clustID){
+  #           idxf = fp_chrom$name %in% names(features)[features == clustID]
+  #           loc = range(fp_chrom[idxf])
+  #           data.frame(clustID=clustID, start=start(loc), end=end(loc))
+  #           })
+  #       clustRange = do.call("rbind", clustRange)
 
-        # combine attributes
-        data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), start=clustRange$start, end=clustRange$end,   stringsAsFactors=FALSE)
-      })
-      do.call("rbind", res)
-  })
-  res = do.call("rbind", res)
-  cat("\n")
+  #       # combine attributes
+  #       data.frame(msc=id, chrom=chrom, cluster=names(tbl), N=as.numeric(tbl), start=clustRange$start, end=clustRange$end,   stringsAsFactors=FALSE)
+  #     })
+  #     do.call("rbind", res)
+  # })
+  # res = do.call("rbind", res)
+  # cat("\n")
+
+  # for each cluster in each chrom and cutoff value, get range
+  flattened = unlist( treeListClusters )
+  splt = strsplit(  names(flattened), '\\.')
+  res2 = data.table(data.frame( msc = vapply(splt, function(x) x[1], "character"),
+      chrom = vapply(splt, function(x) x[2], "character"),
+      feature = vapply(splt, function(x) x[3], "character"),
+      cluster = flattened,
+      stringsAsFactors=FALSE))   
+
+  idx = match( res2$feature, featurePositions$name)
+
+  res2$start = start(featurePositions)[idx]
+  res2$end = end(featurePositions)[idx]
+
+  res = res2[,data.frame( N = length(start),
+    start=min(start), end=max(end), stringsAsFactors=FALSE), by=c('msc', 'chrom', 'cluster')]
 
   # Get all pairs of clusters, then filter out pairs with same cutoff or different chromsome
   ###################
@@ -1110,7 +1142,30 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
 }
 
 
-# allow subsetting of epiclustDiscreteListContain
+#' Allow subsetting of epiclustDiscreteListContain
+#'
+#' Allow subsetting of epiclustDiscreteListContain
+#'
+#' @param x epiclustDiscreteListContain
+#' @param i index 1
+#' @param j index 2
+#' @param drop TRUE/FALSE
+#' @param ... additional arguement
+#'
+#' @return subset of epiclustDiscreteListContain
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clusters
+#' treeListClusters = createClusters( treeList )
+#'
+#' @export
 setMethod("[", "epiclustDiscreteListContain",
   function(x, i, j, ..., drop) {
     # new("epiclustDiscreteListContain", x[i])

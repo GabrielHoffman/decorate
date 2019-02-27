@@ -1,3 +1,7 @@
+1.0.5: Feb 27, 2019
+	- plotDecorate() now plots genes
+	- much faster collapseClusters()
+
 1.0.4: Feb 25, 2019
 	- Fix small bugs in syntax
 	- update vignette to new workflow

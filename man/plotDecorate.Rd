@@ -4,10 +4,13 @@
 \alias{plotDecorate}
 \title{Plot decorate analysis}
 \usage{
-plotDecorate(treeList, treeListClusters, featurePositions, query,
-  cols = c("lightyellow", "red"), showTree = TRUE, showGenes = FALSE)
+plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
+  cols = c("lightyellow", "red"), showTree = FALSE, showGenes = TRUE,
+  splice_variants = FALSE, non_coding = FALSE)
 }
 \arguments{
+\item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}
+
 \item{treeList}{hierarchical clustering of each chromosome from runOrderedClusteringGenome()}
 
 \item{treeListClusters}{assign regions to clusters after cutting tree with createClusters()}
@@ -21,6 +24,10 @@ plotDecorate(treeList, treeListClusters, featurePositions, query,
 \item{showTree}{show tree from hierachical clustering}
 
 \item{showGenes}{plot genes}
+
+\item{splice_variants}{if TRUE, show multiple transcripts from the same gene}
+
+\item{non_coding}{if TRUE, also show non-coding genes}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks
@@ -30,8 +37,13 @@ Plot decorate analysis for clusters and correlations
 }
 \examples{
 library(GenomicRanges)
+library(EnsDb.Hsapiens.v86)
 
+# load data
 data('decorateData')
+
+# load gene locations
+ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clsutering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
@@ -42,6 +54,6 @@ treeListClusters = createClusters( treeList )
 # Plot correlations and clusters in region defind by query
 query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, simLocation, query)
+plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 
 }

@@ -62,7 +62,6 @@ decorate v`r packageVersion("decorate")`
 
 ```{r load.packages, echo=FALSE, message=FALSE, results='hide'}
 suppressPackageStartupMessages(library(knitr))
-suppressPackageStartupMessages(library(xtable))
 
 options(xtable.type="html")
 
@@ -85,9 +84,13 @@ options(markdown.HTML.stylesheet = 'css/custom.css')
 library(decorate)
 library(GenomicRanges)
 library(cowplot)     
+library(EnsDb.Hsapiens.v86)
 
 # load data
 data('decorateData')
+
+# load gene locations
+ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clustering
 # adjacentCount is the number of adjacent peaks considered in correlation
@@ -104,13 +107,13 @@ clstScore = scoreClusters(treeList, treeListClusters )
 # Filter to retain only strong clusters
 # If lead eigen value fraction (LEF) > 30% then keep clusters
 # LEF is the fraction of variance explained by the first eigen-value
-clustInclude = retainClusters( clstScore, "LEF", 0.40 )
+clustInclude = retainClusters( clstScore, "LEF", 0.30 )
 
 # get retained clusters
 treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 
 # collapse similar clusters
-treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation)
+treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation, jaccardCutoff=0.7)
 
 # Plot correlations and clusters in region defind by query
 # get single entry giving range of the region
@@ -118,30 +121,33 @@ query = range(simLocation)
 ```
 
 ### Summary of clustering
-Number of cluster parameters: `r length(treeList)`
+Number of cluster parameters: `r length(treeListClusters)`
+
 Number of total clusters: `r sum(countClusters(treeListClusters))`
+
 Number of clusters after filtering: `r sum(countClusters(treeListClusters_filter))`
+
 Number of clusters after collapsing: `r sum(countClusters(treeListClusters_collapse))`
 
 
 ## Make plots
 ```{r plot2Decorate.text, eval=FALSE, echo=TRUE}
 # A) plot all clusters
-plotDecorate( treeList, treeListClusters, simLocation, query, showGenes=FALSE )
+plotDecorate( ensdb, treeList, treeListClusters, simLocation, query )
 
 # B) plot clusters after filtering
-plotDecorate( treeList, treeListClusters_filter, simLocation, query, showGenes=FALSE )
+plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
 ```
 
 ```{r plot2Decorate, fig.width=15, message=FALSE, results="hide", echo=FALSE}
-fig1 = plotDecorate( treeList, treeListClusters, simLocation, query, showTree=FALSE, showGenes=TRUE )
-fig2 = plotDecorate( treeList, treeListClusters_filter, simLocation, query, showTree=FALSE, showGenes=TRUE )
+fig1 = plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
+fig2 = plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
 plot_grid( fig1, fig2, ncol=2, labels=c('A', 'B') )
 ```
 
 ## Plot after collapsing redundant clusters
 ```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE}
-plotDecorate( treeList, treeListClusters_collapse, simLocation, query, showGenes=TRUE, showTree=FALSE )
+plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
 ```
 
 

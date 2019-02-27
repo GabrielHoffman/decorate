@@ -165,6 +165,7 @@ addLegend <- function(color, vp){
 #' 
 #' Plot decorate analysis for clusters and correlations
 #'
+#' @param ensdb ENSEMBL database object like EnsDb.Hsapiens.v86 
 #' @param treeList hierarchical clustering of each chromosome from runOrderedClusteringGenome()
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
 #' @param featurePositions GRanges object storing location of each feature
@@ -172,14 +173,21 @@ addLegend <- function(color, vp){
 #' @param cols vector of two colors
 #' @param showTree show tree from hierachical clustering
 #' @param showGenes plot genes
+#' @param splice_variants if TRUE, show multiple transcripts from the same gene
+#' @param non_coding if TRUE, also show non-coding genes
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
 #' @examples
 #' library(GenomicRanges)
-#' 
+#' library(EnsDb.Hsapiens.v86)
+#'
+#' # load data
 #' data('decorateData')
-#' 
+#'
+#' # load gene locations
+#' ensdb = EnsDb.Hsapiens.v86
+#'
 #' # Evaluate hierarchical clsutering
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
@@ -189,7 +197,7 @@ addLegend <- function(color, vp){
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
 #' 
-#' plotDecorate( treeList, treeListClusters, simLocation, query)
+#' plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 #'
 #' @import ggplot2
 #' @import grid
@@ -203,7 +211,7 @@ addLegend <- function(color, vp){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=TRUE, showGenes=FALSE){
+plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=FALSE, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE){
 
   if( length(query) > 1){
     stop("Can only query one interval")
@@ -227,21 +235,102 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   #   showTree = FALSE
   # }
 
+  ##############
+  # Plot Genes #
+  ##############
+
+  if( showGenes ){
+
+    if( width(query) > 1e6){
+      stop("Range is too wide (>1e6 bp) to plot genes: ", width(query), " bp")
+    }
+
+    # library(LDheatmap)
+    # transcripts <- plotGenes(start(query), end(query), seqnames(query),
+        # genome="hg38", plot_lines_distance = 0.04, splice_variants=FALSE, non_coding=FALSE)
+
+    transcripts <- plotEnsGenes(ensdb, start(query), end(query), seqnames(query), plot_lines_distance = 0.05, non_coding=non_coding, splice_variants=splice_variants)
+
+    startHeight = attr(transcripts, 'height') 
+  }else{
+    startHeight = 0.01
+  }
+
+  #################
+  # Plot segments #
+  #################
+
+  y_feature_locs = 1 - startHeight
+  feat_mark_y = 0.085
+  cluster_mark_y = 0.05
+
+  # browser()
+
+  n_features = length(fit[[1]]@clust$labels)
+
+  clustColsLst = lapply(treeListClusters, function(tlc){
+     clst = tlc[[chrom]]
+    idx = names(clst) %in% fit[[1]]@clust$labels
+    clst = clst[idx]
+
+    # create new set of clusters including non-clusters
+    clstComplete = rep(NA,nrow(fit[[1]]@correlation))
+    names(clstComplete) = rownames(fit[[1]]@correlation)
+
+    idx2 = match(names(clst), names(clstComplete))
+    clstComplete[idx2] = clst
+    rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
+  })
+
+  N = length(clustColsLst)
+  xval = seq(0, 1, length.out=n_features+1)[1:n_features]
+  incr = 0.013 #0.06 /(N+1)
+  yval = sort(rep(rep(y_feature_locs-cluster_mark_y-feat_mark_y+incr*0:(N-1)), n_features))
+  segCols = unlist(clustColsLst)
+
+  if( length(xval) > 0){
+    figSegments = segmentsGrob( x0=rep(xval,N), 
+          x1 = rep(xval+1/n_features,N), y0=yval, y1=yval, gp=gpar(lwd=3, col=segCols, lineend="butt"))
+  }else{
+    figSegments = segmentsGrob()
+  }
+
+  ####################################
+  # Plot feature locations  and grid # 
+  ####################################
+
+  # subset of featurePositions based on query
+  fnd = findOverlaps(featurePositions, query)
+  featurePositions = featurePositions[fnd@from]
+
+  pos1 = (start(featurePositions) - start(query)) / width(query) 
+  pos2 = (end(featurePositions) - start(query)) / width(query)
+  midpoint = pos1 + (pos2 -pos1)/2
+
+  # cbind(pos1, pos2, pos1 + (pos2-pos1)/2, midpoint)
+
+  figFeatLocations = segmentsGrob( x0=pos1, x1=pos2, y0=y_feature_locs-feat_mark_y, y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=3, col='navy', lineend="butt"))
+
+  xval = seq(0, 1, length.out=n_features+1)[1:n_features] + 1/n_features/2
+
+  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval)+0.01, y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=1, col="grey80", lineend="butt"))
+
   # Make Views
   #############
+
+  ylocation = (y_feature_locs - cluster_mark_y - feat_mark_y)*.91
 
   w = 0.6
   w2 = sqrt(2*w^2)
   # w2 = w
 
   # standard view
-  heatmapVP <- viewport(width = unit(w2, "snpc"), height = unit(w2, "snpc"),
-                        name="straight")
+  heatmapVP <- viewport(width = unit(w2, "snpc"), height = unit(w2, "snpc"), name="straight")
 
   # rotate correlation plot
-  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=.65, angle=-45, name="flipVP", gp=gpar(fill="black"))
+  flipVP <- viewport(width = unit(w, "snpc"), height= unit(w, "snpc"), y=ylocation, angle=-45, name="flipVP", gp=gpar(fill="black"))
 
-   flipVP2 <- viewport(width = unit(0.705, "snpc"), height= unit(0.705, "snpc"), angle=-45, name="flipVP2", y=0.7)
+   flipVP2 <- viewport(width = unit(0.705, "snpc"), height= unit(0.705, "snpc"), angle=-45, name="flipVP2", y=ylocation)
 
   # Title
   ########
@@ -280,60 +369,7 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
   key = addLegend(rev(color), heatmapVP)
   
   heatMap <- gTree(children=gList(ImageRect, key), name="heatMap")
-
-  #################
-  # Plot segments #
-  #################
-
-  y_feature_locs = 0.75
-
-  clustColsLst = lapply(treeListClusters, function(tlc){
-     clst = tlc[[chrom]]
-    idx = names(clst) %in% fit[[1]]@clust$labels
-    clst = clst[idx]
-
-    # create new set of clusters including non-clusters
-    clstComplete = rep(NA,nrow(fit[[1]]@correlation))
-    names(clstComplete) = rownames(fit[[1]]@correlation)
-
-    idx2 = match(names(clst), names(clstComplete))
-    clstComplete[idx2] = clst
-    rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
-  })
-
-  N = length(clustColsLst)
-  xval = seq(0, 1, length.out=n_features+1)[1:n_features]
-  incr = (y_feature_locs - 0.7) /(N+1)
-  yval = sort(rep(rep(.7+incr*0:(N-1)), n_features))
-  cols = unlist(clustColsLst)
-
-  if( length(xval) > 0){
-    figSegments = segmentsGrob( x0=rep(xval,N), 
-          x1 = rep(xval+1/n_features,N), y0=yval, y1=yval, gp=gpar(lwd=3, col=cols, lineend="butt"))
-  }else{
-    figSegments = segmentsGrob()
-  }
-
-  ####################################
-  # Plot feature locations  and grid # 
-  ####################################
-
-  # subset of featurePositions based on query
-  fnd = findOverlaps(featurePositions, query)
-  featurePositions = featurePositions[fnd@from]
-
-  pos1 = (start(featurePositions) - start(query)) / width(query) 
-  pos2 = (end(featurePositions) - start(query)) / width(query)
-  midpoint = pos1 + (pos2 -pos1)/2
-
-  # cbind(pos1, pos2, pos1 + (pos2-pos1)/2, midpoint)
-
-  figFeatLocations = segmentsGrob( x0=pos1, x1=pos2, y0=y_feature_locs, y1=y_feature_locs, gp=gpar(lwd=3, col='navy', lineend="butt"))
-
-  xval = seq(0, 1, length.out=n_features+1)[1:n_features] + 1/n_features/2
-
-  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval), y1=y_feature_locs, gp=gpar(lwd=1, col="grey80", lineend="butt"))
-
+  
   ##############
   # Plot title #
   ##############
@@ -345,27 +381,10 @@ plotDecorate = function( treeList, treeListClusters, featurePositions, query, co
         just = c("centre", "center"), name = "gene_plot_title",
         default.units = "native")
 
-  ##############
-  # Plot Genes #
-  #############
-
-  if( showGenes ){
-
-    if( width(query) > 1e6){
-      stop("Range is too wide (>1e6 bp) to plot genes: ", width(query), " bp")
-    }
-    cat("Downloading gene coordinates from UCSC.\nMust have internet connection\n\n")
-
-    # library(LDheatmap)
-    transcripts <- plotGenes(start(query), end(query), seqnames(query),
-        genome="hg38", plot_lines_distance = 0.04, splice_variants=FALSE, non_coding=FALSE)
-  }
-
   # Combine and plot
   ###################
 
   if( showTree ){
-
     Segs = gTree(children=gList(figSegments), name="segs")
 
     treeTmp = fit[[1]]@clust 

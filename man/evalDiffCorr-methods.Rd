@@ -53,8 +53,13 @@ Zhu, Lingxue, Jing Lei, Bernie Devlin, and Kathryn Roeder. 2017. Testing high-di
 }
 \examples{
 library(GenomicRanges)
+library(EnsDb.Hsapiens.v86)
 
+# load data
 data('decorateData')
+
+# load gene locations
+ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clsutering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
@@ -66,7 +71,7 @@ treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClu
 query = range(simLocation)
 
 # Plot clusters
-plotDecorate( treeList, treeListClusters, simLocation, query)
+plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 
 # Evaluate Differential Correlation between two subsets of data
 sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, treeListClusters, npermute=c(20, 200, 2000))

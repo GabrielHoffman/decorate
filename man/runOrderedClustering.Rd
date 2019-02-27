@@ -26,8 +26,13 @@ Chavent, et al. 2017. ClustGeo: an R package for hierarchical clustering with sp
 }
 \examples{
 library(GenomicRanges)
+library(EnsDb.Hsapiens.v86)
 
+# load data
 data('decorateData')
+
+# load gene locations
+ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clustering
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
@@ -38,6 +43,6 @@ treeListClusters = createClusters( treeList )
 # Plot correlations and clusters in region defind by query
 query = range(simLocation)
 
-plotDecorate( treeList, treeListClusters, simLocation, query)
+plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 
 }

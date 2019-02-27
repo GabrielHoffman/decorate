@@ -4,7 +4,7 @@
 \alias{collapseClusters}
 \title{Collapse clusters based on jaccard index}
 \usage{
-collapseClusters(treeListClusters, featurePositions, jaccardCutoff = 0.9)
+collapseClusters(treeListClusters, featurePositions, jaccardCutoff = 0.7)
 }
 \arguments{
 \item{treeListClusters}{from createClusters()}
