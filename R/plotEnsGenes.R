@@ -74,17 +74,21 @@ get_exon_coords = function( ensdb, query, biotypes = c("protein_coding") ){
 #' grid.draw( fig )
 #' 
 #' @export
+#' @import GenomicRanges
+#' @import grid
+#' @importFrom data.table data.table
 plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distance = 0.03,
     vp = viewport(x = 0, y = 0.95, just = c("left", "top")),
     splice_variants = TRUE, non_coding = TRUE){
 
-    requireNamespace("grid")
-
     vp$xscale <- c(minRange, maxRange)
     vp$name <- "transcriptsVP"
+    Range = maxRange - minRange
+    map_len <- convertX(vp$width, "npc", valueOnly = TRUE)
 
 	gr = GRanges(gsub( "^chr", "", chromosome), IRanges(minRange, maxRange))
 
+    # get gene coordinates
     if( non_coding ){
         biotype = NA
     }else{
@@ -92,56 +96,56 @@ plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distan
     }
 	gr_exons = get_exon_coords( ensdb, gr, biotype )
 
-	minRange = start(gr)
-	maxRange = end(gr)
-	Range = maxRange - minRange
-	map_len <- convertX(vp$width, "npc", valueOnly = TRUE)
+    if( length(gr_exons) > 0){
    
-	df = data.table(data.frame(gr_exons))
+    	df = data.table(data.frame(gr_exons))
 
-    gene_biotype = 0
-    symbol = 0
-    tx_cds_seq_end = 0
-    tx_cds_seq_start = 0
-    tx_seq_end = 0
-    tx_seq_start = 0
+        gene_biotype = 0
+        symbol = 0
+        tx_cds_seq_end = 0
+        tx_cds_seq_start = 0
+        tx_seq_end = 0
+        tx_seq_start = 0
 
-	if( !splice_variants ){
-		# single body per gene
-		suppressWarnings(df_wide <- df[,data.frame(
-			gene_name = unique(symbol),
-			chrom = unique(seqnames),
-			strand = unique(strand), 
-			exonStarts = paste(start, collapse=','), 
-			exonEnds = paste(end, collapse=','),
-			exonCount = length(start),
-			biotype = unique(gene_biotype),
-			txStart = min(tx_seq_start, na.rm=TRUE),
-			txEnd = max(tx_seq_end, na.rm=TRUE),
-			cdsStart = as.integer(min(tx_cds_seq_start, na.rm=TRUE)),
-			cdsEnd = as.integer(max(tx_cds_seq_end, na.rm=TRUE)),
-			stringsAsFactors=FALSE),by=c("symbol")])
-	}else{
+    	if( !splice_variants ){
+    		# single body per gene
+    		suppressWarnings(df_wide <- df[,data.frame(
+    			gene_name = unique(symbol),
+    			chrom = unique(seqnames),
+    			strand = unique(strand), 
+    			exonStarts = paste(start, collapse=','), 
+    			exonEnds = paste(end, collapse=','),
+    			exonCount = length(start),
+    			biotype = unique(gene_biotype),
+    			txStart = min(tx_seq_start, na.rm=TRUE),
+    			txEnd = max(tx_seq_end, na.rm=TRUE),
+    			cdsStart = as.integer(min(tx_cds_seq_start, na.rm=TRUE)),
+    			cdsEnd = as.integer(max(tx_cds_seq_end, na.rm=TRUE)),
+    			stringsAsFactors=FALSE),by=c("symbol")])
+    	}else{
 
-		# multiple transcripts per gene		
-        suppressWarnings(df_wide <- df[,data.frame(
-			gene_name = unique(symbol),
-			chrom = unique(seqnames),
-			strand = unique(strand), 
-			exonStarts = paste(start, collapse=','), 
-			exonEnds = paste(end, collapse=','),
-			exonCount = length(start),
-			biotype = unique(gene_biotype),
-			txStart = tx_seq_start,
-			txEnd = tx_seq_end,
-            cdsStart = as.integer(min(tx_cds_seq_start, na.rm=TRUE)),
-            cdsEnd = as.integer(max(tx_cds_seq_end, na.rm=TRUE)),
-			stringsAsFactors=FALSE),by=c("symbol", 'tx_seq_start', 'tx_seq_end')])
-	}
-
-	t = data.frame(df_wide, stringsAsFactors=FALSE)
-	t$plot_line <- 0
-	t$plot_line[1] <- 1
+    		# multiple transcripts per gene		
+            suppressWarnings(df_wide <- df[,data.frame(
+    			gene_name = unique(symbol),
+    			chrom = unique(seqnames),
+    			strand = unique(strand), 
+    			exonStarts = paste(start, collapse=','), 
+    			exonEnds = paste(end, collapse=','),
+    			exonCount = length(start),
+    			biotype = unique(gene_biotype),
+    			txStart = tx_seq_start,
+    			txEnd = tx_seq_end,
+                cdsStart = as.integer(min(tx_cds_seq_start, na.rm=TRUE)),
+                cdsEnd = as.integer(max(tx_cds_seq_end, na.rm=TRUE)),
+    			stringsAsFactors=FALSE),by=c("symbol", 'tx_seq_start', 'tx_seq_end')])
+    	}
+        t = data.frame(df_wide, stringsAsFactors=FALSE)
+        t$plot_line <- 0
+        t$plot_line[1] <- 1
+    }else{
+        t = data.frame()
+    }
+	
 	plot_lines_no <- 1
 	# browser()
     if (dim(t)[1] > 1) {
@@ -168,7 +172,7 @@ plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distan
         default.units = "native")
     Transcripts <- gTree(children = gList(gene_plot_title), name = "transcripts",
         vp = vp)
-    for (i in 1:dim(t)[1]) {
+    for(i in seq_len(nrow(t)) ){
         tx_upArrows <- tx_downArrows <- tx_exons <- tx_cds <- tx_leftArrow <- tx_rightArrow <- NULL
         y = 1 - t[i, "plot_line"]/plot_lines_no
         txStart <- max(minRange, t[i, "txStart"], na.rm=TRUE)

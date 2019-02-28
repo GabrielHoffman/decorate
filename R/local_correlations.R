@@ -984,7 +984,11 @@ jaccard = function(a,b){
 #' @importFrom utils combn
 #' @importFrom data.table data.table
 #' @export
-collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.7){
+collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
+
+  if( is.null(featurePositions$name) ){
+    stop("featurePositions must have a column 'name' storing the feature identifier")
+  }
 
   # for each cluster in each chrom and cutoff value, get range
   flattened = unlist( treeListClusters )
@@ -993,9 +997,13 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
       chrom = vapply(splt, function(x) x[2], "character"),
       feature = vapply(splt, function(x) x[3], "character"),
       cluster = flattened,
-      stringsAsFactors=FALSE))   
+      stringsAsFactors=FALSE)) 
 
   idx = match( res2$feature, featurePositions$name)
+
+  if( any(is.na(idx)) ){
+    stop("There are ", format(sum(is.na(idx)), big.mark=','), " feautres in treeListClusters that are not found in featurePositions")
+  }
 
   res2$start = start(featurePositions)[idx]
   res2$end = end(featurePositions)[idx]
@@ -1008,7 +1016,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
 
   cat("Identifying redundant clusters...\n")
 
-  msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = NULL
+  msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = key.x = key.y = .SD = key = NULL
 
   resRetain = lapply( unique(res$chrom), function(CHROM){
 
@@ -1061,8 +1069,8 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
 
   resRetain = do.call("rbind", resRetain)
 
-  # Drop clusters in resDrop from treeListClusters
-  ################################################
+  # Keep only clusters in resRetain from treeListClusters
+  #######################################################
 
   # count clusters for each cutoff and chromsome
   clCount = lapply(treeListClusters, countClusters)

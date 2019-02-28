@@ -224,6 +224,10 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     stop("No data left after filtering by query region")
   }
 
+  if( length(fit[[1]]@correlation) < 2 ){
+    stop("Must have at least two features in this region")
+  }
+
   if( ! is(treeListClusters, 'list') && ! is(treeListClusters[[1]], 'epiclustDiscreteList') ){
     stop("treeListClusters must be the result of createClusters") 
   }
