@@ -232,6 +232,17 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     stop("treeListClusters must be the result of createClusters") 
   }
 
+  if( is.null(featurePositions$name) ){
+    stop("featurePositions must have a column 'name' storing the feature identifier")
+  }
+
+  # check that features labels are also found in featurePositions
+  idx = match( fit[[1]]@clust$labels, featurePositions$name)
+
+  if( any(is.na(idx)) ){
+    stop("There are ", format(sum(is.na(idx)), big.mark=','), " features in treeListClusters that are not found in featurePositions")
+  }
+
   chrom = names(fit)
 
   # if( showTree){
@@ -265,10 +276,10 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   #################
 
   y_feature_locs = 1 - startHeight
-  feat_mark_y = 0.085
-  cluster_mark_y = 0.07
+  feat_mark_y = 0.07
+  cluster_mark_y = 0.03
 
-  # browser()
+  y_pos = y_feature_locs - 0.02
 
   n_features = length(fit[[1]]@clust$labels)
 
@@ -286,10 +297,21 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     rainbow( length(unique(clstComplete)))[as.factor(clstComplete)]
   })
 
+  # remove lines with no segments
+  clustColsLst = lapply(clustColsLst, function(x){
+    ret = NA
+    if(any(!is.na(x))){
+      ret = x
+    }
+    ret
+  })
+  clustColsLst = clustColsLst[lengths(clustColsLst)>1]
+
   N = length(clustColsLst)
   xval = seq(0, 1, length.out=n_features+1)[1:n_features]
-  incr = 0.013 #0.06 /(N+1)
-  yval = sort(rep(rep(y_feature_locs-cluster_mark_y-feat_mark_y+incr*0:(N-1)), n_features))
+  incr = 0.013 
+  # yval = sort(rep(rep(y_feature_locs-cluster_mark_y-feat_mark_y+incr*0:(N-1)), n_features))
+  yval = sort(rep(rep(y_pos - 1:N*incr), n_features))
   segCols = unlist(clustColsLst)
 
   if( length(xval) > 0){
@@ -313,16 +335,16 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   # cbind(pos1, pos2, pos1 + (pos2-pos1)/2, midpoint)
 
-  figFeatLocations = segmentsGrob( x0=pos1, x1=pos2, y0=y_feature_locs-feat_mark_y, y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=3, col='navy', lineend="butt"))
+  figFeatLocations = segmentsGrob( x0=pos1, x1=pos2, y0=y_pos, y1=y_pos, gp=gpar(lwd=3, col='navy', lineend="butt"))
 
   xval = seq(0, 1, length.out=n_features+1)[1:n_features] + 1/n_features/2
 
-  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval), y1=y_feature_locs-feat_mark_y, gp=gpar(lwd=1, col="grey80", lineend="butt"))
+  figPos = segmentsGrob( x0=xval, x1=midpoint, y0=max(yval), y1=y_pos, gp=gpar(lwd=1, col="grey80", lineend="butt"))
 
   # Make Views
   #############
 
-  ylocation = (y_feature_locs - cluster_mark_y - feat_mark_y)*.91
+  ylocation = min(yval) * .92
 
   w = 0.6
   w2 = sqrt(2*w^2)
@@ -412,16 +434,21 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   }else{
 
     grid.newpage()
-    fig = ggdraw()
+    # fig = ggdraw()
 
     if( showGenes ){
-      fig = fig + draw_grob(gTree(children=gList(transcripts), vp=heatmapVP))
+      # fig = fig + draw_grob(gTree(children=gList(transcripts), vp=heatmapVP))
+      fig = ggdraw(heatMap) + draw_grob(gTree(children=gList(transcripts, figPos, figFeatLocations, figSegments, plot_title), vp=heatmapVP)) 
+    }else{
+
+     fig =  ggdraw(heatMap) + draw_grob(gTree(children=gList(figPos, figFeatLocations, figSegments, plot_title), vp=heatmapVP)) 
     }
 
-    fig + draw_grob(gTree(children=gList(figPos), vp=heatmapVP)) +
-      draw_grob(gTree(children=gList(figFeatLocations), vp=heatmapVP)) + 
-      draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))  + 
-      draw_grob(heatMap) + draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
+    # fig + draw_grob(gTree(children=gList(figPos), vp=heatmapVP)) +
+    #   draw_grob(gTree(children=gList(figFeatLocations), vp=heatmapVP)) + 
+    #   draw_grob(gTree(children=gList(figSegments), vp=heatmapVP))  + 
+    #   draw_grob(heatMap) + draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
+    fig
   }
 }
 

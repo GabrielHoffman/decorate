@@ -944,6 +944,7 @@ jaccard = function(a,b){
   n_I / n_U
 }
 
+`:=` <- function(a,b) {stop(":= should not be called directly")}
 
 #' Collapse clusters based on jaccard index
 #' 
@@ -1002,7 +1003,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
   idx = match( res2$feature, featurePositions$name)
 
   if( any(is.na(idx)) ){
-    stop("There are ", format(sum(is.na(idx)), big.mark=','), " feautres in treeListClusters that are not found in featurePositions")
+    stop("There are ", format(sum(is.na(idx)), big.mark=','), " features in treeListClusters that are not found in featurePositions")
   }
 
   res2$start = start(featurePositions)[idx]

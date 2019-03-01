@@ -278,6 +278,6 @@ plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distan
         # browser() 
         Transcripts <- addGrob(Transcripts, transcript)
     }
-    attr(Transcripts, 'height') = height
+    attr(Transcripts, 'height') = height + (1-as.numeric(vp$y))
     return(Transcripts)
 }
