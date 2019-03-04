@@ -20,6 +20,10 @@
 #' @import GenomicRanges
 getPeakDistances = function( query, windowSize=10000 ){
 
+  # Drop empty chromsomes
+  chrNameCount = table(seqnames(query))
+  query = dropSeqlevels( query, names(chrNameCount[chrNameCount==0]))
+
   # expand windows
   windowRanges = query
   start(windowRanges) = start(windowRanges) - windowSize
@@ -274,6 +278,10 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
   if( alpha < 0 || alpha > 1 ){
       stop("Must specify agrument: alpha must be between 0 and 1")
   }
+
+  # Drop empty chromsomes
+  chrNameCount = table(seqnames(gr))
+  gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
 
   seqNameCounts = table(seqnames(gr))
   seqNameCounts = seqNameCounts[seqNameCounts>0]
@@ -850,6 +858,11 @@ filterClusters = function( treeListClusters, clustInclude){
 #' @importFrom data.table data.table
 #' @export
 evaluateCorrDecay = function( treeList, gr){
+  
+  # Drop empty chromsomes
+  chrNameCount = table(seqnames(gr))
+  gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
+
 
   distList = lapply( levels(seqnames(gr)), function( chrom ){
     # get GenomicRange for this chromosome
@@ -984,6 +997,7 @@ jaccard = function(a,b){
 #' 
 #' @importFrom utils combn
 #' @importFrom data.table data.table
+#' @importFrom GenomicRanges seqnames
 #' @export
 collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
 
@@ -994,6 +1008,10 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
   if( is.null(names(featurePositions)) ){
     stop("featurePositions must have identifiers for each interval accessable using names(featurePositions)")
   }
+
+  # Drop empty chromsomes
+  chrNameCount = table(seqnames(featurePositions))
+  featurePositions = dropSeqlevels( featurePositions, names(chrNameCount[chrNameCount==0]))
 
   # for each cluster in each chrom and cutoff value, get range
   flattened = unlist( treeListClusters )

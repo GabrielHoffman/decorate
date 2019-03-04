@@ -233,6 +233,11 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     stop("Can only query one interval")
   }
 
+  # drop empty chromosomes
+  chrNameCount = table(seqnames(query))
+
+  query = dropSeqlevels( query, names(chrNameCount[chrNameCount==0]))
+
   # get clusters in query
   fit = getSubset( treeList, query )
 
