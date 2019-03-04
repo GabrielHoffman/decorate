@@ -391,7 +391,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   n_features = nrow(C)
 
-  if( !identical(rownames(C), featurePositions$name)){
+  if( !identical(rownames(C), names(featurePositions)) ){
     cat("Processing subset of features in query...\n")
     showTree = FALSE
   }
