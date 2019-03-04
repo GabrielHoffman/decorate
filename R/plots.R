@@ -213,6 +213,22 @@ addLegend <- function(color, vp){
 #' @export
 plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=FALSE, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE){
 
+  if( ! is(query, "GRanges")){
+    stop("query must be GRanges object")
+  }
+
+  if( ! is(featurePositions, "GRanges")){
+    stop("featurePositions must be a GRanges object")
+  }
+
+  if( is.null(names(featurePositions)) ){
+    stop("featurePositions must have identifiers for each interval accessable using names(featurePositions)")
+  }
+
+  if( ! is(ensdb, "EnsDb")){
+    stop("ensdb must be EnsDb object")
+  }
+
   if( length(query) > 1){
     stop("Can only query one interval")
   }
@@ -232,12 +248,8 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     stop("treeListClusters must be the result of createClusters") 
   }
 
-  if( is.null(featurePositions$name) ){
-    stop("featurePositions must have a column 'name' storing the feature identifier")
-  }
-
   # check that features labels are also found in featurePositions
-  idx = match( fit[[1]]@clust$labels, featurePositions$name)
+  idx = match( fit[[1]]@clust$labels, names(featurePositions))
 
   if( any(is.na(idx)) ){
     stop("There are ", format(sum(is.na(idx)), big.mark=','), " features in treeListClusters that are not found in featurePositions")

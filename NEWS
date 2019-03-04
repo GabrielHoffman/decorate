@@ -1,3 +1,6 @@
+1.0.7: March 4, 2019
+	- GRanges object uses names(gr) feature	
+
 1.0.6: Feb 28, 2019
 	- fix plotDecorate() for intervals with no genes
 	- fix collapseClusters() and plotDecorate() error with feature names
@@ -35,7 +38,6 @@
 0.99.2:
 	- reduce memory usage substantially
 	- reduce compute time 100x by using adaptive permutations
-
 
 Jan 22, 2019:
     Initial version

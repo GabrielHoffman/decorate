@@ -987,8 +987,12 @@ jaccard = function(a,b){
 #' @export
 collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.9){
 
-  if( is.null(featurePositions$name) ){
-    stop("featurePositions must have a column 'name' storing the feature identifier")
+  if( ! is(featurePositions, "GRanges")){
+    stop("featurePositions must be a GRanges object")
+  }
+
+  if( is.null(names(featurePositions)) ){
+    stop("featurePositions must have identifiers for each interval accessable using names(featurePositions)")
   }
 
   # for each cluster in each chrom and cutoff value, get range
@@ -1000,7 +1004,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
       cluster = flattened,
       stringsAsFactors=FALSE)) 
 
-  idx = match( res2$feature, featurePositions$name)
+  idx = match( res2$feature, names(featurePositions))
 
   if( any(is.na(idx)) ){
     stop("There are ", format(sum(is.na(idx)), big.mark=','), " features in treeListClusters that are not found in featurePositions")

@@ -23,14 +23,15 @@ cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
 rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html")
 --->
 
-Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.
+Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.  Epigenetic datasets where decorate can be applied include ChIP-seq, ATAC-seq and DNA methylation.
 
 decorate v`r packageVersion("decorate")`
 
 # Workflow
 \item 0) Data normalization and covariate correction
 
-    + We assume this has already been perform using standard method for your assay
+    + We assume this has already been perform using standard methods for your assay
+    + decorate should be run on residuals after removing the effects of confounding variables
 
 \item 1) Compute correlations between local pairs of features
 
@@ -42,21 +43,26 @@ decorate v`r packageVersion("decorate")`
 
 \item 3) Produce discrete clusters of features
 
-    + `createClusters():` can take multiple parameter values to return multiple sets of clusters
+    + `createClusters():` can take multiple parameter values to return multiple sets of clusters at different resolutions
 
-\item 4) Filter clusters based on strength of correlation
+\item 4) Filter clusters 
 
-    + `scoreClusters():` evaluate the strength of the correlation structure of each cluster
-    + `retainClusters():` identify clusters with pass a cutoff for strength of the correlation structure
-    + `filterClusters():` apply filter to clusters based on this cutoff
-    + `collapseClusters():` Collapse redundant clusters identified from using multiple parameter values in step (3)
+    - Based on strength of correlation
+      + `scoreClusters():` evaluate the strength of the correlation structure of each cluster
+      + `retainClusters():` identify clusters that pass a cutoff for strength of the correlation structure.  By default filters by LEF, the lead eigen-value fraction, which is the fraction of variance explained by the first eigen-value.  Higher LEF values indicate a stronger correlation structure.
+      + `filterClusters():` apply filter to clusters based on this cutoff
+
+    - Identify overlapping clusters and drop if redundant
+      + `collapseClusters():` Collapse redundant clusters identified from using multiple parameter values in step (3).  Redundancy of two clusters is evaluated using the Jaccard index, the fraction of epigenetic features shared between two clusters.
 
 \item 5) Statistical test of differential correlation 
 
-    + `evalDiffCorr():` run permutations tests in parallel on multicore machine
+    + `evalDiffCorr():` run permutations tests in parallel on multicore machine using the sparse leading eigen-value driven test (sLED).
+    + the amount of regularization is determind with the parameter `sumabs.seq`, where a value of 1 is the least sparse and decreasing values result in more regularization.
+    + see sLED [package](https://github.com/lingxuez/sLED) and [manuscript](https://arxiv.org/abs/1606.00252) for details of `adj.beta`, `rho` and `sumabs.seq` 
 
 \item 6) Data visualization
-    + `plotDecorate():` plot local correlation structure, clusters of features and gene in the region
+    + `plotDecorate():` plot local correlation structure, clusters of features and genes in the region
     + `plotCompareCorr():` plot correlation structure for two subsets of the data
 
 
@@ -90,6 +96,8 @@ library(EnsDb.Hsapiens.v86)
 data('decorateData')
 
 # load gene locations
+# this is ENSEMBL v86 from the hg38 assembly
+# but other versions and assemblies are available
 ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clustering
@@ -99,6 +107,8 @@ treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
 # Choose cutoffs and return clusters using multiple values for meanClusterSize 
 # Clusters corresponding to each parameter value are returned 
 # and then processed downstream
+# By using multiple parameter values, epigenetic features are included in clusters 
+# at different resolutions
 treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c(10, 30, 40, 50) )
 
 # Evaluate strength of correlation for each cluster
@@ -112,8 +122,8 @@ clustInclude = retainClusters( clstScore, "LEF", 0.30 )
 # get retained clusters
 treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
 
-# collapse similar clusters
-treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation, jaccardCutoff=0.7)
+# collapse redundant clusters
+treeListClusters_collapse = collapseClusters( treeListClusters_filter, simLocation, jaccardCutoff=0.9)
 
 # Plot correlations and clusters in region defind by query
 # get single entry giving range of the region
@@ -123,12 +133,19 @@ query = range(simLocation)
 ### Summary of clustering
 Number of cluster parameters: `r length(treeListClusters)`
 
-Number of total clusters: `r sum(countClusters(treeListClusters))`
++ `meanClusterSize=c(10, 30, 40, 50)`
 
-Number of clusters after filtering: `r sum(countClusters(treeListClusters_filter))`
+Number of total clusters: `r countClusters(treeListClusters)`
 
-Number of clusters after collapsing: `r sum(countClusters(treeListClusters_collapse))`
++ in `treeListClusters`
 
+Number of clusters after filtering: `r countClusters(treeListClusters_filter)`
+
++ in `treeListClusters_filter`
+
+Number of clusters after collapsing: `r countClusters(treeListClusters_collapse)`
+
++ in `treeListClusters_collapse`
 
 ## Make plots
 ```{r plot2Decorate.text, eval=FALSE, echo=TRUE}
@@ -142,14 +159,18 @@ plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
 ```{r plot2Decorate, fig.width=15, message=FALSE, results="hide", echo=FALSE}
 fig1 = plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 fig2 = plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
-plot_grid( fig1, fig2, ncol=2, labels=c('A', 'B') )
+plot_grid( fig1, fig2, ncol=2, labels=c('A: All clusters', 'B: After filtering') )
 ```
 
 ## Plot after collapsing redundant clusters
-```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE}
+```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE, eval=FALSE}
 plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
 ```
 
+```{r plotCollapse.2, message=FALSE, results="hide", echo=FALSE}
+fig = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
+plot_grid( fig, ncol=1, labels=c('C: After collapsing clusters'), hjust=0 )
+```
 
 ### Run test of differential correlation
 Evaluate `treeListClusters_collapse`, the filtered collapsed set of clusters
