@@ -1018,7 +1018,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
   splt = strsplit(  names(flattened), '\\.')
   res2 = data.table(data.frame( msc = vapply(splt, function(x) x[1], "character"),
       chrom = vapply(splt, function(x) x[2], "character"),
-      feature = vapply(splt, function(x) x[3], "character"),
+      feature = vapply(splt, function(x) paste0(x[-c(1:2)],collapse='.'), "character"),
       cluster = flattened,
       stringsAsFactors=FALSE)) 
 
