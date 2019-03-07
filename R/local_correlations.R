@@ -863,8 +863,10 @@ evaluateCorrDecay = function( treeList, gr){
   chrNameCount = table(seqnames(gr))
   gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
 
+  # distList = lapply( seqlevels(gr), function( chrom ){
+  distList = list()
+  for( chrom in seqlevels(gr) ){
 
-  distList = lapply( levels(seqnames(gr)), function( chrom ){
     # get GenomicRange for this chromosome
     gRange = gr[seqnames(gr) == chrom]
 
@@ -883,12 +885,13 @@ evaluateCorrDecay = function( treeList, gr){
 
     # compute chromsomal distance between pairs with non-zero correlation
     dfDist$distance = distance(gRange[dfDist$i],gRange[dfDist$j])
-    dfDist
-  })
+    distList[[chrom]] = dfDist
+  }
 
   feature_i = feature_j = NA
   
   dfDist = do.call("rbind", distList)
+  rm(distList)
   dfDist = data.table(dfDist)
   dfDist = dfDist[feature_i!=feature_j,]
 

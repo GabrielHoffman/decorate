@@ -1,6 +1,9 @@
+1.0.8: March 7, 2019
+	- fix error in evaluateCorrDecay()
+
 1.0.7: March 4, 2019
 	- GRanges object uses names(gr) feature	
-	- drop chromosomes from GRanges objects is they don't have any entries
+	- drop chromosomes from GRanges objects if they don't have any entries
 
 1.0.6: Feb 28, 2019
 	- fix plotDecorate() for intervals with no genes
