@@ -189,7 +189,22 @@ runOrderedClustering = function( X, gr, alpha=0.5 ){
   treeReOrder
 }
 
+#' Class epiclust
+#'
+#' Class \code{epiclust} 
+#'
+#' @name epiclust-class
+#' @rdname epiclust-class
+#' @exportClass epiclust
 setClass("epiclust", representation(clust="ANY", location="GRanges", adjacentCount="numeric", alpha="numeric", method="character", correlation="ANY"))
+
+#' Class epiclustList
+#'
+#' Class \code{epiclustList} 
+#'
+#' @name epiclustList-class
+#' @rdname epiclustList-class
+#' @exportClass epiclustList
 setClass("epiclustList", representation('ANY'))
 
 
@@ -518,7 +533,13 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
 #   print( object )
 # })
 
-
+#' Class epiclustDiscreteList
+#'
+#' Class \code{epiclustDiscreteList} 
+#'
+#' @name epiclustDiscreteList-class
+#' @rdname epiclustDiscreteList-class
+#' @exportClass epiclustDiscreteList
 setClass("epiclustDiscreteList", representation('list'))
 
 setMethod("print", "epiclustDiscreteList", function( x ){
@@ -535,7 +556,13 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 
 
 
-# epiclustDiscreteListContain is a list containing epiclustDiscreteList objects
+#' Class epiclustDiscreteListContain
+#'
+#' Class \code{epiclustDiscreteListContain}: is a list containing epiclustDiscreteList objects
+#'
+#' @name epiclustDiscreteListContain-class
+#' @rdname epiclustDiscreteListContain-class
+#' @exportClass epiclustDiscreteListContain
 setClass("epiclustDiscreteListContain", representation('list'))
 
 setMethod("print", "epiclustDiscreteListContain", function( x ){

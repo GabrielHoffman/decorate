@@ -176,10 +176,10 @@ plot_grid( fig, ncol=1, labels=c('C: After collapsing clusters'), hjust=0 )
 Evaluate `treeListClusters_collapse`, the filtered collapsed set of clusters
 ```{r compare, echo=TRUE, message=FALSE, results="hide"}
 # Evaluate Differential Correlation between two subsets of data
-# increase npermute on real data
 # Perform a minimum of 20 permutations and a max of 200 in first round
-# For real data, add a 3rd value like 1e6 to perform a second round 
-# of permutations in parallel
+#   and in second round perform a max of 2000
+# The smallest p-value you can get from permutations in 1/max(npermute)
+# So on real data, use npermute = c(200, 2000, 1e7)
 sledRes = evalDiffCorr( simData, metadata$Disease, simLocation, 
   treeListClusters_collapse, 
   npermute=c(20, 200, 2000))
