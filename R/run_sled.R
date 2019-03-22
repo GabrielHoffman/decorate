@@ -207,7 +207,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	ncol1 = ncol(itObj$Y1)
 	ncol2 = ncol(itObj$Y2)
 
-	if( min(ncol1, ncol2) > 3 ){
+	if( min(ncol1, ncol2) >= 3 ){
 
 	  	# perform permutations until p-values is precise enough
 	  	# if not precise enough
@@ -279,6 +279,9 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 		do.call("rbind", res)
 	})
 	dfClust = data.table(do.call('rbind', dfClust))
+
+	# check size of clusters
+	cat("Note that clusters of 2 or fewer features are ommited from analysis\n\n")
 
 	# only get peaks that are in the the epiSignal dataset
 	peak = NA
