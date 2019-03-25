@@ -643,6 +643,7 @@ whichCluster = function(treeListClusters, feature_id, id=NULL){
       if( is.na(clust)){
         clust = NA
       }
+      names(clust) = c()
       data.frame( id=msc, chrom, feature_id, cluster=clust, stringsAsFactors=FALSE)
     })
     do.call('rbind', res)
@@ -693,6 +694,56 @@ getFeaturesInCluster = function( treeListClusters, chrom, clustID, id){
 
   names(clsts)
 }
+
+
+
+#' Get feature names in selected cluster
+#'
+#' Get feature names in selected cluster given array of chrom and cluster ids 
+#'
+#' @param treeListClusters from createClusters()
+#' @param chrom chromosome name of cluster
+#' @param clustID cluster identifier
+#' @param id clustering parameter identifier
+#'
+#' @return list of array of feature names.  Query with index i as returned in list index i
+#'
+#' @examples
+#' library(GenomicRanges)
+#' 
+#' data('decorateData')
+#' 
+#' # Evaluate hierarchical clustering
+#' treeList = runOrderedClusteringGenome( simData, simLocation ) 
+#' 
+#' # Choose cutoffs and return clusters
+#' treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize = 50 )
+#' 
+#' df_cluster = data.frame( chrom = c("chr20", "chr20"), 
+#'   cluster = c(3,5), 
+#'   id = c("50", "50"), stringsAsFactors=FALSE )
+#' 
+#' # Find features for the clusters in df_cluster
+#' getFeaturesInClusterList( treeListClusters, chrom=df_cluster$chrom, clustID=df_cluster$cluster, id=df_cluster$id)
+#'
+#' @export
+getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
+
+  if( length(unique(c(length(chrom), length(clustID), length(id)))) != 1){
+    stop("Number of entries in chrom, clustID, id must be equal")
+  }
+
+  res = sapply( seq_len(length(chrom)), function(i){
+
+    idx = which( treeListClusters[[id[i]]][[chrom[i]]] == clustID[i] )
+
+    clsts = treeListClusters[[id[i]]][[chrom[i]]][idx]
+
+    names(clsts)
+  })
+  res
+}
+
 
 
 

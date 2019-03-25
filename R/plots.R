@@ -273,8 +273,8 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   if( showGenes ){
 
-    if( width(query) > 1e6){
-      stop("Range is too wide (>1e6 bp) to plot genes: ", width(query), " bp")
+    if( width(query) > 5e7){
+      stop("Range is too wide (>5e7 bp) to plot genes: ", width(query), " bp.\nYou can plot this range with showGenes=FALSE")
     }
 
     # library(LDheatmap)

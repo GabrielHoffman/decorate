@@ -1,3 +1,8 @@
+1.0.11: March 25, 2019
+	- whichCluster() results now have proper row names
+	- add function getFeaturesInClusterList()
+	- for plotDecorate(), expand allowable window to 5e7 bp for plotting genes
+
 1.0.9: March 22, 2019
 	- enable analysys of clusters of size 3
 
