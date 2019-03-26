@@ -9,9 +9,9 @@ whichCluster(treeListClusters, feature_id, id = NULL)
 \arguments{
 \item{treeListClusters}{from createClusters()}
 
-\item{feature_id}{name of query feature}
+\item{feature_id}{name of query feature, can also be array}
 
-\item{id}{clustering parameter identifier}
+\item{id}{clustering parameter identifier.  After filtering by feature_id, filter by id}
 }
 \value{
 data.frame of chromosome and cluster
@@ -36,5 +36,8 @@ whichCluster( treeListClusters, 'peak_20')
 # Find chromsome and cluster of peak_20 with clustering parameter 50 
 #  corresponding to meanClusterSize 
 whichCluster( treeListClusters, 'peak_20', "50")
+
+# Search for multiple clusters
+whichCluster( treeListClusters, c('peak_20', 'peak_21'), "50")
 
 }

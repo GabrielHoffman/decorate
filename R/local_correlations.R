@@ -609,8 +609,8 @@ setMethod("show", "epiclustDiscreteListContain", function( object ){
 #' Find which cluster a peak is in
 #'
 #' @param treeListClusters from createClusters()
-#' @param feature_id name of query feature
-#' @param id clustering parameter identifier
+#' @param feature_id name of query feature, can also be array
+#' @param id clustering parameter identifier.  After filtering by feature_id, filter by id 
 #'
 #' @return data.frame of chromosome and cluster
 #'
@@ -632,6 +632,9 @@ setMethod("show", "epiclustDiscreteListContain", function( object ){
 #' #  corresponding to meanClusterSize 
 #' whichCluster( treeListClusters, 'peak_20', "50")
 #'
+#' # Search for multiple clusters
+#' whichCluster( treeListClusters, c('peak_20', 'peak_21'), "50")
+#'
 #' @export
 whichCluster = function(treeListClusters, feature_id, id=NULL){
   # find cluster based on anem
@@ -640,9 +643,10 @@ whichCluster = function(treeListClusters, feature_id, id=NULL){
       x = treeListClusters[[msc]][[chrom]]
       idx = match(feature_id, names(x))
       clust = x[idx]
-      if( is.na(clust)){
-        clust = NA
-      }
+      # if( is.na(clust)){
+      #   clust = NA
+      #   clust[is.na(clust)] = NA
+      # }
       names(clust) = c()
       data.frame( id=msc, chrom, feature_id, cluster=clust, stringsAsFactors=FALSE)
     })
@@ -654,7 +658,8 @@ whichCluster = function(treeListClusters, feature_id, id=NULL){
 
   # if specified, filter by ID
   if(!is.null(id) ){
-    res = res[res$id==as.character(id),]
+    id = unique(id)
+    res = res[res$id%in%as.character(id),]
   }
   res
 }

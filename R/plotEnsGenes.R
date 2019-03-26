@@ -77,13 +77,18 @@ get_exon_coords = function( ensdb, query, biotypes = c("protein_coding") ){
 #' @import GenomicRanges
 #' @import grid
 #' @importFrom data.table data.table
+#' @importFrom grDevices pdf dev.off
 plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distance = 0.03,
     vp = viewport(x = 0, y = 0.95, just = c("left", "top")),
     splice_variants = TRUE, non_coding = TRUE){
 
+    # direct intermidiate windows to null file
+    pdf(file=NULL)
+
     vp$xscale <- c(minRange, maxRange)
     vp$name <- "transcriptsVP"
     Range = maxRange - minRange
+
     map_len <- convertX(vp$width, "npc", valueOnly = TRUE)
 
 	gr = GRanges(gsub( "^chr", "", chromosome), IRanges(minRange, maxRange))
@@ -278,6 +283,7 @@ plotEnsGenes = function(ensdb, minRange, maxRange, chromosome, plot_lines_distan
         # browser() 
         Transcripts <- addGrob(Transcripts, transcript)
     }
+    dev.off()
     attr(Transcripts, 'height') = height + (1-as.numeric(vp$y))
     return(Transcripts)
 }

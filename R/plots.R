@@ -450,7 +450,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
       # draw_grob(gTree(children=gList(plot_title), vp=heatmapVP))
   }else{
 
-    grid.newpage()
+    # grid.newpage()
     # fig = ggdraw()
 
     if( showGenes ){
