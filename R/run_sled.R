@@ -249,8 +249,8 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	if( ! is(testVariable, 'factor') || nlevels(testVariable) != 2 ){
 		stop("Entries in testVariable must be a factor with two levels")
 	}
-	if( min(table(testVariable)) < 20){
-		stop("Need at last 20 samples in smallest class of testVariable")
+	if( min(table(testVariable)) < 10){
+		stop("Need at last 10 samples in smallest class of testVariable")
 	}
 	if( length(npermute) < 2 || is.unsorted(npermute) ){
 		stop("npermute must have 2 or 3 increasing entries")
