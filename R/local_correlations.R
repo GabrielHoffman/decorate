@@ -1008,14 +1008,23 @@ evaluateCorrDecay = function( treeList, gr){
 #' 
 #' # Retain clusters that pass this criteria
 #' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+
+#' # Or filter by mean absolute correlation
+#' # clustInclude = retainClusters( clstScore, "mean_abs_corr", 0.1 )
 #' 
 #' # get retained clusters
-#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+#' treeListClusters_filter = filterClusters( treeListClusters, clustInclude )
 #'
 #' @export
 retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
 
   clstScoreDF = do.call("rbind", clstScore)
+
+  if( ! metric %in% colnames(clstScoreDF) ){
+     cols = colnames(clstScoreDF)[!colnames(clstScoreDF) %in% c("id", "chrom", "cluster")]
+
+    stop("Valid metric to filter by are:\n", paste(cols, collapse = ', '))
+  }
 
   clstScoreDF[clstScoreDF[[metric]] >= cutoff,c("id", "chrom", "cluster", metric)]
 }

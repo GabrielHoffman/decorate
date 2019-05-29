@@ -35,8 +35,10 @@ clstScore = scoreClusters(treeList, treeListClusters )
 
 # Retain clusters that pass this criteria
 clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+# Or filter by mean absolute correlation
+# clustInclude = retainClusters( clstScore, "mean_abs_corr", 0.1 )
 
 # get retained clusters
-treeListClusters_filter = filterClusters( treeListClusters, clustInclude)
+treeListClusters_filter = filterClusters( treeListClusters, clustInclude )
 
 }

@@ -1,3 +1,8 @@
+1.0.15: May 29, 2019
+	- improve error messages for retainClusters()
+	- add combineResults()
+	- add additional plots to vignette
+
 1.0.14: May 28, 2019
 	- add plotScatterPairs()
 	- plotDecorate() can compute correlation matrix directly from data
