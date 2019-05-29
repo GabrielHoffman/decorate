@@ -61,7 +61,7 @@ decorate v`r packageVersion("decorate")`
 
     + `evalDiffCorr():` run permutations tests in parallel on multicore machine using the sparse leading eigen-value driven test (sLED).
     + the amount of regularization is determind with the parameter `sumabs.seq`, where a value of 1 is the least sparse and decreasing values result in more regularization.
-    + see sLED [package](https://github.com/lingxuez/sLED) and [manuscript](https://arxiv.org/abs/1606.00252) for details of `adj.beta`, `rho` and `sumabs.seq` 
+    + see sLED [package](https://github.com/lingxuez/sLED) and [manuscript](https://projecteuclid.org/euclid.aoas/1507168849) for details of `adj.beta`, `rho` and `sumabs.seq` 
     + merge all results into one data.frame with `combineResults()`
 
 \item 6) Data visualization
