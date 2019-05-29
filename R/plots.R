@@ -141,12 +141,14 @@ makeImageRect <- function(nrow, ncol, cols, name, byrow=TRUE) {
 }
 
 
-addLegend <- function(color, vp){
+addLegend <- function(color, vp, absCorr){
   ImageRect<- makeImageRect(2,length(color), cols=c(rep(NA,length(color)),color[length(color):1]), "colorKey")
 
   keyVP <- viewport(x=.94, y=.03, height=.05, width=.2, just=c("right","bottom"), name="keyVP")
   
-  title<-textGrob("abs(Correlation)", x=0.5, y=1.25, name="title", gp=gpar(cex=0.8))
+  txt = ifelse(absCorr, "abs(Correlation)", "Correlation")
+
+  title<-textGrob(txt, x=0.5, y=1.25, name="title", gp=gpar(cex=0.8))
   
   #Adding labels to the color key
   labels<-textGrob(paste(0.2*0:5), x=0.2*0:5,y=0.25, gp=gpar(cex=0.6), name="labels")
@@ -170,11 +172,13 @@ addLegend <- function(color, vp){
 #' @param treeListClusters assign regions to clusters after cutting tree with createClusters()
 #' @param featurePositions GRanges object storing location of each feature
 #' @param query GRanges object indiecating region to plot
-#' @param cols vector of two colors
+#' @param data data to compute correlations stratified by testVariable
+#' @param cols array of color values
 #' @param showTree show tree from hierachical clustering
 #' @param showGenes plot genes
 #' @param splice_variants if TRUE, show multiple transcripts from the same gene
 #' @param non_coding if TRUE, also show non-coding genes
+#' @param absCorr show absolute correlations
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
@@ -192,7 +196,7 @@ addLegend <- function(color, vp){
 #' treeList = runOrderedClusteringGenome( simData, simLocation ) 
 #' 
 #' # Choose cutoffs and return clusters
-#' treeListClusters = createClusters( treeList )
+#' treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize=30) 
 #' 
 #' # Plot correlations and clusters in region defind by query
 #' query = range(simLocation)
@@ -211,7 +215,7 @@ addLegend <- function(color, vp){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, cols=c( "lightyellow","red"), showTree=FALSE, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE){
+plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, data, cols, showTree=FALSE, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE, absCorr=FALSE){
 
   if( ! is(query, "GRanges")){
     stop("query must be GRanges object")
@@ -384,15 +388,53 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   # Plot Triangle
   ################
 
-  colsFun = colorRampPalette( (cols ))
-  color = c('white', colsFun(1000))
+  # extract correlations
+  C = as.matrix(fit[[1]]@correlation )
+  C[lower.tri(C, diag=TRUE)] = NA
+
+  # If data is defined as argument, compute correlations directly
+  if( ! missing(data) ){
+    cat("Computing correlation from given data...\n")
+
+    peakIDs = rownames(C)
+    if( ! all(peakIDs %in% rownames(data)) ){
+      stop("requested column names not found in data:\n", paste(peakIDs[!peakIDs %in% rownames(data)], collapse=', ')
+        )
+    }
+
+    C = cor(t(data[peakIDs,]))
+    C[lower.tri(C, diag=TRUE)] = NA
+  }
+
+  if( absCorr ){
+    C = abs( C )
+    if( missing(cols) ){
+      cols = c( "lightyellow","red")
+    }
+
+    colsFun = colorRampPalette( (cols ))
+    color = c('white', colsFun(1000))
+
+    mybreak <- 0:length(color)/length(color)
+    mybreak[2] = 1e-7
+
+    fill = as.character(cut(C,mybreak,labels=as.character(color), include.lowest=TRUE))
+  }else{
+    if( missing(cols) ){
+      cols = c("blue", "white","red")
+    }
+
+    colsFun = colorRampPalette( (cols ))
+    color = colsFun(1000)
+    
+    mybreak <- seq(-1*length(color), length(color), length.out=1001) / length(color)
+
+    fill = as.character(cut(C,mybreak,labels=as.character(color), include.lowest=TRUE))
+  }
 
   flip=TRUE
   # Flip or not, determines way data is read into the display
   byrow<-ifelse(flip,FALSE,TRUE) #FALSE if flip=TRUE
-
-  C = as.matrix(fit[[1]]@correlation )
-  C[lower.tri(C, diag=TRUE)] = NA
 
   n_features = nrow(C)
 
@@ -401,15 +443,10 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     showTree = FALSE
   }
 
-  mybreak <- 0:length(color)/length(color)
-  mybreak[2] = 1e-7
-
-  fill = as.character(cut(abs(C),mybreak,labels=as.character(color), include.lowest=TRUE))
-
   ImageRect = makeImageRect( nrow(C), ncol(C), fill, name='heatmap', byrow=byrow)
   ImageRect <- editGrob(ImageRect, vp=flipVP)
 
-  key = addLegend(rev(color), heatmapVP)
+  key = addLegend(rev(color), heatmapVP, absCorr)
   
   heatMap <- gTree(children=gList(ImageRect, key), name="heatMap")
   
@@ -478,8 +515,9 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 #' @param epiSignal matrix or EList of epigentic signal.  Rows are features and columns are samples
 #' @param peakIDs feature names to extract from rows of epiSignal
 #' @param testVariable factor indicating two subsets of the samples to compare
+#' @param cols array of color values
 #' @param size size of text
-#' @param cols array of 3 color values
+#' @param absCorr show absolute correlations
 #'
 #' @return ggplot2 of combined correlation matrix
 #'
@@ -508,13 +546,17 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 #' @import ggplot2
 #' @importFrom reshape2 melt
 #' @export
-plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blue", "white","red")){
+plotCompareCorr = function(epiSignal, peakIDs, testVariable, cols, size=5, absCorr=FALSE){
 
   if( length(testVariable) != ncol(epiSignal) ){
     stop("Number of columns in epiSignal must equal number of entries in testVariable")
   }
-  if( ! is(testVariable, 'factor') || nlevels(testVariable) != 2 ){
-    stop("Entries in testVariable must be a factor with two levels")
+  if( ! is(testVariable, 'factor') ){
+    stop("Entries in testVariable must be a factor with entries in two levels")
+  }
+  testVariable = droplevels(testVariable)
+  if( nlevels(testVariable) != 2 ){
+    stop("Entries in testVariable must be a factor with entries in two levels")
   }
 
   # Divide data into two sets
@@ -530,6 +572,23 @@ plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blu
   C1 = cor(Y1)
   C2 = cor(Y2)
 
+  if( absCorr ){
+    C1 = abs( C1 )
+    C2 = abs( C2 )
+    if( missing(cols) ){
+      cols = c( "lightyellow","red")
+    }
+    colsFun = colorRampPalette( (cols ))
+    color = c('white', colsFun(1000))
+
+  }else{
+    if( missing(cols) ){
+      cols = c("blue", "white","red")
+    }
+    colsFun = colorRampPalette( (cols ))
+    color = colsFun(1000)
+  }
+
   # create combined correlation matrix
   C = C1
   C[lower.tri(C)] = C2[lower.tri(C2)]
@@ -539,7 +598,7 @@ plotCompareCorr = function(epiSignal, peakIDs, testVariable, size=5, cols=c("blu
   df = melt( C )
   N = nrow( C )
 
-  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=cols, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(1-.2,N+.2), y=c(N,1), label=levels(testVariable), size=size, hjust=c(0,1), vjust=c(.5,.5))
+  ggplot(df, aes(Var1, Var2)) + geom_tile(aes(color=value, fill=value)) + scale_color_gradientn(name = "Correlation", colours=color, limits=c(-1,1), na.value="grey") + scale_fill_gradientn(name = "Correlation", colours=color, limits=c(-1,1), na.value="grey")  + theme_void() + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5), legend.position="bottom") + annotate(geom="text", x=c(1-.2,N+.2), y=c(N,1), label=levels(testVariable), size=size, hjust=c(0,1), vjust=c(.5,.5))
 }
 
 

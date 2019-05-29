@@ -5,8 +5,8 @@
 \title{Plot decorate analysis}
 \usage{
 plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
-  cols = c("lightyellow", "red"), showTree = FALSE, showGenes = TRUE,
-  splice_variants = FALSE, non_coding = FALSE)
+  data, cols, showTree = FALSE, showGenes = TRUE,
+  splice_variants = FALSE, non_coding = FALSE, absCorr = FALSE)
 }
 \arguments{
 \item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}
@@ -19,7 +19,9 @@ plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
 
 \item{query}{GRanges object indiecating region to plot}
 
-\item{cols}{vector of two colors}
+\item{data}{data to compute correlations stratified by testVariable}
+
+\item{cols}{array of color values}
 
 \item{showTree}{show tree from hierachical clustering}
 
@@ -28,6 +30,8 @@ plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
 \item{splice_variants}{if TRUE, show multiple transcripts from the same gene}
 
 \item{non_coding}{if TRUE, also show non-coding genes}
+
+\item{absCorr}{show absolute correlations}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks
@@ -49,7 +53,7 @@ ensdb = EnsDb.Hsapiens.v86
 treeList = runOrderedClusteringGenome( simData, simLocation ) 
 
 # Choose cutoffs and return clusters
-treeListClusters = createClusters( treeList )
+treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize=30) 
 
 # Plot correlations and clusters in region defind by query
 query = range(simLocation)

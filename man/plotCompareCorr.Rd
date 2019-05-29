@@ -4,8 +4,8 @@
 \alias{plotCompareCorr}
 \title{Plot two correlation matrices together}
 \usage{
-plotCompareCorr(epiSignal, peakIDs, testVariable, size = 5,
-  cols = c("blue", "white", "red"))
+plotCompareCorr(epiSignal, peakIDs, testVariable, cols, size = 5,
+  absCorr = FALSE)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -14,9 +14,11 @@ plotCompareCorr(epiSignal, peakIDs, testVariable, size = 5,
 
 \item{testVariable}{factor indicating two subsets of the samples to compare}
 
+\item{cols}{array of color values}
+
 \item{size}{size of text}
 
-\item{cols}{array of 3 color values}
+\item{absCorr}{show absolute correlations}
 }
 \value{
 ggplot2 of combined correlation matrix

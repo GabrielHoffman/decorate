@@ -20,7 +20,7 @@ vignette: >
 cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
 # cd /hpc/users/hoffmg01/work/pinnacle/vignettes
 # cd ~/work//decorate/
-rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html")
+rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html")  
 --->
 
 Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.  Epigenetic datasets where decorate can be applied include ChIP-seq, ATAC-seq and DNA methylation.
@@ -64,6 +64,7 @@ decorate v`r packageVersion("decorate")`
 \item 6) Data visualization
     + `plotDecorate():` plot local correlation structure, clusters of features and genes in the region
     + `plotCompareCorr():` plot correlation structure for two subsets of the data
+    + `plotScatterPairs()`: scatter plot for each pair of features for two subsets of the data 
 
 
 ```{r load.packages, echo=FALSE, message=FALSE, results='hide'}
@@ -109,7 +110,7 @@ treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
 # and then processed downstream
 # By using multiple parameter values, epigenetic features are included in clusters 
 # at different resolutions
-treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c(10, 30, 40, 50) )
+treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c(20, 30, 40, 50) )
 
 # Evaluate strength of correlation for each cluster
 clstScore = scoreClusters(treeList, treeListClusters )
@@ -133,7 +134,7 @@ query = range(simLocation)
 ### Summary of clustering
 Number of cluster parameters: `r length(treeListClusters)`
 
-+ `meanClusterSize=c(10, 30, 40, 50)`
++ `meanClusterSize = c(20, 30, 40, 50)`
 
 Number of total clusters: `r countClusters(treeListClusters)`
 
@@ -172,7 +173,7 @@ fig = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, que
 plot_grid( fig, ncol=1, labels=c('C: After collapsing clusters'), hjust=0 )
 ```
 
-### Run test of differential correlation
+### Run test of differential correlation using sLED
 Evaluate `treeListClusters_collapse`, the filtered collapsed set of clusters
 ```{r compare, echo=TRUE, message=FALSE, results="hide"}
 # Evaluate Differential Correlation between two subsets of data
@@ -196,20 +197,79 @@ head(df)
 The id column gives the clustering parameter from `runOrderedClusteringGenome()`, so cluster 6 with id 10 is different from cluster 6 with id 50.
 Note that n.perm can vary across clusters because decorate uses a data-adaptive method to select the number of permutations.  Decorate devotes more permutations to clusters with smaller p-values 
 
+
+
 ### Compare correlation structure in two subsets of the data
 ```{r plotCompareCorr, fig.width=4, echo=TRUE}
 # extract feature identifiers from most significant cluster
 peakIDs = getFeaturesInCluster( treeListClusters_collapse, df$chrom[1], df$cluster[1], df$id[1])
 
+query = range(simLocation[names(simLocation) %in% peakIDs])
+
+locText = with( data.frame(query), paste0(seqnames, ':', format(start, big.mark=','), '-', format(end, big.mark=',')))
+
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease
-main = paste0(df$chrom[1], ': cluster ', df$cluster[1])
+main = paste0(df$chrom[1], ': cluster ', df$cluster[1], '\n', locText)   
 plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle(main)
+```
+
+### Compare correlation structure along genome
+First, plot correlation structure for controls (metadata\$Disease==0).  Then, plot correlation structure for cases (metadata\$Disease==1).
+```{r decoate.sled, eval=FALSE, echo=TRUE, message=FALSE}
+# get location of peaks in this cluster  
+query = range(simLocation[names(simLocation) %in% peakIDs])
+
+# expand window to include adjacent clusters
+window = 2000 
+start(query) = start(query) - window
+end(query) = end(query) + window
+
+# correlations for Disease == 0
+plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==0])
+
+# correlations for Disease == 1
+plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==1])
+```
+
+
+```{r plot2Decorate.query, fig.width=15, message=FALSE, results="hide", echo=FALSE}
+# get location of peaks in this cluster  
+query = range(simLocation[names(simLocation) %in% peakIDs])
+
+# expand window to include adjacent clusters
+window = 2000 
+start(query) = start(query) - window
+end(query) = end(query) + window
+
+fig1 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==0])
+
+fig2 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==1])
+plot_grid( fig1, fig2, ncol=2, labels=c('A: Contols (i.e. Disease==0)', 'B: Cases (i.e. Disease==1') )
 ```
 
 
 
+### Pairwise scatter plots
+```{r scatter, echo=TRUE, message=FALSE}
+plotScatterPairs( simData, peakIDs, metadata$Disease) + ggtitle(main)
+```
 
+
+# Run test of differential correlation using median correlation test
+```{r compare.medianCorr, echo=TRUE, message=FALSE, results="hide"}
+# sledResMedCorr = evalDiffCorr( simData, metadata$Disease, simLocation, 
+#   treeListClusters_collapse, method="medianCorr")
+
+# # get summary of results
+# dfMedCorr = summary( sledResMedCorr )
+
+# # print results
+# head(dfMedCorr)
+```
+```{r print.table.medianCorr}
+# head(dfMedCorr)    
+```
 
 
 

@@ -14,6 +14,7 @@
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation
+#' @param method "sLED" or "medianCorr"
 #' 
 #' @return list of result by chromosome and clustList
 #'
@@ -66,26 +67,26 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
+#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
+		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
 	})
 
 
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam()){
-		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM)
+#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
+		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
 	})
 
 
@@ -110,9 +111,15 @@ setMethod("summary", "sLEDresults", function( object ){
 	res = lapply( names(object), function(chrom){
 		res = lapply( names(object[[chrom]]), function(clstKey){
 			df = object[[chrom]][[clstKey]]
+			if( is.null(df$sign) || is.na(df$sign) ){
+				df$sign = "0"
+			}
 			id = unlist(strsplit(clstKey,' '))[1]
 			clust = unlist(strsplit(clstKey,' '))[2]
-			data.frame(id=id, chrom=chrom, cluster=clust, pValue = df$pVal, stat=df$stat, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
+			# multiply by direction of effect
+
+			sgn = switch( df$sign, "pos" = 1, "0" = 0, "neg" = -1)
+			data.frame(id=id, chrom=chrom, cluster=clust, pValue = df$pVal, stat=df$stats * sgn, n.perm=length(df$Tn.permute), stringsAsFactors=FALSE)
 		})
 		do.call("rbind", res)
 	})
@@ -233,12 +240,41 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	res
 }
 
+# Test Difference in correlation using Mann-Whitney test
+runFastStat = function( itObj ){ 
+	ncol1 = ncol(itObj$Y1)
+	ncol2 = ncol(itObj$Y2)
 
+	if( min(ncol1, ncol2) >= 3 ){
+
+	  	# get correlations
+	  	C1 = cor( itObj$Y1 )
+	  	C2 = cor( itObj$Y2 )
+
+	  	# get lower triangle
+	  	C1 = C1[lower.tri(C1)]
+	  	C2 = C2[lower.tri(C2)]
+
+	  	fit = wilcox.test( C1, C2, paired=TRUE)
+	  	res = list(pVal=fit$p.value, stats=median(C1 - C2), count=NA, sign="pos")
+
+	}else{
+	  	res = list(pVal=NA, stats=NA, count=NA, sign=NA)
+	}
+	res$id = itObj$ID
+	res$chrom = itObj$CHROM
+	res$cluster = itObj$CLST
+	res
+}
+
+#' Internal .evalDiffCorr
+#' 
+#' @param method "sLED" or "medianCorr" 
 #' @import BiocParallel
 #' @import foreach
 #' @importFrom progress progress_bar
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam()){
+.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam(), method = c("sLED", "medianCorr")){
 
 	if( nrow(epiSignal) != length(gRanges)){
 		stop("Number of rows in epiSignal must equal number of entries in gRanges")
@@ -246,13 +282,18 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	if( length(testVariable) != ncol(epiSignal) ){
 		stop("Number of columns in epiSignal must equal number of entries in testVariable")
 	}
-	if( ! is(testVariable, 'factor') || nlevels(testVariable) != 2 ){
-		stop("Entries in testVariable must be a factor with two levels")
+	if( ! is(testVariable, 'factor') ){
+		stop("Entries in testVariable must be a factor with entries in two levels")
+	}
+	testVariable = droplevels(testVariable)
+	if( nlevels(testVariable) != 2 ){
+		stop("Entries in testVariable must be a factor with entries in two levels")
 	}
 	if( min(table(testVariable)) < 10){
 		stop("Need at last 10 samples in smallest class of testVariable")
 	}
-	if( length(npermute) < 2 || is.unsorted(npermute) ){
+	method = match.arg( method, c("sLED", "medianCorr") )
+	if( method == "sLED" && (length(npermute) < 2 || is.unsorted(npermute) ) ){
 		stop("npermute must have 2 or 3 increasing entries")
 	}
 	if( any(!unique(unlist(lapply(clustList, names))) %in% seqnames(gRanges)@values) ){
@@ -314,54 +355,62 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	# combinedResults = bplapply( seq_len(nrow(dfClustUnique)), runSled, dfClustUnique, dfClust, epiSignal, set1, set2, npermute, BPPARAM=BPPARAM)
 	
-	cat("Initial pass through all clusters...\n")
-	# run with iterators
-	it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
-	
-	combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, rho, sumabs.seq, SerialParam(), BPPARAM=BPPARAM)
-
-	# create data.frame
-	df = list()
-	df$permCounts = vapply(combinedResults, function(x) x$count, numeric(1))
-	df$id = vapply(combinedResults, function(x) x$id, 'character')
-	df$chromArray = vapply(combinedResults, function(x) x$chrom, 'character')
-	df$clustArray = vapply(combinedResults, function(x) x$cluster, numeric(1))
-	df = data.table(data.frame(df, stringsAsFactors=FALSE))
-
-	numPassCutoff = sum(df$permCounts < 10, na.rm=TRUE)
-
-	if( numPassCutoff > 0 ){
-		cat("Intensive second pass...\n")
-
-		# parallelize run of each cluster
-		pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",	total = numPassCutoff, width= 60, clear=FALSE)
-
-		itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+	if( method == "sLED"){
+		cat("Initial pass through all clusters...\n")
+		# run with iterators
+		it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 		
-		npermute2 = sort(c(npermute[2]*10, npermute[3]))
+		combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, rho, sumabs.seq, SerialParam(), BPPARAM=BPPARAM)
 
-		count = 0
-		while( ! is.null( it <- itGlobal$nextElem() ) ){ 
+		# create data.frame
+		df = list()
+		df$permCounts = vapply(combinedResults, function(x) x$count, numeric(1))
+		df$id = vapply(combinedResults, function(x) x$id, 'character')
+		df$chromArray = vapply(combinedResults, function(x) x$chrom, 'character')
+		df$clustArray = vapply(combinedResults, function(x) x$cluster, numeric(1))
+		df = data.table(data.frame(df, stringsAsFactors=FALSE))
 
-			# fit location in df of the features set in it
-			i = which( (df$id == it$ID) & (df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
+		numPassCutoff = sum(df$permCounts < 10, na.rm=TRUE)
 
-			prmCnt = df$permCounts[i]
-			# if permCounts is too small, run intensive parallel analysis
-			if( !is.na(prmCnt) & (prmCnt< 10) & (length(npermute) >=3) ){
+		if( numPassCutoff > 0 ){
+			cat("Intensive second pass...\n")
 
-				# update progress bar
-				pb$update( min(count / numPassCutoff, 1) )
-				count = count + 1
+			# parallelize run of each cluster
+			pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",	total = numPassCutoff, width= 60, clear=FALSE)
 
-				# run analysis
-				# suppress progressbar
-				suppressMessages({
-				combinedResults[[i]] <- runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
-				})
+			itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+			
+			npermute2 = sort(c(npermute[2]*10, npermute[3]))
+
+			count = 0
+			while( ! is.null( it <- itGlobal$nextElem() ) ){ 
+
+				# fit location in df of the features set in it
+				i = which( (df$id == it$ID) & (df$chromArray == it$CHROM) & (df$clustArray == it$CLST))
+
+				prmCnt = df$permCounts[i]
+				# if permCounts is too small, run intensive parallel analysis
+				if( !is.na(prmCnt) & (prmCnt< 10) & (length(npermute) >=3) ){
+
+					# update progress bar
+					pb$update( min(count / numPassCutoff, 1) )
+					count = count + 1
+
+					# run analysis
+					# suppress progressbar
+					suppressMessages({
+					combinedResults[[i]] <- runSled2( it,npermute2, adj.beta, rho, sumabs.seq, BPPARAM )
+					})
+				}
 			}
+			pb$update( 1.0 )
 		}
-		pb$update( 1.0 )
+	}else{
+
+		# run with iterators
+		it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+		
+		combinedResults = bpiterate( it$nextElem, runFastStat, BPPARAM=SerialParam())
 	}
 
 	# return list of lists
@@ -398,9 +447,9 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #' @import sLED
 .sLED = function (X, Y, adj.beta=0, rho = 0, sumabs.seq = 1,
     npermute = 100, seeds = NULL,
-    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
-{
+    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam()){
     D.hat <- sLED:::getDiffMatrix(X, Y, adj.beta)
+
     pma.results <- sLED:::sLEDTestStat(Dmat = D.hat, rho = rho, sumabs.seq = sumabs.seq,
         niter = niter, trace = trace)
     Tn <- pma.results$stats
@@ -422,8 +471,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #' @importFrom BiocParallel bplapply
 .sLEDpermute = function (Z, n1, n2, adj.beta=0, rho = 0, sumabs.seq = 1,
     npermute = 100, seeds = NULL,
-    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam())
-{
+    verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam()){
     if (verbose) {
         cat(npermute, "permutation started:\n")
     }

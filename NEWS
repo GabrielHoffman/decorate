@@ -1,3 +1,12 @@
+1.0.14: May 28, 2019
+	- add plotScatterPairs()
+	- plotDecorate() can compute correlation matrix directly from data
+	- fixed bug in sign of sLED test statistic
+	- plotDecorate() and plotCompareCorr() now have argument absCorr=FALSE as default
+
+1.0.13: May 27, 2019
+	- apply droplevels() to testVariable in .evalDiffCorr() and plotCompareCorr()
+
 1.0.12: March 26, 2019
 	- whichCluster() accepts array for feature_id
 	- plotDecorate() and plotEnsGenes() now don't print empty page
