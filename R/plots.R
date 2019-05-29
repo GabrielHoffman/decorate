@@ -342,9 +342,9 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
     figSegments = segmentsGrob()
   }
 
-  ####################################
-  # Plot feature locations  and grid # 
-  ####################################
+  ###################################
+  # Plot feature locations and grid # 
+  ###################################
 
   # subset of featurePositions based on query
   fnd = findOverlaps(featurePositions, query)

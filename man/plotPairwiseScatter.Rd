@@ -4,8 +4,8 @@
 \alias{plotPairwiseScatter}
 \title{Scatter plot of all pairs of variables stratified by test variable}
 \usage{
-plotPairwiseScatter(X, Y, testVariable, size = 1, cols = c("red",
-  "blue"), axisLabels = c("show", "internal", "none"), title = NULL,
+plotPairwiseScatter(X, Y, testVariable, size = 1, cols = c("darkgreen",
+  "navy"), axisLabels = c("show", "internal", "none"), title = NULL,
   xlab = NULL, ylab = NULL)
 }
 \arguments{

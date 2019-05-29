@@ -80,7 +80,7 @@ knitr::opts_chunk$set(
   tidy = FALSE,
   cache = TRUE,
   cache.lazy = FALSE,
-  dev = c("png", "pdf"), 
+  dev = c("png"), 
   fig.width=7, fig.height=7)
 
 options(markdown.HTML.stylesheet = 'css/custom.css')
@@ -163,7 +163,7 @@ fig2 = plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, quer
 plot_grid( fig1, fig2, ncol=2, labels=c('A: All clusters', 'B: After filtering') )
 ```
 
-## Plot after collapsing redundant clusters
+## Plot after filtering and collapsing redundant clusters
 ```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE, eval=FALSE}
 plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
 ```
@@ -255,7 +255,7 @@ plot_grid( fig1, fig2, ncol=2, labels=c('A: Contols (i.e. Disease==0)', 'B: Case
 plotScatterPairs( simData, peakIDs, metadata$Disease) + ggtitle(main)
 ```
 
-
+<!---
 # Run test of differential correlation using median correlation test
 ```{r compare.medianCorr, echo=TRUE, message=FALSE, results="hide"}
 # sledResMedCorr = evalDiffCorr( simData, metadata$Disease, simLocation, 
@@ -270,6 +270,6 @@ plotScatterPairs( simData, peakIDs, metadata$Disease) + ggtitle(main)
 ```{r print.table.medianCorr}
 # head(dfMedCorr)    
 ```
-
+--->
 
 
