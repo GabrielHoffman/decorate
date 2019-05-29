@@ -5,8 +5,8 @@
 \title{Plot decorate analysis}
 \usage{
 plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
-  data, cols, showTree = FALSE, showGenes = TRUE,
-  splice_variants = FALSE, non_coding = FALSE, absCorr = FALSE)
+  data, cols, showGenes = TRUE, splice_variants = FALSE,
+  non_coding = FALSE, absCorr = FALSE)
 }
 \arguments{
 \item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}
@@ -22,8 +22,6 @@ plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
 \item{data}{data to compute correlations stratified by testVariable}
 
 \item{cols}{array of color values}
-
-\item{showTree}{show tree from hierachical clustering}
 
 \item{showGenes}{plot genes}
 

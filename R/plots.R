@@ -174,7 +174,7 @@ addLegend <- function(color, vp, absCorr){
 #' @param query GRanges object indiecating region to plot
 #' @param data data to compute correlations stratified by testVariable
 #' @param cols array of color values
-#' @param showTree show tree from hierachical clustering
+# @param showTree show tree from hierachical clustering
 #' @param showGenes plot genes
 #' @param splice_variants if TRUE, show multiple transcripts from the same gene
 #' @param non_coding if TRUE, also show non-coding genes
@@ -215,7 +215,9 @@ addLegend <- function(color, vp, absCorr){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, data, cols, showTree=FALSE, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE, absCorr=FALSE){
+plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, data, cols, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE, absCorr=FALSE){
+
+  showTree=FALSE
 
   if( ! is(query, "GRanges")){
     stop("query must be GRanges object")
