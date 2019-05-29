@@ -10,7 +10,28 @@
   "medianCorr"))
 }
 \arguments{
+\item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
+
+\item{testVariable}{factor indicating two subsets of the samples to compare}
+
+\item{gRanges}{GenomciRanges corresponding to the rows of epiSignal}
+
+\item{clustList}{list of cluster assignments}
+
+\item{npermute}{array of two entries with min and max number of permutations}
+
+\item{adj.beta}{parameter for sLED}
+
+\item{rho}{a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features}
+
+\item{sumabs.seq}{sparsity parameter}
+
+\item{BPPARAM}{parameters for parallel evaluation}
+
 \item{method}{"sLED" or "medianCorr"}
+}
+\value{
+list of result by chromosome and clustList
 }
 \description{
 Internal .evalDiffCorr

@@ -240,7 +240,13 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	res
 }
 
-# Test Difference in correlation using Mann-Whitney test
+#' Test Difference in correlation using Mann-Whitney test
+#'
+#' Test Difference in correlation using Mann-Whitney test
+#'
+#' @param itObj iterator
+#'
+#' @importFrom stats wilcox.test median
 runFastStat = function( itObj ){ 
 	ncol1 = ncol(itObj$Y1)
 	ncol2 = ncol(itObj$Y2)
@@ -269,7 +275,19 @@ runFastStat = function( itObj ){
 
 #' Internal .evalDiffCorr
 #' 
-#' @param method "sLED" or "medianCorr" 
+#' @param epiSignal matrix or EList of epigentic signal.  Rows are features and columns are samples
+#' @param testVariable factor indicating two subsets of the samples to compare
+#' @param gRanges GenomciRanges corresponding to the rows of epiSignal
+#' @param clustList list of cluster assignments
+#' @param npermute array of two entries with min and max number of permutations
+#' @param adj.beta parameter for sLED
+#' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
+#' @param sumabs.seq sparsity parameter
+#' @param BPPARAM parameters for parallel evaluation
+#' @param method "sLED" or "medianCorr"
+#' 
+#' @return list of result by chromosome and clustList
+#'
 #' @import BiocParallel
 #' @import foreach
 #' @importFrom progress progress_bar
