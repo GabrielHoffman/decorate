@@ -30,6 +30,8 @@ Depends:
     methods
 Imports:
     ClustGeo,
+    sp, 
+    spdep,
     vegan,
     rlist,
     adjclust,

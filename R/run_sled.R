@@ -468,8 +468,7 @@ runFastStat = function( itObj ){
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam()){
     D.hat <- sLED:::getDiffMatrix(X, Y, adj.beta)
 
-    pma.results <- sLED:::sLEDTestStat(Dmat = D.hat, rho = rho, sumabs.seq = sumabs.seq,
-        niter = niter, trace = trace)
+    pma.results <- sLED:::sLEDTestStat(Dmat = D.hat, rho = rho, sumabs.seq = sumabs.seq, niter = niter, trace = trace)
     Tn <- pma.results$stats
     n1 <- nrow(X)
     n2 <- nrow(Y)
