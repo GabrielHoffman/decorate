@@ -403,6 +403,9 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
       stop("requested column names not found in data:\n", paste(peakIDs[!peakIDs %in% rownames(data)], collapse=', ')
         )
     }
+    if ( ncol(data) == 0 ){
+      stop("Cannot compute correlation: data has zero columns")
+    }
 
     C = cor(t(data[peakIDs,]))
     C[lower.tri(C, diag=TRUE)] = NA

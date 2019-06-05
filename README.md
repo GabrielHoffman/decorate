@@ -3,6 +3,16 @@
 
 ![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
 
+# Dependencies
+On Windows and OS X, no dependencies are requaired. 
+
+On Ubuntu you may need to install dependencies first: proj, gdal, geos
+<!--
+###### Mac OS X
+```brew install proj gdal geos```
+-->
+```sudo apt-get install libproj-dev proj-data proj-bin libgeos-dev libgeos-c1v5 libgdal-dev```
+
 # Install
 ```r
 library(devtools)
