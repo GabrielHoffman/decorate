@@ -26,7 +26,7 @@
 #' @import ggplot2
 #' @importFrom GGally ggmatrix
 #' @importFrom utils combn
-plotPairwiseScatter = function(X, Y, testVariable, size = 1, cols=c("darkgreen", "navy"), axisLabels = c("show", "internal", "none"), title=NULL, xlab = NULL, ylab = NULL){
+plotPairwiseScatter = function(X, Y, testVariable, size = 1, cols=c("#00ff40", "deepskyblue"), axisLabels = c("show", "internal", "none"), title=NULL, xlab = NULL, ylab = NULL){
 
     axisLabels <- match.arg( axisLabels )
 
