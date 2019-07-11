@@ -948,7 +948,7 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
   gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
 
   distList = list()
-  for( chrom in seqlevels(gr)[seqlevels(gr) %in% chromArray]) ){
+  for( chrom in seqlevels(gr)[seqlevels(gr) %in% chromArray] ){
 
     # get GenomicRange for this chromosome
     gRange = gr[seqnames(gr) == chrom]
