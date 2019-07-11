@@ -917,6 +917,7 @@ filterClusters = function( treeListClusters, clustInclude){
 #'
 #' @param treeList list of hclust objects
 #' @param gr GenomicRanges object corresponding to features clustered in treeList
+#' @param chromArray Use this only this set of chromosmes.  Can substantially reduce memory usage
 #'
 #' @return a data.frame of distance and correlation value for all pairs of features already evalauted in treeList.  Note that runOrderedClusteringGenome() that returns treeList only evalutes correlation between a specified number of adjacent peaks 
 #' 
@@ -940,15 +941,14 @@ filterClusters = function( treeListClusters, clustInclude){
 #' @import GenomicRanges
 #' @importFrom data.table data.table
 #' @export
-evaluateCorrDecay = function( treeList, gr){
+evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
   
   # Drop empty chromsomes
   chrNameCount = table(seqnames(gr))
   gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
 
-  # distList = lapply( seqlevels(gr), function( chrom ){
   distList = list()
-  for( chrom in seqlevels(gr) ){
+  for( chrom in seqlevels(gr)[seqlevels(gr) %in% chromArray]) ){
 
     # get GenomicRange for this chromosome
     gRange = gr[seqnames(gr) == chrom]
