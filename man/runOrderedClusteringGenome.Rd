@@ -12,7 +12,7 @@ runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
 
 \item{gr}{GenomicRanges object with entries corresponding to the *rows* of X}
 
-\item{method}{'adjclust': adjacency constrind clustering.  'hclustgeo': incorporate data correlation and distance in bp}
+\item{method}{'adjclust': adjacency constrained clustering.  'hclustgeo': incorporate data correlation and distance in bp}
 
 \item{quiet}{suppress messages}
 
