@@ -496,7 +496,9 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
         N = length(x@clust$order)
         frac = N / n_features_total
         n_clust = round( frac*n_total_clusters )
-        cutree(x@clust, k=n_clust)
+
+        cat(paste("\r", mcs, n_clust))
+        cutree(x@clust, k=max(n_clust, 1))
       })
       names(res) = names(treeList)
       new('epiclustDiscreteList',res)
