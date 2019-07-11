@@ -238,7 +238,7 @@ setMethod("show", "epiclust", function( object ){
 #' 
 #' @param X data matrix were *rows* are features in sequential order
 #' @param gr GenomicRanges object with entries corresponding to the *rows* of X
-#' @param method 'adjclust': adjacency constrind clustering.  'hclustgeo': incorporate data correlation and distance in bp
+#' @param method 'adjclust': adjacency constrained clustering.  'hclustgeo': incorporate data correlation and distance in bp
 #' @param quiet suppress messages
 #' @param alpha use by 'hclustgeo': mixture parameter weighing correlations (alpha=0) versus chromosome distances (alpha=1)
 #' @param adjacentCount used by 'adjclust': number of adjacent entries to compute correlation against
@@ -954,10 +954,8 @@ evaluateCorrDecay = function( treeList, gr){
     gRange = gr[seqnames(gr) == chrom]
 
     # get correlation matrix for this chromosome
-    C = treeList[[chrom]]@correlation
-
     # convert format of sparse correlation matrix
-    A = as(C, 'TsparseMatrix')
+    A = as(treeList[[chrom]]@correlation, 'TsparseMatrix')
 
     # extract index and correlation value for each non-zero pair
     dfDist = data.frame( chrom=chrom,
@@ -965,6 +963,7 @@ evaluateCorrDecay = function( treeList, gr){
                          feature_j=rownames(A)[A@j+1], j=A@j+1, 
                          correlation = A@x,
                          stringsAsFactors=FALSE ) 
+    rm(A)
 
     # compute chromsomal distance between pairs with non-zero correlation
     dfDist$distance = distance(gRange[dfDist$i],gRange[dfDist$j])
