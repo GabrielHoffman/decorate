@@ -90,6 +90,15 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'A
 	})
 
 
+#' @import BiocParallel
+#' @export
+#' @rdname evalDiffCorr-methods
+#' @aliases evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("data.frame", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
+		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
+	})
+
 #' An S4 class that stores results of sLED analysis
 #'
 #' @slot .Data list of sLED results

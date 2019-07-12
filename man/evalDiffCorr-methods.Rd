@@ -7,6 +7,8 @@
 \alias{evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \alias{evalDiffCorr,matrix,ANY,GRanges,list-method}
 \alias{evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method}
+\alias{evalDiffCorr,data.frame,ANY,GRanges,list-method}
+\alias{evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
 evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
@@ -22,6 +24,11 @@ evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
   gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
   rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(),
+  method = c("sLED", "medianCorr"))
+
+\S4method{evalDiffCorr}{data.frame,ANY,GRanges,list}(epiSignal,
+  testVariable, gRanges, clustList, npermute = c(100, 10000, 1e+05),
+  adj.beta = 0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(),
   method = c("sLED", "medianCorr"))
 }
 \arguments{
