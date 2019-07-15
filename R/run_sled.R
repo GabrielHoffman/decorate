@@ -249,30 +249,77 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 	res
 }
 
-#' Test Difference in correlation using Mann-Whitney test
+
+
+
+#' Test difference between two correlation matricies
 #'
-#' Test Difference in correlation using Mann-Whitney test
+#' Test difference between two correlation matricies using one of 5 tests
+#'
+#' @param C1 correlation matrix
+#' @param C2 correlation matrix
+#' @param N1 number of samples use to estimate C1
+#' @param N2 number of samples use to estimate C2
+#' @param method "Steiger.fisher", "Steiger", "Jennrich", "Factor" or "Mann.Whitney" 
+#'
+#' @importFrom psych cortest.normal cortest.jennrich cortest.mat
+#' @importFrom stats wilcox.test median
+#' @export
+corrMatrix.test = function( C1, C2, N1, N2, method){
+
+	method = match.arg( method, c("Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney") )
+
+	# test if C1 is square
+	if( ncol(C1) != nrow(C1) ){
+		stop("Matrix C1 must be square")
+	}
+
+	# test if C1 is square
+	if( ncol(C1) != nrow(C1) ){
+		stop("Matrix C1 must be square")
+	}
+	
+	# test if sizes are equal
+	if( ncol(C1) != nrow(C2) ){
+		stop("Maticies C1 and C2 must be the same size")
+	}
+	
+	fit = switch( method, 
+		"Steiger.fisher"= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=TRUE),
+		"Steiger" 		= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=FALSE),
+		"Jennrich"		= cortest.jennrich(C1, C2, n1=N1, n2=N2),
+		"Factor" 		= cortest.mat(C1, C2, n1=N1, n2=N2),
+		"Mann.Whitney"	= list(prob = 
+			wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value)
+		)
+
+	res = list(pVal=fit$prob, stats=median(C1 - C2), count=NA)
+	res$sign = ifelse( res$stats > 0, "pos", "neg")
+
+	res
+}
+
+
+
+#' Test difference in correlation using closed form tests
+#'
+#' Test difference in correlation using closed form tests
 #'
 #' @param itObj iterator
+#' @param method "Steiger.fisher", "Steiger", "Jennrich", "Factor" or "Mann.Whitney" 
 #'
-#' @importFrom stats wilcox.test median
-runFastStat = function( itObj ){ 
+runFastStat = function( itObj, method ){ 
 	ncol1 = ncol(itObj$Y1)
 	ncol2 = ncol(itObj$Y2)
 
-	if( min(ncol1, ncol2) >= 3 ){
+	if( min(ncol1, ncol2) >= 2 ){
 
 	  	# get correlations
 	  	C1 = cor( itObj$Y1 )
 	  	C2 = cor( itObj$Y2 )
 
-	  	# get lower triangle
-	  	C1 = C1[lower.tri(C1)]
-	  	C2 = C2[lower.tri(C2)]
-
-	  	fit = wilcox.test( C1, C2, paired=TRUE)
-	  	res = list(pVal=fit$p.value, stats=median(C1 - C2), count=NA, sign="pos")
-
+	  	# test correlations
+	  	res = corrMatrix.test( C1, C2, ncol1, ncol2, method)
 	}else{
 	  	res = list(pVal=NA, stats=NA, count=NA, sign=NA)
 	}
@@ -281,6 +328,9 @@ runFastStat = function( itObj ){
 	res$cluster = itObj$CLST
 	res
 }
+
+
+
 
 #' Internal .evalDiffCorr
 #' 
@@ -437,7 +487,7 @@ runFastStat = function( itObj ){
 		# run with iterators
 		it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
 		
-		combinedResults = bpiterate( it$nextElem, runFastStat, BPPARAM=SerialParam())
+		combinedResults = bpiterate( it$nextElem, runFastStat, method, BPPARAM=SerialParam())
 	}
 
 	# return list of lists

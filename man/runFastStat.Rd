@@ -2,13 +2,15 @@
 % Please edit documentation in R/run_sled.R
 \name{runFastStat}
 \alias{runFastStat}
-\title{Test Difference in correlation using Mann-Whitney test}
+\title{Test difference in correlation using closed form tests}
 \usage{
-runFastStat(itObj)
+runFastStat(itObj, method)
 }
 \arguments{
 \item{itObj}{iterator}
+
+\item{method}{"Steiger.fisher", "Steiger", "Jennrich", "Factor" or "Mann.Whitney"}
 }
 \description{
-Test Difference in correlation using Mann-Whitney test
+Test difference in correlation using closed form tests
 }

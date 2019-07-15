@@ -1,6 +1,7 @@
 1.0.17: July 11, 2019
 	- reduce memory usage of evaluateCorrDecay()
 	- evalDiffCorr() now works on data.frame
+	- add corrMatrix.test()
 
 1.0.16: June 5, 2019
 	- improve error message in plotDecorate()
