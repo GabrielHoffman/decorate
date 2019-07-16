@@ -4,14 +4,14 @@
 \alias{runFastStat}
 \title{Test difference in correlation using closed form tests}
 \usage{
-runFastStat(itObj, method = c("Box", "Steiger.fisher", "Steiger",
-  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"),
+runFastStat(itObj, method = c("Box", "Box.permute", "Steiger.fisher",
+  "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"),
   method2 = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{itObj}{iterator}
 
-\item{method}{Specify test: "Box", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney" or "Kruskal.Wallis"}
+\item{method}{Specify test: "Box", "Box.permute", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney" or "Kruskal.Wallis"}
 
 \item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }

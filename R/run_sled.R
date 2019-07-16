@@ -14,7 +14,7 @@
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation
-#' @param method "sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", or "Kruskal.Wallis" 
+#' @param method "sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", or "Kruskal.Wallis" 
 #' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #' 
 #' @return list of result by chromosome and clustList
@@ -68,7 +68,7 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
@@ -76,7 +76,7 @@ setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList,
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
 setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
 		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
@@ -86,7 +86,7 @@ setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'AN
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
 setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
 		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
@@ -96,7 +96,7 @@ setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'A
 #' @rdname evalDiffCorr-methods
 #' @aliases evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
 setMethod("evalDiffCorr", c("data.frame", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
 		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
@@ -268,17 +268,17 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 # @param N2 number of samples use to estimate C2
 #' @param Y data matrix
 #' @param group a factor defining groups
-#' @param method Specify test: "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"
+#' @param method Specify test: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"
 #' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #'
 #' @importFrom psych cortest.normal cortest.jennrich cortest.mat
 #' @importFrom stats wilcox.test median
 #' @importFrom heplots boxM
 #' @export
-corrMatrix.test = function( Y, group, method = c("Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
+corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
 	method = match.arg( method )
 
-	if( method == "Box"){
+	if( method %in% c("Box", "Box.permute") ){
 
 		# scale each variable, so that covariance equals correlation
 		# boxM() test difference in *covariance*
@@ -288,8 +288,11 @@ corrMatrix.test = function( Y, group, method = c("Box", "Steiger.fisher", "Steig
 			Y_scale[group==key,] = scale(Y[group==key,])
 		}
 
-		# need to normalize within group
-		fit = boxM( Y_scale, group )
+		if( method == "Box"){
+			fit = boxM( Y_scale, group )
+		}else{			
+			fit = boxM.permute( Y_scale, group )
+		}
 
 		res = list(pVal=fit$p.value, stats=NA, count=NA, sign=NA)
 
@@ -334,10 +337,10 @@ corrMatrix.test = function( Y, group, method = c("Box", "Steiger.fisher", "Steig
 #' Test difference in correlation using closed form tests
 #'
 #' @param itObj iterator
-#' @param method Specify test: "Box", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney" or "Kruskal.Wallis"
+#' @param method Specify test: "Box", "Box.permute", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney" or "Kruskal.Wallis"
 #' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #'
-runFastStat = function( itObj, method = c("Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
+runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
 
     method <- match.arg(method)
     method2 <- match.arg(method2)
@@ -368,7 +371,7 @@ runFastStat = function( itObj, method = c("Box", "Steiger.fisher", "Steiger", "J
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation
-#' @param method "sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis" 
+#' @param method "sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis" 
 #' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #' 
 #' 
@@ -378,7 +381,7 @@ runFastStat = function( itObj, method = c("Box", "Steiger.fisher", "Steiger", "J
 #' @import foreach
 #' @importFrom progress progress_bar
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2=c("pearson", "kendall", "spearman")){
+.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2=c("pearson", "kendall", "spearman")){
 
 	if( nrow(epiSignal) != length(gRanges)){
 		stop("Number of rows in epiSignal must equal number of entries in gRanges")
@@ -601,6 +604,36 @@ runFastStat = function( itObj, method = c("Box", "Steiger.fisher", "Steiger", "J
         cat("permutations finished.", fill = TRUE)
     }
     return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
+}
+
+
+boxM.permute = function(Y, group, nperm=1000){
+
+	# fit statistic for real data
+	fit = boxM( Y, group)
+
+	# fit statistic for permutated data
+	fitPermList = lapply( seq_len(nperm), function(i){
+		idx = sample.int(length(group), length(group))
+		boxM( Y, group[idx])
+		})
+
+	# get chisq statistic
+	chisq_stats = sapply(fitPermList, function(x) x$statistic)
+
+	# estimate df that maximizes the chisqlog-likelihood
+	ll = function(df, y){
+		sum(dchisq(y,df=df, log=TRUE))
+	}
+	opt = optimize( ll, interval=c(2, 1e5), y=chisq_stats, maximum=TRUE)
+	df.approx  = opt$maximum
+
+	# compute p-value based on permuted statistic
+	p.value = pchisq( fit$statistic, df=df.approx, lower.tail=FALSE)
+
+	list( p.value = as.numeric(p.value),
+		statistic = fit$statistic,
+		df.approx = df.approx)
 }
 
 
