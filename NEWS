@@ -2,6 +2,8 @@
 	- reduce memory usage of evaluateCorrDecay()
 	- evalDiffCorr() now works on data.frame
 	- add corrMatrix.test()
+	- add support for following tests: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"
+
 
 1.0.16: June 5, 2019
 	- improve error message in plotDecorate()

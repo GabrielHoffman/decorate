@@ -271,8 +271,8 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #' @param method Specify test: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"
 #' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #'
-#' @importFrom psych cortest.normal cortest.jennrich cortest.mat
-#' @importFrom stats wilcox.test median
+#' @importFrom psych cortest.normal cortest.jennrich cortest.mat 
+#' @importFrom stats wilcox.test kruskal.test median
 #' @importFrom heplots boxM
 #' @export
 corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
@@ -291,7 +291,7 @@ corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.
 		if( method == "Box"){
 			fit = boxM( Y_scale, group )
 		}else{			
-			fit = boxM.permute( Y_scale, group )
+			fit = boxM_permute( Y_scale, group )
 		}
 
 		res = list(pVal=fit$p.value, stats=NA, count=NA, sign=NA)
@@ -606,26 +606,41 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
     return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
 }
 
-
-boxM.permute = function(Y, group, nperm=1000){
+#' Box's M-test
+#'
+#' boxM performs the Box's (1949) M-test for homogeneity of covariance matrices obtained from multivariate normal data according to one or more classification factors. The test compares  the product of the log determinants of the separate covariance  matrices to the log determinant of the pooled covariance matrix,    analogous to a likelihood ratio test. The test statistic uses a chi-square approximation. Uses permutations to estimate the degrees of freedom under the null
+#' @param Y response variable matrix
+#' @param group a factor defining groups, number of entries must equal nrow(Y)
+#' @param nperm number of permutations of group variable used to estimate degrees of freedom under the null
+#' 
+#' @examples
+#' data(iris)
+#'
+#' boxM_permute(iris[, 1:4], iris[, "Species"])
+#'
+#' @return list of p.value, test statistic, and df.approx estimated by permutation
+#'
+#' @importFrom heplots boxM
+#' @importFrom stats optimize pchisq dchisq
+#' @seealso heplots::boxM
+#' @export
+boxM_permute = function(Y, group, nperm=100){
 
 	# fit statistic for real data
 	fit = boxM( Y, group)
 
 	# fit statistic for permutated data
-	fitPermList = lapply( seq_len(nperm), function(i){
-		idx = sample.int(length(group), length(group))
-		boxM( Y, group[idx])
-		})
-
 	# get chisq statistic
-	chisq_stats = sapply(fitPermList, function(x) x$statistic)
+	chisq_stats = vapply( seq_len(nperm), function(i){
+		idx = sample.int(length(group), length(group))
+		fit = boxM( Y, group[idx])
+		fit$statistic
+		}, numeric(1))
 
-	# estimate df that maximizes the chisqlog-likelihood
-	ll = function(df, y){
-		sum(dchisq(y,df=df, log=TRUE))
-	}
-	opt = optimize( ll, interval=c(2, 1e5), y=chisq_stats, maximum=TRUE)
+	# estimate df that maximizes the chisqlog-likelihood	
+	opt = optimize( function(df, y){
+		sum(dchisq(y, df=df, log=TRUE))
+	}, interval=c(2, 1e6), y=chisq_stats, maximum=TRUE)
 	df.approx  = opt$maximum
 
 	# compute p-value based on permuted statistic
@@ -635,8 +650,4 @@ boxM.permute = function(Y, group, nperm=1000){
 		statistic = fit$statistic,
 		df.approx = df.approx)
 }
-
-
-
-
 
