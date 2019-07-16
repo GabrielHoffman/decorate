@@ -320,7 +320,7 @@ corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.
 			"Mann.Whitney"	= list(prob = 
 				wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value),
 			"Kruskal.Wallis"	= list(prob = 
-				kruskal.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value)
+				kruskal.test( C1[lower.tri(C1)], C2[lower.tri(C2)])$p.value)
 			)
 
 		res = list(pVal=fit$prob, stats=median(C1 - C2), count=NA)
