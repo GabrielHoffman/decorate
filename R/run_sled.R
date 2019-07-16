@@ -14,7 +14,8 @@
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation
-#' @param method "sLED" or "medianCorr"
+#' @param method "sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", or "Kruskal.Wallis" 
+#' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #' 
 #' @return list of result by chromosome and clustList
 #'
@@ -67,36 +68,36 @@
 #' @export
 #' @docType methods
 #' @rdname evalDiffCorr-methods
-setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")) standardGeneric("evalDiffCorr"))
+setGeneric("evalDiffCorr", function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")) standardGeneric("evalDiffCorr"))
 
 #' @import limma
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
-		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
+#' @aliases evalDiffCorr,EList,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("EList", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+		.evalDiffCorr( epiSignal$E, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
 
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
-		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
+#' @aliases evalDiffCorr,matrix,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("matrix", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
 
 #' @import BiocParallel
 #' @export
 #' @rdname evalDiffCorr-methods
-#' @aliases evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY-method
-setMethod("evalDiffCorr", c("data.frame", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY"), 
-	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "medianCorr")){
-		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method)
+#' @aliases evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method
+setMethod("evalDiffCorr", c("data.frame", "ANY", "GRanges", "list", "ANY", "ANY", 'ANY', "ANY", "ANY", "ANY", "ANY"), 
+	function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 100000), adj.beta=0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis" ), method2=c("pearson", "kendall", "spearman")){
+		.evalDiffCorr( epiSignal, testVariable, gRanges, clustList, npermute, adj.beta, rho, sumabs.seq, BPPARAM, method, method2)
 	})
 
 #' An S4 class that stores results of sLED analysis
@@ -179,7 +180,7 @@ icount2 = function (count){
 
 #' @import iterators
 #' @importFrom data.table data.table
-clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
+clustIter = function( dfClustUnique, dfClust, epiSignal, testVariable ){
 
 	n_clusters = nrow( dfClustUnique )
 
@@ -200,14 +201,19 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 			peakIDs = dfClust[(id==ID) & (chrom==CHROM) & (cluster==CLST),peak]
 
 			# get two subsets of data
-		  	Y1 = t(epiSignal[peakIDs,set1,drop=FALSE])
-		  	Y2 = t(epiSignal[peakIDs,set2,drop=FALSE])
+		  	# Y1 = t(epiSignal[peakIDs,set1,drop=FALSE])
+		  	# Y2 = t(epiSignal[peakIDs,set2,drop=FALSE])
 
-		  	if( ncol(Y1) != ncol(Y2) ){
-		  		stop("ncol(Y1) != ncol(Y2): ", ncol(Y1), ncol(Y2), "\n", i)
-		  	}
+		  	# if( ncol(Y1) != ncol(Y2) ){
+		  	# 	stop("ncol(Y1) != ncol(Y2): ", ncol(Y1), ncol(Y2), "\n", i)
+		  	# }
 
-		  	res = list(Y1=Y1, Y2=Y2, ID=ID, CHROM=CHROM, CLST=CLST, i=i)
+		  	res = list(Y 	= t(epiSignal[peakIDs,,drop=FALSE]),
+		  			group 	= testVariable, 
+		  			ID 		= ID, 
+		  			CHROM 	= CHROM, 
+		  			CLST 	= CLST, 
+		  			i 		= i)
 		}
 		res
 	}
@@ -220,10 +226,10 @@ clustIter = function( dfClustUnique, dfClust, epiSignal, set1, set2 ){
 #' @import sLED
 runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
-	ncol1 = ncol(itObj$Y1)
-	ncol2 = ncol(itObj$Y2)
+	Y1 = itObj$Y[itObj$group==1,]
+	Y2 = itObj$Y[itObj$group==1,]
 
-	if( min(ncol1, ncol2) >= 3 ){
+	if( ncol(itObj$Y) >= 3 ){
 
 	  	# perform permutations until p-values is precise enough
 	  	# if not precise enough
@@ -233,7 +239,7 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 
 	  	for( nperm in round(permArray) ){
 	      	# compare correlation structure with sLED
-	      	res = .sLED(X=itObj$Y1, Y=itObj$Y2, npermute=nperm, verbose=FALSE, adj.beta=adj.beta, rho=rho, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
+	      	res = .sLED(X=Y1, Y=Y2, npermute=nperm, verbose=FALSE, adj.beta=adj.beta, rho=rho, sumabs.seq=sumabs.seq, BPPARAM=BPPARAM)
 
 	      	if( res$pVal * nperm > 10){
 	      		break
@@ -256,45 +262,67 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #'
 #' Test difference between two correlation matricies using one of 5 tests
 #'
-#' @param C1 correlation matrix
-#' @param C2 correlation matrix
-#' @param N1 number of samples use to estimate C1
-#' @param N2 number of samples use to estimate C2
-#' @param method "Steiger.fisher", "Steiger", "Jennrich", "Factor" or "Mann.Whitney" 
+# @param C1 correlation matrix
+# @param C2 correlation matrix
+# @param N1 number of samples use to estimate C1
+# @param N2 number of samples use to estimate C2
+#' @param Y data matrix
+#' @param group a factor defining groups
+#' @param method Specify test: "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"
+#' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #'
 #' @importFrom psych cortest.normal cortest.jennrich cortest.mat
 #' @importFrom stats wilcox.test median
+#' @importFrom heplots boxM
 #' @export
-corrMatrix.test = function( C1, C2, N1, N2, method){
+corrMatrix.test = function( Y, group, method = c("Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
+	method = match.arg( method )
 
-	method = match.arg( method, c("Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney") )
+	if( method == "Box"){
 
-	# test if C1 is square
-	if( ncol(C1) != nrow(C1) ){
-		stop("Matrix C1 must be square")
+		# scale each variable, so that covariance equals correlation
+		# boxM() test difference in *covariance*
+		# scaling makes it test difference in *correlation*
+		Y_scale = Y
+		for( key in levels(group)){
+			Y_scale[group==key,] = scale(Y[group==key,])
+		}
+
+		# need to normalize within group
+		fit = boxM( Y_scale, group )
+
+		res = list(pVal=fit$p.value, stats=NA, count=NA, sign=NA)
+
+		if( nlevels(group) == 2){
+			# get correlations
+		  	C1 = cor( Y[group==levels(group)[1],], method=method2 )
+		  	C2 = cor( Y[group==levels(group)[2],], method=method2 )
+		  	res$stats = median(C1 - C2)
+		  	res$sign = ifelse( res$stats > 0, "pos", "neg")
+		}
+
+	}else{
+		# get correlations
+	  	C1 = cor( Y[group==levels(group)[1],], method=method2 )
+	  	C2 = cor( Y[group==levels(group)[2],], method=method2 )
+
+	  	N1 = sum(group==levels(group)[1])
+	  	N2 = sum(group==levels(group)[2])
+		
+		fit = switch( method, 
+			"Steiger.fisher"= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=TRUE),
+			"Steiger" 		= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=FALSE),
+			"Jennrich"		= cortest.jennrich(C1, C2, n1=N1, n2=N2),
+			"Factor" 		= cortest.mat(C1, C2, n1=N1, n2=N2),
+			"Mann.Whitney"	= list(prob = 
+				wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value),
+			"Kruskal.Wallis"	= list(prob = 
+				kruskal.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value)
+			)
+
+		res = list(pVal=fit$prob, stats=median(C1 - C2), count=NA)
+		res$sign = ifelse( res$stats > 0, "pos", "neg")
 	}
-
-	# test if C1 is square
-	if( ncol(C1) != nrow(C1) ){
-		stop("Matrix C1 must be square")
-	}
-	
-	# test if sizes are equal
-	if( ncol(C1) != nrow(C2) ){
-		stop("Maticies C1 and C2 must be the same size")
-	}
-	
-	fit = switch( method, 
-		"Steiger.fisher"= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=TRUE),
-		"Steiger" 		= cortest.normal(C1, C2, n1=N1, n2=N2, fisher=FALSE),
-		"Jennrich"		= cortest.jennrich(C1, C2, n1=N1, n2=N2),
-		"Factor" 		= cortest.mat(C1, C2, n1=N1, n2=N2),
-		"Mann.Whitney"	= list(prob = 
-			wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE)$p.value)
-		)
-
-	res = list(pVal=fit$prob, stats=median(C1 - C2), count=NA)
-	res$sign = ifelse( res$stats > 0, "pos", "neg")
 
 	res
 }
@@ -306,20 +334,17 @@ corrMatrix.test = function( C1, C2, N1, N2, method){
 #' Test difference in correlation using closed form tests
 #'
 #' @param itObj iterator
-#' @param method "Steiger.fisher", "Steiger", "Jennrich", "Factor" or "Mann.Whitney" 
+#' @param method Specify test: "Box", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney" or "Kruskal.Wallis"
+#' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
 #'
-runFastStat = function( itObj, method ){ 
-	ncol1 = ncol(itObj$Y1)
-	ncol2 = ncol(itObj$Y2)
+runFastStat = function( itObj, method = c("Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman") ){ 
 
-	if( min(ncol1, ncol2) >= 2 ){
+    method <- match.arg(method)
+    method2 <- match.arg(method2)
 
-	  	# get correlations
-	  	C1 = cor( itObj$Y1 )
-	  	C2 = cor( itObj$Y2 )
-
+	if( ncol(itObj$Y) >= 2 ){
 	  	# test correlations
-	  	res = corrMatrix.test( C1, C2, ncol1, ncol2, method)
+	  	res = corrMatrix.test( itObj$Y, itObj$group, method, method2)
 	}else{
 	  	res = list(pVal=NA, stats=NA, count=NA, sign=NA)
 	}
@@ -343,7 +368,9 @@ runFastStat = function( itObj, method ){
 #' @param rho a large positive constant such that A(X)-A(Y)+diag(rep(rho,p)) is positive definite. Where p is the number of features
 #' @param sumabs.seq sparsity parameter
 #' @param BPPARAM parameters for parallel evaluation
-#' @param method "sLED" or "medianCorr"
+#' @param method "sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis" 
+#' @param method2 Specify type of correlation: "pearson", "kendall", "spearman"
+#' 
 #' 
 #' @return list of result by chromosome and clustList
 #'
@@ -351,7 +378,7 @@ runFastStat = function( itObj, method ){
 #' @import foreach
 #' @importFrom progress progress_bar
 #' @importFrom data.table data.table
-.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam(), method = c("sLED", "medianCorr")){
+.evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = SerialParam(), method=c("sLED", "Box", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"), method2=c("pearson", "kendall", "spearman")){
 
 	if( nrow(epiSignal) != length(gRanges)){
 		stop("Number of rows in epiSignal must equal number of entries in gRanges")
@@ -369,7 +396,7 @@ runFastStat = function( itObj, method ){
 	if( min(table(testVariable)) < 10){
 		stop("Need at last 10 samples in smallest class of testVariable")
 	}
-	method = match.arg( method, c("sLED", "medianCorr") )
+	method = match.arg( method )
 	if( method == "sLED" && (length(npermute) < 2 || is.unsorted(npermute) ) ){
 		stop("npermute must have 2 or 3 increasing entries")
 	}
@@ -381,6 +408,12 @@ runFastStat = function( itObj, method ){
 	}
 	if( length(sumabs.seq) > 1 ){
 		stop("sumabs.seq must be a scalar")
+	}
+
+	method2 = match.arg( method2 )
+
+	if( method2 != "pearson" && method == "sLED"){
+		stop("sLED only evalutes pearson correlation")
 	}
 
 	# allClusters = unlist(lapply(names(clustList), function(x) paste0(x, '_', unique(clustList[[x]]))))
@@ -435,7 +468,7 @@ runFastStat = function( itObj, method ){
 	if( method == "sLED"){
 		cat("Initial pass through all clusters...\n")
 		# run with iterators
-		it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+		it = clustIter( dfClustCountsSort, dfClust, epiSignal, testVariable )
 		
 		combinedResults = bpiterate( it$nextElem, runSled2, npermute, adj.beta, rho, sumabs.seq, SerialParam(), BPPARAM=BPPARAM)
 
@@ -455,7 +488,7 @@ runFastStat = function( itObj, method ){
 			# parallelize run of each cluster
 			pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",	total = numPassCutoff, width= 60, clear=FALSE)
 
-			itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+			itGlobal = clustIter( dfClustCountsSort, dfClust, epiSignal, testVariable )
 			
 			npermute2 = sort(c(npermute[2]*10, npermute[3]))
 
@@ -485,9 +518,9 @@ runFastStat = function( itObj, method ){
 	}else{
 
 		# run with iterators
-		it = clustIter( dfClustCountsSort, dfClust, epiSignal, set1, set2  )
+		it = clustIter( dfClustCountsSort, dfClust, epiSignal, testVariable )
 		
-		combinedResults = bpiterate( it$nextElem, runFastStat, method, BPPARAM=SerialParam())
+		combinedResults = bpiterate( it$nextElem, runFastStat, method, method2, BPPARAM=BPPARAM)
 	}
 
 	# return list of lists

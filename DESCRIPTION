@@ -52,9 +52,11 @@ Imports:
     ggdendro,
     GenomeInfoDb,
     IRanges,
+    psych,
     Matrix,
     rtracklayer,
     reshape2,
+    heplots,
     GenomicRanges,
     utils,
     stats
