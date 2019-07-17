@@ -276,22 +276,24 @@ runSled2 = function( itObj, npermute, adj.beta, rho, sumabs.seq, BPPARAM){
 #' @importFrom heplots boxM
 #' @export
 corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"), method2 = c("pearson", "kendall", "spearman") ){ 
+
 	method = match.arg( method )
+	method2 = match.arg( method2 )
 
 	if( method %in% c("Box", "Box.permute") ){
 
 		# scale each variable, so that covariance equals correlation
 		# boxM() test difference in *covariance*
 		# scaling makes it test difference in *correlation*
-		Y_scale = Y
-		for( key in levels(group)){
-			Y_scale[group==key,] = scale(Y[group==key,])
-		}
+		# Y_scale = Y
+		# for( key in levels(group)){
+		# 	Y_scale[group==key,] = scale(Y[group==key,])
+		# }
 
 		if( method == "Box"){
-			fit = boxM( Y_scale, group )
+			fit = boxM( Y, group, method=method2 )
 		}else{			
-			fit = boxM_permute( Y_scale, group )
+			fit = boxM_permute( Y, group, method=method2 )
 		}
 
 		res = list(pVal=fit$p.value, stats=NA, count=NA, sign=NA)
@@ -637,16 +639,18 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 #' @importFrom stats optimize pchisq dchisq
 #' @seealso heplots::boxM
 #' @export
-boxM_permute = function(Y, group, nperm=150, tol=1e-10, fxn=cor){
+boxM_permute = function(Y, group, nperm=150, tol=1e-10, fxn=cor, method=c("pearson", "kendall", "spearman")){
+
+   	method = match.arg( method )   
 
 	# fit statistic for real data
-	fit = boxM( Y, group, tol=tol, fxn=fxn)
+	fit = boxM( Y, group, tol=tol, fxn=fxn, method=method)
 
 	# fit statistic for permutated data
 	# get chisq statistic
 	chisq_stats = vapply( seq_len(nperm), function(i){
 		idx = sample.int(length(group), length(group))
-		fit = boxM( Y, group[idx], tol=tol)
+		fit = boxM( Y, group[idx], tol=tol, method=method)
 		fit$statistic
 		}, numeric(1))
 

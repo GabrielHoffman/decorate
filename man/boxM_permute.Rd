@@ -4,7 +4,8 @@
 \alias{boxM_permute}
 \title{Box's M-test}
 \usage{
-boxM_permute(Y, group, nperm = 300, tol = 1e-10, fxn = cor)
+boxM_permute(Y, group, nperm = 150, tol = 1e-10, fxn = cor,
+  method = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{Y}{response variable matrix}
