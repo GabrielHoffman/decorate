@@ -15,28 +15,32 @@ evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
   npermute = c(100, 10000, 1e+05), adj.beta = 0, rho = 0,
   sumabs.seq = 1, BPPARAM = SerialParam(), method = c("sLED", "Box",
   "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall",
-  "spearman"))
+  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot",
+  "LC.U.test", "WL.randProj", "Schott.Frob"), method2 = c("pearson",
+  "kendall", "spearman"))
 
 \S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
   gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
   rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(),
   method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger",
-  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"),
+  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max",
+  "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"),
   method2 = c("pearson", "kendall", "spearman"))
 
 \S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
   gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
   rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(),
   method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger",
-  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"),
+  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max",
+  "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"),
   method2 = c("pearson", "kendall", "spearman"))
 
 \S4method{evalDiffCorr}{data.frame,ANY,GRanges,list}(epiSignal,
   testVariable, gRanges, clustList, npermute = c(100, 10000, 1e+05),
   adj.beta = 0, rho = 0, sumabs.seq = 1, BPPARAM = SerialParam(),
   method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger",
-  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"),
+  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max",
+  "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"),
   method2 = c("pearson", "kendall", "spearman"))
 }
 \arguments{
@@ -58,7 +62,7 @@ evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
 
 \item{BPPARAM}{parameters for parallel evaluation}
 
-\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", or "Kruskal.Wallis"}
+\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"}
 
 \item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }

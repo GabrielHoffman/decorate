@@ -6,14 +6,15 @@
 \usage{
 corrMatrix.test(Y, group, method = c("Box", "Box.permute",
   "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney",
-  "Kruskal.Wallis"), method2 = c("pearson", "kendall", "spearman"))
+  "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj",
+  "Schott.Frob"), method2 = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{Y}{data matrix}
 
 \item{group}{a factor defining groups}
 
-\item{method}{Specify test: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"}
+\item{method}{Specify test: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"}
 
 \item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }
