@@ -4,7 +4,7 @@
 \alias{boxM_permute}
 \title{Box's M-test}
 \usage{
-boxM_permute(Y, group, nperm = 100, tol = 1e-10)
+boxM_permute(Y, group, nperm = 300, tol = 1e-10, fxn = cor)
 }
 \arguments{
 \item{Y}{response variable matrix}

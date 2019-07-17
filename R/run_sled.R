@@ -637,10 +637,10 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 #' @importFrom stats optimize pchisq dchisq
 #' @seealso heplots::boxM
 #' @export
-boxM_permute = function(Y, group, nperm=100, tol=1e-10){
+boxM_permute = function(Y, group, nperm=300, tol=1e-10, fxn=cor){
 
 	# fit statistic for real data
-	fit = boxM( Y, group, tol=tol)
+	fit = boxM( Y, group, tol=tol, fxn=fxn)
 
 	# fit statistic for permutated data
 	# get chisq statistic
@@ -658,6 +658,8 @@ boxM_permute = function(Y, group, nperm=100, tol=1e-10){
 
 	# compute p-value based on permuted statistic
 	p.value = pchisq( fit$statistic, df=df.approx, lower.tail=FALSE)
+
+	sum(chisq_stats > fit$statistic) / nperm
 
 	list( p.value = as.numeric(p.value),
 		statistic = fit$statistic,
