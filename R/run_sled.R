@@ -296,15 +296,16 @@ corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.
 			fit = boxM_permute( Y, group, method=method2 )
 		}
 
-		res = list(pVal=fit$p.value, stats=NA, count=NA, sign=NA)
-
-		if( nlevels(group) == 2){
-			# get correlations
-		  	C1 = cor( Y[group==levels(group)[1],], method=method2 )
-		  	C2 = cor( Y[group==levels(group)[2],], method=method2 )
-		  	res$stats = median(C1 - C2)
-		  	res$sign = ifelse( res$stats > 0, "pos", "neg")
-		}
+		res = list(pVal=fit$p.value, stats=fit$stat_logdet, count=NA, sign=NA)
+		res$sign = ifelse( res$stats > 0, "pos", "neg")
+		
+		# if( nlevels(group) == 2){
+		# 	# get correlations
+		#   	C1 = cor( Y[group==levels(group)[1],], method=method2 )
+		#   	C2 = cor( Y[group==levels(group)[2],], method=method2 )
+		#   	res$stats = median(C1 - C2)
+		#   	res$sign = ifelse( res$stats > 0, "pos", "neg")
+		# }
 
 	}else{
 
@@ -667,7 +668,8 @@ boxM_permute = function(Y, group, nperm=150, tol=1e-10, fxn=cor, method=c("pears
 
 	list( p.value = as.numeric(p.value),
 		statistic = fit$statistic,
-		df.approx = df.approx)
+		df.approx = df.approx,
+		stat_logdet = fit$stat_logdet)
 }
 
 
