@@ -637,7 +637,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 #' @importFrom stats optimize pchisq dchisq
 #' @seealso heplots::boxM
 #' @export
-boxM_permute = function(Y, group, nperm=300, tol=1e-10, fxn=cor){
+boxM_permute = function(Y, group, nperm=150, tol=1e-10, fxn=cor){
 
 	# fit statistic for real data
 	fit = boxM( Y, group, tol=tol, fxn=fxn)
