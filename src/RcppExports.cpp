@@ -21,8 +21,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+
+// boxM
+Rcpp::List boxM_fast(const arma::mat & Y, const arma::vec & group, const Rcpp::String & method );
+RcppExport SEXP _decorate_boxM_fast(SEXP YSEXP, SEXP groupSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< vec >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(boxM_fast(Y, group, method));
+    return rcpp_result_gen;
+END_RCPP
+}
+
+
 static const R_CallMethodDef CallEntries[] = {
     {"_decorate_corSubsetPairs", (DL_FUNC) &_decorate_corSubsetPairs, 3},
+    {"_decorate_boxM_fast", (DL_FUNC) &_decorate_boxM_fast, 3},
     {NULL, NULL, 0}
 };
 

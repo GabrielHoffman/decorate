@@ -104,7 +104,13 @@ corSubsetPairs <- function(Y, idxi, idxj, silent=FALSE) {
 	M
 }
 
+boxM_fast = function( Y, group, method){
+	out = .Call('_decorate_boxM_fast', PACKAGE = 'decorate', Y, group, method)
 
+	out$logdet = as.numeric(out$Si_logDet)
+	out$stat_logdet = ifelse(length(out$logdet) == 2, out$logdet[2] - out$logdet[1], NA)
+	out
+}
 
 
 

@@ -623,55 +623,6 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
     return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
 }
 
-#' Box's M-test
-#'
-#' boxM performs the Box's (1949) M-test for homogeneity of covariance matrices obtained from multivariate normal data according to one or more classification factors. The test compares  the product of the log determinants of the separate covariance  matrices to the log determinant of the pooled covariance matrix,    analogous to a likelihood ratio test. The test statistic uses a chi-square approximation. Uses permutations to estimate the degrees of freedom under the null
-#' @param Y response variable matrix
-#' @param group a factor defining groups, number of entries must equal nrow(Y)
-#' @param nperm number of permutations of group variable used to estimate degrees of freedom under the null
-#' 
-#' @examples
-#' data(iris)
-#'
-#' boxM_permute(iris[, 1:4], iris[, "Species"])
-#'
-#' @return list of p.value, test statistic, and df.approx estimated by permutation
-#'
-#' @importFrom stats optimize pchisq dchisq
-#' @seealso heplots::boxM
-#' @export
-boxM_permute = function(Y, group, nperm=150, tol=1e-10, fxn=cor, method=c("pearson", "kendall", "spearman")){
-
-   	method = match.arg( method )   
-
-	# fit statistic for real data
-	fit = boxM( Y, group, tol=tol, fxn=fxn, method=method)
-
-	# fit statistic for permutated data
-	# get chisq statistic
-	chisq_stats = vapply( seq_len(nperm), function(i){
-		idx = sample.int(length(group), length(group))
-		fit = boxM( Y, group[idx], tol=tol, method=method)
-		fit$statistic
-		}, numeric(1))
-
-	# estimate df that maximizes the chisqlog-likelihood	
-	opt = optimize( function(df, y){
-		sum(dchisq(y, df=df, log=TRUE))
-	}, interval=c(2, 1e6), y=chisq_stats, maximum=TRUE)
-	df.approx  = opt$maximum
-
-	# compute p-value based on permuted statistic
-	p.value = pchisq( fit$statistic, df=df.approx, lower.tail=FALSE)
-
-	sum(chisq_stats > fit$statistic) / nperm
-
-	list( p.value = as.numeric(p.value),
-		statistic = fit$statistic,
-		df.approx = df.approx,
-		stat_logdet = fit$stat_logdet)
-}
-
 
 
 
