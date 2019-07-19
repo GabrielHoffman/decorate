@@ -8,13 +8,20 @@ test_corSubsetPairs = function(){
 	v1 = sample.int(N, 2000, replace=TRUE)
 	v2 = sample.int(N, 2000, replace=TRUE)
 
-	M = corSubsetPairs(t(Y), v1,v2)
-
+	method = "pearson"
+	M = corSubsetPairs(t(Y), v1,v2, method)
 	# compute correlation using corSubsetPairs
 	cor1 = M[v1[1], v2[1]]
-
 	# direct compute correlation
-	cor2 = cor(Y[,v1[1]], Y[,v2[1]])
+	cor2 = cor(Y[,v1[1]], Y[,v2[1]], method=method)
 
-	checkEquals(cor1, cor2)
+	method = "spearman"
+	M = corSubsetPairs(t(Y), v1,v2, method)
+	# compute correlation using corSubsetPairs
+	cor3 = M[v1[1], v2[1]]
+	# direct compute correlation
+	cor4 = cor(Y[,v1[1]], Y[,v2[1]], method=method)
+
+
+	checkEquals(cor1, cor2) & checkEquals(cor3, cor4)
 }

@@ -5,7 +5,8 @@
 \title{Create correlation matrix}
 \usage{
 createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
-  windowSize = 1e+06, method = "adjacent", quiet = FALSE)
+  windowSize = 1e+06, method = "adjacent", method.corr = c("pearson",
+  "spearman"), quiet = FALSE)
 }
 \arguments{
 \item{query}{GRanges object of intervals to query}
@@ -17,6 +18,8 @@ createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
 \item{windowSize}{width of window in bp around each interval beyond which weight is zero}
 
 \item{method}{'adjacent': compute corr on fixed count sliding window define by adjacentCount.  "distance": compute corr for entries within windowSize bp}
+
+\item{method.corr}{specify which correlation method: "pearson" or "spearman"}
 
 \item{quiet}{suppress messages}
 }

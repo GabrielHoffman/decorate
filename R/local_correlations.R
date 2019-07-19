@@ -69,6 +69,8 @@ getPeakDistances = function( query, windowSize=10000 ){
 #' @param adjacentCount number of adjacent entries to compute correlation against
 #' @param windowSize width of window in bp around each interval beyond which weight is zero
 #' @param method 'adjacent': compute corr on fixed count sliding window define by adjacentCount.  "distance": compute corr for entries within windowSize bp
+#' @param method.corr specify which correlation method: "pearson" or "spearman"
+
 #' @param quiet suppress messages 
 #'
 #' @return for peak i and j with distance d_{i,j},
@@ -84,7 +86,7 @@ getPeakDistances = function( query, windowSize=10000 ){
 #'
 #' @export
 #' @importFrom Matrix sparseMatrix
-createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", quiet=FALSE){
+createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", method.corr = c("pearson", "spearman"), quiet=FALSE){
 
   if( nrow(regionQuant) != length(query) ){
     stop("Number of rows in regionQuant must equal entries in query")
@@ -108,7 +110,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
     stop("method must be 'adjacent' or 'distance'")
   }
 
-  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, silent=quiet)
+  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, method=method.corr, silent=quiet)
 }
 
 

@@ -189,6 +189,8 @@ boxM_basic <- function(Y, group, tol=1e-10, fxn=cor, method= c("pearson", "kenda
 #' @param Y response variable matrix
 #' @param group a factor defining groups, number of entries must equal nrow(Y)
 #' @param nperm number of permutations of group variable used to estimate degrees of freedom under the null
+#' @param method Specify type of correlation: "pearson", "kendall", "spearman"
+#' 
 #' 
 #' @examples
 #' data(iris)

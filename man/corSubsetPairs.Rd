@@ -4,7 +4,8 @@
 \alias{corSubsetPairs}
 \title{Compute correlations between pairs of features}
 \usage{
-corSubsetPairs(Y, idxi, idxj, silent = FALSE)
+corSubsetPairs(Y, idxi, idxj, method = c("pearson", "spearman"),
+  silent = FALSE)
 }
 \arguments{
 \item{Y}{matrix where rows are features}
@@ -12,6 +13,8 @@ corSubsetPairs(Y, idxi, idxj, silent = FALSE)
 \item{idxi}{indecies}
 
 \item{idxj}{indecies}
+
+\item{method}{specify which correlation method: "pearson" or "spearman"}
 
 \item{silent}{suppress messages}
 }
