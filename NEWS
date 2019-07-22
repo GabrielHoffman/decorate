@@ -1,3 +1,7 @@
+1.0.18: July 22, 2019
+	- add support for the following tests:
+	 "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"
+
 1.0.17: July 11, 2019
 	- reduce memory usage of evaluateCorrDecay()
 	- evalDiffCorr() now works on data.frame

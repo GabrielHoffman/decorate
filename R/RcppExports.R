@@ -10,6 +10,7 @@
 #' @param idxj indecies
 #' @param method specify which correlation method: "pearson" or "spearman"
 #' @param silent suppress messages 
+#' @param setNANtoZero replace NAN correlation values with a zero
 #'
 #' @return 
 #' Compute local correlations between for all k: cor(Y[,idxi[k]], Y[,idxj[k]])
@@ -37,7 +38,7 @@
 #' @importFrom Matrix sparseMatrix
 #' @importFrom utils object.size
 #' @export
-corSubsetPairs <- function(Y, idxi, idxj, method = c("pearson", "spearman"), silent=FALSE) {
+corSubsetPairs <- function(Y, idxi, idxj, method = c("pearson", "spearman"), silent=FALSE, setNANtoZero=FALSE) {
 
 	# check function arguments
 
@@ -97,7 +98,7 @@ corSubsetPairs <- function(Y, idxi, idxj, method = c("pearson", "spearman"), sil
 	# only computes crossprod(y1, y2)
 	# This is only the correlation value if mean of cols is zero and 
 	# sd == 1
-    rho = .Call('_decorate_corSubsetPairs', PACKAGE = 'decorate', Y, vi, vj)
+    rho = as.numeric(.Call('_decorate_corSubsetPairs', PACKAGE = 'decorate', Y, vi, vj))
 
     N = ncol(Y)
 	sparsity = length(idxi) / N^2
@@ -107,11 +108,23 @@ corSubsetPairs <- function(Y, idxi, idxj, method = c("pearson", "spearman"), sil
 	#   using only upper triangle
 	#=======================================
 
+	if( setNANtoZero ){
+		idx = is.nan(rho)
+		if( any(idx) ){
+			rho[which(idx)] = 0
+		}
+	}
+
+	# Set diagonals to 1
+	vi = append(vi, seq_len(N))
+	vj = append(vj, seq_len(N))
+	rho = append(rho, rep(1, N))
+
 	# if use.last.ij == FALSE, values at repeated indeces are summed
 	# if TRUE, only use last value
 	M = sparseMatrix( i = vi,
                 j = vj,
-                x = as.numeric(rho),
+                x = rho,
                 dimnames = list(colnames(Y), colnames(Y)),
                 dims = c(N,N), symmetric=TRUE)
 

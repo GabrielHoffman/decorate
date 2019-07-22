@@ -1,6 +1,5 @@
 
 test_boxM = function(){
-
 		
 	Y = as.matrix(iris[,1:4])
 	group = iris[,5]

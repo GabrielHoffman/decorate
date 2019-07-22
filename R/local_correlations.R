@@ -70,8 +70,8 @@ getPeakDistances = function( query, windowSize=10000 ){
 #' @param windowSize width of window in bp around each interval beyond which weight is zero
 #' @param method 'adjacent': compute corr on fixed count sliding window define by adjacentCount.  "distance": compute corr for entries within windowSize bp
 #' @param method.corr specify which correlation method: "pearson" or "spearman"
-
 #' @param quiet suppress messages 
+#' @param setNANtoZero replace NAN correlation values with a zero
 #'
 #' @return for peak i and j with distance d_{i,j},
 #' M[i,j] = cor( vobj$E[i,], vobj$E[j,] )
@@ -86,7 +86,7 @@ getPeakDistances = function( query, windowSize=10000 ){
 #'
 #' @export
 #' @importFrom Matrix sparseMatrix
-createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", method.corr = c("pearson", "spearman"), quiet=FALSE){
+createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", method.corr = c("pearson", "spearman"), quiet=FALSE, setNANtoZero=FALSE){
 
   if( nrow(regionQuant) != length(query) ){
     stop("Number of rows in regionQuant must equal entries in query")
@@ -110,7 +110,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
     stop("method must be 'adjacent' or 'distance'")
   }
 
-  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, method=method.corr, silent=quiet)
+  corSubsetPairs( regionQuant, df_peaksMap$queryHits, df_peaksMap$subjectHits, method=method.corr, silent=quiet, setNANtoZero=setNANtoZero)
 }
 
 
@@ -244,6 +244,7 @@ setMethod("show", "epiclust", function( object ){
 #' @param quiet suppress messages
 #' @param alpha use by 'hclustgeo': mixture parameter weighing correlations (alpha=0) versus chromosome distances (alpha=1)
 #' @param adjacentCount used by 'adjclust': number of adjacent entries to compute correlation against
+#' @param setNANtoZero replace NAN correlation values with a zero
 #' 
 #' @return list hclust tree, one entry for each chromosome
 #'
@@ -284,7 +285,7 @@ setMethod("show", "epiclust", function( object ){
 #' @importFrom stats cor
 #' @importFrom utils assignInNamespace
 #' @export
-runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500){
+runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500, setNANtoZero=FALSE){
 
   if( nrow(X) != length(gr) ){
     stop("# rows of X must equal # of entries in gr: ", nrow(X), ' != ', length(gr))
@@ -330,7 +331,15 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     idx = which(array(GenomicRanges::seqnames(gr) == chrom))
 
     if(method == "adjclust"){
-      C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE)
+      C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE, setNANtoZero=setNANtoZero)
+
+      # if a feature has no variance, the correlation with it is NaN
+      # instead set it to zero
+      # if( any(is.nan(C@x)) ){
+      #   C@x[is.nan(C@x)] = 0
+      #   diag(C) = 1
+      # }
+
       h = min( adjacentCount, nrow(C)-1)
       fitClust = suppressMessages(adjClust( C^2, "similarity", h=h))
       # fitClust = as.hclust(fitClust)
@@ -786,6 +795,7 @@ getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
 #' @importFrom stats quantile
 #' @importFrom progress progress_bar
 #' @import BiocParallel 
+# @importFrom irlba partial_eigen
 scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
   # get data.frame of cluster names per chromosomes
@@ -820,9 +830,16 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
       # Get correlation matrix
       C = treeList[[chrom]]@correlation[peakIDs,peakIDs]
 
-      # eigen analysis
-      dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
-      LEF = dcmp$values[1] / sum(dcmp$values)
+      # if( nrow(C) > 4){
+        # Compute lead eigen-value fraction using full eigen spectrum
+        # eigen analysis
+        dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
+        LEF = dcmp$values[1] / sum(dcmp$values)
+      # }else{
+      #   # Compute lead eigen-value fraction efficiently
+      #   # using fact that sum of evalues = sum of matrix diagonals
+      #   LEF = partial_eigen(abs(C), n=1)$values / sum(diag(abs(C)))
+      # }
 
       # get correlation values
       if( is(C, 'CsparseMatrix') ){
@@ -865,6 +882,9 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   names(clustScoresList) = mscArray
   clustScoresList
 }
+
+
+
 
 #' Extract subset of clusters
 #'

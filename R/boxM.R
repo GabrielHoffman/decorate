@@ -15,7 +15,25 @@ det_partial = function( C, tol=1e-10 ){
    sum( log(evalues[evalues > tol]) )
 }
 
-# Compute boxM result using only the first *rank* eigen-values 
+#' Box's M-test 
+#' 
+#' Box's M-test 
+#' 
+#' @param Y response matrix
+#' @param group factor defining groups
+#' @param tol tolerance for eigen values
+#' @param fxn define function.  Here default is cor to compare correlation structure.  Use cov to compare covariance structure like in  heplots::boxM  
+#' @param method specify which correlation method: "pearson", "kendall" or "spearman"
+#'
+#' @examples
+#' data(iris)
+#' 
+#' boxM( iris[,1:4], iris[,5])
+#' 
+#' @importFrom stats complete.cases aggregate
+
+
+#' @export
 boxM <- function(Y, group, tol=1e-10, fxn=cor, method= c("pearson", "kendall", "spearman")){
    dname <- deparse(substitute(Y))
    method = match.arg( method )
@@ -204,6 +222,8 @@ boxM_basic <- function(Y, group, tol=1e-10, fxn=cor, method= c("pearson", "kenda
 #' @export
 boxM_permute = function(Y, group, nperm=200, method=c("pearson", "kendall", "spearman")){
 
+   dname <- deparse(substitute(Y))
+   
    if (!inherits(Y, c("data.frame", "matrix")))
       stop(paste(dname, "must be a numeric data.frame or matrix!"))
    if (length(group) != nrow(Y))

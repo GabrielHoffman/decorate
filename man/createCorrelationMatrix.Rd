@@ -6,7 +6,7 @@
 \usage{
 createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
   windowSize = 1e+06, method = "adjacent", method.corr = c("pearson",
-  "spearman"), quiet = FALSE)
+  "spearman"), quiet = FALSE, setNANtoZero = FALSE)
 }
 \arguments{
 \item{query}{GRanges object of intervals to query}
@@ -22,6 +22,8 @@ createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
 \item{method.corr}{specify which correlation method: "pearson" or "spearman"}
 
 \item{quiet}{suppress messages}
+
+\item{setNANtoZero}{replace NAN correlation values with a zero}
 }
 \value{
 for peak i and j with distance d_{i,j},

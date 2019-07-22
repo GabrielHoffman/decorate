@@ -8,8 +8,9 @@
   npermute = c(100, 10000, 1e+05), adj.beta = 0, rho = 0,
   sumabs.seq = 1, BPPARAM = SerialParam(), method = c("sLED", "Box",
   "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis"), method2 = c("pearson", "kendall",
-  "spearman"))
+  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot",
+  "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  method2 = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -30,7 +31,7 @@
 
 \item{BPPARAM}{parameters for parallel evaluation}
 
-\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" or "Kruskal.Wallis"}
+\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"}
 
 \item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }

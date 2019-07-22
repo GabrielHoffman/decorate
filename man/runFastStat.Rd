@@ -7,7 +7,7 @@
 runFastStat(itObj, method = c("Box", "Box.permute", "Steiger.fisher",
   "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis",
   "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob",
-  "Delaneau"), method2 = c("pearson", "kendall", "spearman"))
+  "Delaneau", "deltaSLE"), method2 = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{itObj}{iterator}

@@ -5,7 +5,7 @@
 \title{Compute correlations between pairs of features}
 \usage{
 corSubsetPairs(Y, idxi, idxj, method = c("pearson", "spearman"),
-  silent = FALSE)
+  silent = FALSE, setNANtoZero = FALSE)
 }
 \arguments{
 \item{Y}{matrix where rows are features}
@@ -17,6 +17,8 @@ corSubsetPairs(Y, idxi, idxj, method = c("pearson", "spearman"),
 \item{method}{specify which correlation method: "pearson" or "spearman"}
 
 \item{silent}{suppress messages}
+
+\item{setNANtoZero}{replace NAN correlation values with a zero}
 }
 \value{
 Compute local correlations between for all k: cor(Y[,idxi[k]], Y[,idxj[k]])

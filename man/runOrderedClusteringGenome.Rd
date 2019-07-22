@@ -5,7 +5,8 @@
 \title{Run hierarchical clustering preserving order}
 \usage{
 runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
-  quiet = FALSE, alpha = 0.5, adjacentCount = 500)
+  quiet = FALSE, alpha = 0.5, adjacentCount = 500,
+  setNANtoZero = FALSE)
 }
 \arguments{
 \item{X}{data matrix were *rows* are features in sequential order}
@@ -19,6 +20,8 @@ runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
 \item{alpha}{use by 'hclustgeo': mixture parameter weighing correlations (alpha=0) versus chromosome distances (alpha=1)}
 
 \item{adjacentCount}{used by 'adjclust': number of adjacent entries to compute correlation against}
+
+\item{setNANtoZero}{replace NAN correlation values with a zero}
 }
 \value{
 list hclust tree, one entry for each chromosome
