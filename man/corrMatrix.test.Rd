@@ -7,7 +7,7 @@
 corrMatrix.test(Y, group, method = c("Box", "Box.permute",
   "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney",
   "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj",
-  "Schott.Frob", "Delaneau", "deltaSLE"), method2 = c("pearson",
+  "Schott.Frob", "Delaneau", "deltaSLE"), method.corr = c("pearson",
   "kendall", "spearman"))
 }
 \arguments{
@@ -17,7 +17,7 @@ corrMatrix.test(Y, group, method = c("Box", "Box.permute",
 
 \item{method}{Specify test: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney" "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"}
 
-\item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
+\item{method.corr}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }
 \description{
 Test difference between two correlation matricies using one of 5 tests

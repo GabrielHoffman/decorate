@@ -7,14 +7,15 @@
 runFastStat(itObj, method = c("Box", "Box.permute", "Steiger.fisher",
   "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis",
   "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob",
-  "Delaneau", "deltaSLE"), method2 = c("pearson", "kendall", "spearman"))
+  "Delaneau", "deltaSLE"), method.corr = c("pearson", "kendall",
+  "spearman"))
 }
 \arguments{
 \item{itObj}{iterator}
 
 \item{method}{Specify test: "Box", "Box.permute", Steiger.fisher", "Steiger", "Jennrich", "Factor" "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob"}
 
-\item{method2}{Specify type of correlation: "pearson", "kendall", "spearman"}
+\item{method.corr}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }
 \description{
 Test difference in correlation using closed form tests

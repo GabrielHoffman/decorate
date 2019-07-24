@@ -1,13 +1,14 @@
-1.0.18: July 22, 2019
+1.0.18: July 23, 2019
 	- add support for the following tests:
 	 "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"
+	- add extractCorrelationScores()
+	- add getClusterRanges()
 
 1.0.17: July 11, 2019
 	- reduce memory usage of evaluateCorrDecay()
 	- evalDiffCorr() now works on data.frame
 	- add corrMatrix.test()
 	- add support for following tests: "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis"
-
 
 1.0.16: June 5, 2019
 	- improve error message in plotDecorate()

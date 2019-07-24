@@ -105,14 +105,26 @@ sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=0, su
 
       # get sparse leading eigenvalue
       p = ncol(C_all)
-      res = symmPMD(C_all + rho * diag(p), sumabs = sumabs, trace = FALSE)
-      d_all = res$d
+      if( p > 2){
+            res = symmPMD(C_all + rho * diag(p), sumabs = sumabs, trace = FALSE)
+            d_all = res$d
+      }else{
+            dcmp = eigen(C_all)
+            d_all = sqrt(dcmp$values[1])
+      }
 
       # Compute leave-one-out correlations and statistics
       sampleScore = vapply( seq_len(nrow(Y)), function( i ){
             C_i = cor( Y[-i,], method=method)
-            res = symmPMD(C_i + rho * diag(p), sumabs = sumabs, trace = FALSE)
-            res$d - d_all
+
+            if( p > 2){
+                  res = symmPMD(C_i + rho * diag(p), sumabs = sumabs, trace = FALSE)
+                  di = res$d
+            }else{
+                  dcmp = eigen(C_i)
+                  di = sqrt(dcmp$values[1])
+            }
+            di - d_all
             }, numeric(1))
 
       if( !is.null(rownames(Y)) ){
@@ -120,8 +132,6 @@ sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=0, su
       }
       sampleScore   
 }
-
-
 
 
 #' Test association between sparse leading eigen-value and variable
