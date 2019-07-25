@@ -146,17 +146,25 @@ addLegend <- function(color, vp, absCorr){
 
   keyVP <- viewport(x=.94, y=.03, height=.05, width=.2, just=c("right","bottom"), name="keyVP")
   
-  txt = ifelse(absCorr, "abs(Correlation)", "Correlation")
+  if( absCorr ){
+    txt = "abs(Correlation)"
+    lab = seq(0,1, by=.2)
+  }else{
+    txt =  "Correlation"
+    lab = seq(-1,1, by=0.5)
+  }
+  loc = seq(0,1, length.out=length(lab))
+
 
   title<-textGrob(txt, x=0.5, y=1.25, name="title", gp=gpar(cex=0.8))
   
-  #Adding labels to the color key
-  labels<-textGrob(paste(0.2*0:5), x=0.2*0:5,y=0.25, gp=gpar(cex=0.6), name="labels")
+  # Adding labels to the color key
+  labels<-textGrob(paste(lab), x=loc,y=0.25, gp=gpar(cex=0.6), name="labels")
   
-  #Drawing ticks at the bottom axis of the color key
-  ticks<-segmentsGrob(x0=c(0:5)*0.2 , y0=rep(0.4,6), x1=c(0:5)*0.2 , y1=rep(0.5,6),name="ticks")
+  # Drawing ticks at the bottom axis of the color key
+  ticks<-segmentsGrob(x0=loc , y0=rep(0.4,6), x1=loc , y1=rep(0.5,6),name="ticks")
   
-  #Drawing a box around the color key
+  # Drawing a box around the color key
   box <- linesGrob(x=c(0,0,1,1,0), y=c(0.5,1,1,0.5,0.5), name="box")
   
   key <- gTree(children=gList(ImageRect, title, labels, ticks, box), name = "Key", vp=keyVP)
@@ -455,6 +463,8 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   
   heatMap <- gTree(children=gList(ImageRect, key), name="heatMap")
   
+  ggdraw(heatMap)
+
   ##############
   # Plot title #
   ##############
