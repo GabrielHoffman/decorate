@@ -463,8 +463,6 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   
   heatMap <- gTree(children=gList(ImageRect, key), name="heatMap")
   
-  ggdraw(heatMap)
-
   ##############
   # Plot title #
   ##############
