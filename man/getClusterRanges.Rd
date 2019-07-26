@@ -4,12 +4,14 @@
 \alias{getClusterRanges}
 \title{Get genome coordinates for each cluster}
 \usage{
-getClusterRanges(gRanges, clustList)
+getClusterRanges(gRanges, clustList, verbose = TRUE)
 }
 \arguments{
 \item{gRanges}{GenomciRanges corresponding to the rows of epiSignal}
 
 \item{clustList}{list of cluster assignments}
+
+\item{verbose}{write messages to screen}
 }
 \value{
 GRanges object

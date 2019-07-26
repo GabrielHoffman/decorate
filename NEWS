@@ -1,3 +1,6 @@
+1.0.19: July 26, 2019
+	- getClusterRanges() and combineResults() is much faster
+
 1.0.18: July 23, 2019
 	- add support for the following tests:
 	 "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"

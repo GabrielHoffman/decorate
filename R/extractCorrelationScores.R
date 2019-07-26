@@ -87,10 +87,9 @@ extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("del
 #' 
 #' @param gRanges GenomciRanges corresponding to the rows of epiSignal
 #' @param clustList list of cluster assignments
+#' @param verbose write messages to screen
 #' 
 #' @return GRanges object
-#' 
-#' @importFrom GenomicRanges ranges
 #'
 #' @examples
 #' library(GenomicRanges)
@@ -110,25 +109,51 @@ extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("del
 #' getClusterRanges( simLocation, treeListClusters)
 #' 
 #' @export
-getClusterRanges = function(gRanges, clustList){
-
-	res = lapply(names(clustList), function(id){
-		res = lapply( names(clustList[[id]]), function(chrom){
-			res = lapply( unique(clustList[[id]][[chrom]]), function(idx){
-
-				peakIDs = names(which(clustList[[id]][[chrom]] == idx))
-
-				gr = ranges(gRanges[peakIDs])
-				names(gr) = paste(id, chrom, idx, sep='_')
-				gr
+#' @importFrom GenomicRanges GRanges 
+#' @importFrom IRanges IRanges
+#' @importFrom data.table data.table
+getClusterRanges = function(gRanges, clustList, verbose=TRUE){
+	featureInfo = lapply(names(clustList), function(id){
+		featureInfo = lapply( names(clustList[[id]]), function(chrom){
+			peaks = clustList[[id]][[chrom]]
+			if( length(peaks) > 0 ){
+				feature = names(peaks)
+				names(peaks) = c()
+				res = data.frame( id, chrom, cluster=peaks, feature=feature,stringsAsFactors=FALSE)
+			}else{
+				res = NA
+			}
+			res
 			})
-			do.call('c', res)
-		})
-		do.call('c', res)
+		do.call('rbind', featureInfo)		
 	})
+	featureInfo = data.table(do.call('rbind', featureInfo))
+	featureInfo = featureInfo[!is.na(id),]
+			
+	# convert feature location GRanges to data.table
+	elementMetadata( gRanges) = NULL
+	df_gr = data.table(data.frame(feature = names(gRanges), gRanges, stringsAsFactors=FALSE))
 
-	do.call('c', res)
+	# merge
+	df_merge = merge(df_gr, featureInfo, by="feature")
+
+	# define variables to pass R check
+	cluster = clusterName= id = NA
+
+	# create cluster names
+	df_merge[,clusterName:=paste(id, chrom, cluster, sep='_')]
+
+	# Summarize each cluster
+	if( verbose ){
+		cat("Summarizing each cluster...\n")
+	}
+	df = df_merge[,data.frame(id=unique(id), chrom = unique(chrom), cluster=unique(cluster), start=min(start), end=max(end), stringsAsFactors=FALSE),by='clusterName']
+
+	# Create GRanges to return
+ 	df[,GRanges( chrom, IRanges(start, end, names=clusterName), id=id, cluster=cluster)]
 }
+
+
 
 
 #' Get name of each cluster
@@ -178,7 +203,7 @@ getClusterNames = function(clustList){
 	res
 }
 
-# Extract clutsters based on index
+# Extract clusters based on index
 # Used for iterator
 getClusterSubset = function(clustList, idx){
 

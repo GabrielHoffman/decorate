@@ -64,28 +64,33 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
 
   # extract cluster locations
   if( verbose ){
-	cat("Collecting cluster locations...\n")
+	 cat("Collecting cluster locations...\n")
 	}
-  res = lapply( seq_len(nrow(df_combine)), function(i){
-    peakIDs = getFeaturesInCluster( treeListClusters, df_combine$chrom[i], df_combine$cluster[i], df_combine$id[i])
-    data.frame( chrom = df_combine$chrom[i], 
-                cluster = df_combine$cluster[i], 
-                id = df_combine$id[i], 
-                range(peakLocations[peakIDs]))
-  })
-  res = do.call("rbind", res)
+  # res = lapply( seq_len(nrow(df_combine)), function(i){
+  #   peakIDs = getFeaturesInCluster( treeListClusters, df_combine$chrom[i], df_combine$cluster[i], df_combine$id[i])
+  #   data.frame( chrom = df_combine$chrom[i], 
+  #               cluster = df_combine$cluster[i], 
+  #               id = df_combine$id[i], 
+  #               range(peakLocations[peakIDs]))
+  # })
+  # res = do.call("rbind", res)
+
+  clustInfo = getClusterRanges( peakLocations, treeListClusters, verbose=verbose)
+  clustDf = data.frame(clustInfo, stringsAsFactors=FALSE)
+  colnames(clustDf)[colnames(clustDf)=="seqnames"] = "chrom"
+  clustDf$chrom = as.character(clustDf$chrom ) 
+  
 
   # merge
   if( verbose ){
 	cat("Merging results...\n")
 	}
-  df_combine = merge( df_combine, res[,c('chrom', 'cluster', 'id', 'start', 'end')], by=c("id", 'chrom', 'cluster') )
+  df_combine = merge( df_combine, clustDf[,c('chrom', 'cluster', 'id', 'start', 'end', 'width')], by=c("id", 'chrom', 'cluster') )
 
   # sort
   df_combine = df_combine[order(df_combine$pValue, -abs(df_combine$stat)),]
  
   rownames(df_combine) = c()
-  df_combine$width = with(df_combine, end-start)
 
   df_combine
 }
