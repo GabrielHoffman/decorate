@@ -245,6 +245,7 @@ setMethod("show", "epiclust", function( object ){
 #' @param alpha use by 'hclustgeo': mixture parameter weighing correlations (alpha=0) versus chromosome distances (alpha=1)
 #' @param adjacentCount used by 'adjclust': number of adjacent entries to compute correlation against
 #' @param setNANtoZero replace NAN correlation values with a zero
+#' @param method.corr Specify type of correlation: "pearson", "kendall", "spearman"
 #' 
 #' @return list hclust tree, one entry for each chromosome
 #'
@@ -285,13 +286,14 @@ setMethod("show", "epiclust", function( object ){
 #' @importFrom stats cor
 #' @importFrom utils assignInNamespace
 #' @export
-runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500, setNANtoZero=FALSE){
+runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500, setNANtoZero=FALSE, method.corr = c("pearson", "spearman")){
 
   if( nrow(X) != length(gr) ){
     stop("# rows of X must equal # of entries in gr: ", nrow(X), ' != ', length(gr))
   }
 
   method <- match.arg(method)
+  method.corr  <- match.arg(method.corr)
 
   if( alpha < 0 || alpha > 1 ){
       stop("Must specify agrument: alpha must be between 0 and 1")
@@ -331,7 +333,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     idx = which(array(GenomicRanges::seqnames(gr) == chrom))
 
     if(method == "adjclust"){
-      C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE, setNANtoZero=setNANtoZero)
+      C = createCorrelationMatrix( gr[idx], X[idx,], adjacentCount=adjacentCount, quiet=TRUE, setNANtoZero=setNANtoZero, method.corr=method.corr)
 
       # if a feature has no variance, the correlation with it is NaN
       # instead set it to zero
@@ -346,6 +348,13 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
 
       res = new("epiclust", clust = fitClust, location=gr[idx], adjacentCount=adjacentCount, alpha=0, method=method, correlation=C)
     }else{
+
+       if( method.corr != "pearson"){
+        stop(paste("Correlation ", method.corr, "not currently implemented for", method))
+       }
+
+
+
       # compute tree on this chromosome
       fitClust = runOrderedClustering( X[idx,], gr[idx], alpha=alpha)
 
@@ -1079,8 +1088,7 @@ jaccard = function(a,b){
 
 #' Collapse clusters based on jaccard index
 #' 
-#' Collapse clusters if jaccard index between clusters excceds a cutoff
-#' 
+#' Collapse clusters if jaccard index between clusters exceeds a cutoff
 #' 
 #' @param treeListClusters from createClusters()
 #' @param featurePositions GRanges object storing location of each feature

@@ -52,7 +52,7 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
   
   # get test results
   if( verbose ){
-  	cat("Summarizing differential analysis...\n")
+  	cat("Summarizing analysis...\n")
   }
   df = summary(sledRes)
 

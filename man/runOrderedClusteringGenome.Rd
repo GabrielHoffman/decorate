@@ -6,7 +6,7 @@
 \usage{
 runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
   quiet = FALSE, alpha = 0.5, adjacentCount = 500,
-  setNANtoZero = FALSE)
+  setNANtoZero = FALSE, method.corr = c("pearson", "spearman"))
 }
 \arguments{
 \item{X}{data matrix were *rows* are features in sequential order}
@@ -22,6 +22,8 @@ runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
 \item{adjacentCount}{used by 'adjclust': number of adjacent entries to compute correlation against}
 
 \item{setNANtoZero}{replace NAN correlation values with a zero}
+
+\item{method.corr}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }
 \value{
 list hclust tree, one entry for each chromosome

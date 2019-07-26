@@ -6,7 +6,8 @@
 \usage{
 plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
   data, cols, showGenes = TRUE, splice_variants = FALSE,
-  non_coding = FALSE, absCorr = FALSE)
+  non_coding = FALSE, absCorr = FALSE, method.corr = c("pearson",
+  "kendall", "spearman"))
 }
 \arguments{
 \item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}
@@ -30,6 +31,8 @@ plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
 \item{non_coding}{if TRUE, also show non-coding genes}
 
 \item{absCorr}{show absolute correlations}
+
+\item{method.corr}{if data is specified, compute correlation using: "pearson", "kendall", "spearman"}
 }
 \value{
 ggplot2 of cluster assignments and correlation between peaks

@@ -17,7 +17,7 @@ collapseClusters(treeListClusters, featurePositions, jaccardCutoff = 0.9)
 subset of clusters in treeListClusters that passes cutoff
 }
 \description{
-Collapse clusters if jaccard index between clusters excceds a cutoff
+Collapse clusters if jaccard index between clusters exceeds a cutoff
 }
 \examples{
 library(GenomicRanges)

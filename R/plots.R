@@ -187,6 +187,7 @@ addLegend <- function(color, vp, absCorr){
 #' @param splice_variants if TRUE, show multiple transcripts from the same gene
 #' @param non_coding if TRUE, also show non-coding genes
 #' @param absCorr show absolute correlations
+#' @param method.corr if data is specified, compute correlation using: "pearson", "kendall", "spearman"
 #'
 #' @return ggplot2 of cluster assignments and correlation between peaks
 #'
@@ -223,9 +224,11 @@ addLegend <- function(color, vp, absCorr){
 #' @importFrom adjclust correct
 #' @importFrom grDevices rainbow colorRampPalette
 #' @export
-plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, data, cols, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE, absCorr=FALSE){
+plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, query, data, cols, showGenes=TRUE, splice_variants=FALSE, non_coding=FALSE, absCorr=FALSE, method.corr=c("pearson", "kendall", "spearman")){
 
   showTree=FALSE
+
+  method.corr = match.arg( method.corr )
 
   if( ! is(query, "GRanges")){
     stop("query must be GRanges object")
@@ -415,7 +418,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
       stop("Cannot compute correlation: data has zero columns")
     }
 
-    C = cor(t(data[peakIDs,]))
+    C = cor(t(data[peakIDs,]), method = method.corr)
     C[lower.tri(C, diag=TRUE)] = NA
   }
 
