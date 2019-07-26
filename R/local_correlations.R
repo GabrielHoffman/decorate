@@ -353,8 +353,6 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
         stop(paste("Correlation ", method.corr, "not currently implemented for", method))
        }
 
-
-
       # compute tree on this chromosome
       fitClust = runOrderedClustering( X[idx,], gr[idx], alpha=alpha)
 
