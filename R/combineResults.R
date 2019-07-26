@@ -85,7 +85,7 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
   df_combine = df_combine[order(df_combine$pValue, -abs(df_combine$stat)),]
  
   rownames(df_combine) = c()
-  df_results$width = with(df_results, end-start)
+  df_combine$width = with(df_combine, end-start)
 
   df_combine
 }
