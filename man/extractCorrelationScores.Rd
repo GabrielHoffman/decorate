@@ -6,7 +6,7 @@
 \usage{
 extractCorrelationScores(epiSignal, gRanges, clustList,
   method = c("deltaSLE", "Delaneau"), method.corr = c("pearson",
-  "kendall", "spearman"), BPPARAM = bpparam())
+  "kendall", "spearman"), BPPARAM = bpparam(), rho = 0.1, sumabs = 1)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}
@@ -20,6 +20,10 @@ extractCorrelationScores(epiSignal, gRanges, clustList,
 \item{method.corr}{Specify type of correlation: "pearson", "kendall", "spearman"}
 
 \item{BPPARAM}{parameters for parallel evaluation}
+
+\item{rho}{used only for sle.score(). A positive constant such that cor(Y) + diag(rep(rho,p)) is positive definite.  See sLED::sLED()}
+
+\item{sumabs}{used only for sle.score(). regularization paramter. Value of 1 gives no regularization, sumabs*sqrt(p) is the upperbound of the L_1 norm of v, controlling the sparsity of solution. Must be between 1/sqrt(p) and 1. See sLED::sLED()}
 }
 \value{
 matrix of scores of each sample for each cluster

@@ -10,6 +10,8 @@
 #' @param method "deltaSLE", "Delaneau"
 #' @param method.corr Specify type of correlation: "pearson", "kendall", "spearman"
 #' @param BPPARAM parameters for parallel evaluation
+#' @param rho used only for sle.score(). A positive constant such that cor(Y) + diag(rep(rho,p)) is positive definite.  See sLED::sLED()
+#' @param sumabs used only for sle.score(). regularization paramter. Value of 1 gives no regularization, sumabs*sqrt(p) is the upperbound of the L_1 norm of v, controlling the sparsity of solution. Must be between 1/sqrt(p) and 1. See sLED::sLED()
 #' 
 #' @return matrix of scores of each sample for each cluster
 #'
@@ -44,7 +46,7 @@
 #' @seealso sle.score delaneau.score
 #' @importFrom BiocParallel bpparam bplapply
 #' @export
-extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("deltaSLE", "Delaneau"), method.corr=c("pearson", "kendall", "spearman"), BPPARAM = bpparam()){
+extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("deltaSLE", "Delaneau"), method.corr=c("pearson", "kendall", "spearman"), BPPARAM = bpparam(), rho=.1, sumabs=1){
 
 	method = match.arg( method )
 	method.cor = match.arg( method.corr )
@@ -59,7 +61,7 @@ extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("del
 					score = rep(NA, ncol(epiSignal))
 					names(score) = colnames(epiSignal)
 				}else if(  method == "deltaSLE"){
-					score = sle.score( t(epiSignal[peakIDs,,drop=FALSE]), method.corr )
+					score = sle.score( t(epiSignal[peakIDs,,drop=FALSE]), method.corr, rho, sumabs)
 				}else if( method == "Delaneau" ){					
 					score = delaneau.score( t(epiSignal[peakIDs,,drop=FALSE]), method.corr )
 				}

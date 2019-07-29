@@ -97,7 +97,8 @@ delaneau.test = function( Y, variable, method = c("pearson", "kendall", "spearma
 #' @importFrom stats cor
 #' @export
 #' @seealso sle.test
-sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.1, sumabs=1 ){
+sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.05, sumabs=1 ){
+      
       method = match.arg( method )
 
       # correlation for all samples
@@ -112,8 +113,19 @@ sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.1, s
             # Difference matrix
             D.mat = C_all - C_i
 
-            # Evaluate sLED statistic
-            res = sLED:::sLEDTestStat( D.mat, rho=rho, sumabs.seq = sumabs)
+            # if more thatn 2 features
+            if( nrow(D.mat) > 2){
+                  # Evaluate sLED statistic
+                  res = sLED:::sLEDTestStat( D.mat, rho=rho, sumabs.seq = sumabs)
+            }else{
+                  # Evaluate statistic without sparsity
+                  p = nrow(D.mat)
+                 
+                  d.pos = eigen(D.mat + rho*diag(p))$values[1]
+                  d.neg = eigen(-1*D.mat + rho*diag(p))$values[1]
+
+                  res = list(stats = ifelse( d.pos > d.neg, d.pos - rho, -1*(d.neg - rho)))
+            }
 
             # return test stat
             res$stats

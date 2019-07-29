@@ -4,7 +4,7 @@
 \alias{sle.score}
 \title{Score impact of each sample on sparse leading eigen-value}
 \usage{
-sle.score(Y, method = c("pearson", "kendall", "spearman"), rho = 0.1,
+sle.score(Y, method = c("pearson", "kendall", "spearman"), rho = 0.05,
   sumabs = 1)
 }
 \arguments{
