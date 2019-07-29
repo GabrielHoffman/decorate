@@ -1,5 +1,6 @@
 1.0.20: July 28, 2019
 	- modify sle.score() to use lead eigen value of difference matrix
+	- add runPermutedData() to get cluster statistics from permuted data
 
 1.0.19: July 26, 2019
 	- getClusterRanges() and combineResults() is much faster

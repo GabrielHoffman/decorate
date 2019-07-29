@@ -11,7 +11,7 @@ retainClusters(clstScore, metric = "LEF", cutoff = 0.4)
 
 \item{metric}{column of clstScore to use in filtering}
 
-\item{cutoff}{retain cluster than exceed the cutoff for metric}
+\item{cutoff}{retain cluster than exceed the cutoff for metric.  Can be array with one entry per entry in clstScore}
 }
 \value{
 data.frame of chrom, clutser, id (the clustering parameter value), and the specified metric
@@ -35,6 +35,7 @@ clstScore = scoreClusters(treeList, treeListClusters )
 
 # Retain clusters that pass this criteria
 clustInclude = retainClusters( clstScore, "LEF", 0.30 )
+
 # Or filter by mean absolute correlation
 # clustInclude = retainClusters( clstScore, "mean_abs_corr", 0.1 )
 

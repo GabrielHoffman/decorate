@@ -1018,7 +1018,7 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
 #' 
 #' @param clstScore score each cluster using scoreClusters()
 #' @param metric column of clstScore to use in filtering
-#' @param cutoff retain cluster than exceed the cutoff for metric
+#' @param cutoff retain cluster than exceed the cutoff for metric.  Can be array with one entry per entry in clstScore
 #'
 #' @return data.frame of chrom, clutser, id (the clustering parameter value), and the specified metric
 #'
@@ -1038,7 +1038,7 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
 #' 
 #' # Retain clusters that pass this criteria
 #' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
-
+#' 
 #' # Or filter by mean absolute correlation
 #' # clustInclude = retainClusters( clstScore, "mean_abs_corr", 0.1 )
 #' 
@@ -1048,6 +1048,28 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
 #' @export
 retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
 
+  if( length(cutoff) == 0){
+    stop("Must specify cutoff")
+  }
+
+  if( (length(cutoff) > 1) & (length(cutoff) != length(clstScore)) ){
+    stop( paste("Array values specified for cutoff, but number of entries must match\nnumber of entries in clstScore:", length(clstScore)))
+  }
+
+  # if cutoff is a scalar, repeated it once for each entry in clstScore
+  if( length(cutoff) == 1 ){
+    cutoff = rep(cutoff, length(clstScore) )
+  }
+
+  names(cutoff) = names(clstScore)
+
+  cat("Using cutoffs:\n")
+  cat("Cluster set\tcutoff\n")
+  for(i in seq_len(length(clstScore))){
+    cat(paste0(" ", names(clstScore)[i], "\t\t", format(cutoff[i], digits=3), '\n'))
+  }
+  cat("\n")
+
   clstScoreDF = do.call("rbind", clstScore)
 
   if( ! metric %in% colnames(clstScoreDF) ){
@@ -1056,10 +1078,14 @@ retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
     stop("Valid metric to filter by are:\n", paste(cols, collapse = ', '))
   }
 
-  clstScoreDF[clstScoreDF[[metric]] >= cutoff,c("id", "chrom", "cluster", metric)]
+  # apply different cutoff for each entry in clstScore
+  res = lapply( names(clstScore), function(id){
+    cl = clstScore[[id]]
+    cl[cl[[metric]] >= cutoff[id],c("id", "chrom", "cluster", metric)]
+    })
+
+  do.call("rbind", res)  
 }
-
-
 
 
 #' Evaluate Jaccard index
