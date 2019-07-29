@@ -803,7 +803,7 @@ getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
 #' @importFrom progress progress_bar
 #' @import BiocParallel 
 # @importFrom irlba partial_eigen
-scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
+scoreClusters = function(treeList, treeListClusters, BPPARAM=bpparam()){
 
   # get data.frame of cluster names per chromosomes
   # clCount = countClusters( treeListClusters )
@@ -817,74 +817,73 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
   })
   df_count = do.call("rbind", unlist(df_count, recursive=FALSE))
 
+
   # evaluate for each cluster
-  .score_clust = function(i, treeList, treeListClusters, df_count){
-    
-    # pb$update( i / nrow(df_count) )      
+  .score_clusts = function( obj ) {
 
-    # get chrom and clsuter ID for this clsuter
-    chrom = df_count$chrom[i] 
-    clustID = df_count$cluster[i] 
-    msc = df_count$meanClusterSize[i]
+    library(data.table)
+    batch = clustID = peakID = NA
 
-    cl = treeListClusters[[as.character(msc)]][[chrom]] 
+    values = unique(obj$treeListClusters)
 
-    peakIDs = names(cl[cl==clustID])
+    df_values = data.frame(peakID = names(obj$treeListClusters), clustID = obj$treeListClusters, stringsAsFactors=FALSE)
+    df_values = data.table(df_values)
+    n_batches = 50
+    df_values[,batch:=round(clustID / n_batches)]
 
-    N = length(peakIDs)
+    Clist = lapply( unique(df_values$batch), function(btch){
+      peakIDs = df_values[batch==btch,peakID]
+      as.matrix(obj$treeList@correlation[peakIDs,peakIDs])
+      })
+    names(Clist) = unique(df_values$batch)
 
-    if( N > 1){
-      # Get correlation matrix
-      C = treeList[[chrom]]@correlation[peakIDs,peakIDs]
+    res = lapply( values, function( clustID ){
+      peakIDs = names(obj$treeListClusters[obj$treeListClusters==clustID])
 
-      # if( nrow(C) > 4){
+      N = length(peakIDs)
+
+      cor_values = 1
+      LEF = 1
+
+      if( N > 1){
+        # Get correlation matrix
+        # C = as.matrix(obj$treeList@correlation[peakIDs,peakIDs])
+        batch = df_values[peakID%in%peakIDs,as.character(unique(batch))]
+        C = Clist[[batch]][peakIDs,peakIDs]
+
         # Compute lead eigen-value fraction using full eigen spectrum
         # eigen analysis
         dcmp = eigen(abs(C), symmetric=TRUE, only.values = TRUE)
         LEF = dcmp$values[1] / sum(dcmp$values)
-      # }else{
-      #   # Compute lead eigen-value fraction efficiently
-      #   # using fact that sum of evalues = sum of matrix diagonals
-      #   LEF = partial_eigen(abs(C), n=1)$values / sum(diag(abs(C)))
-      # }
 
-      # get correlation values
-      if( is(C, 'CsparseMatrix') ){
-        diag(C) = -Inf
-        cor_values = C@x[is.finite(C@x)]
-      }else{        
         cor_values = C[lower.tri(C)]
+        cor_values = cor_values[is.finite(cor_values)]
       }
-    }else{
-      cor_values = 1
-      LEF = 1
-    }
-    # compute statistics
-    data.frame( id=msc, chrom = chrom, 
+      # compute statistics
+      data.frame( id=obj$id, chrom = obj$chrom, 
         cluster = clustID, N=N,
         mean_abs_corr = mean(abs(cor_values)), 
         quantile75 = quantile(abs(cor_values), .75), 
         quantile90 = quantile(abs(cor_values), .90), 
         quantile95 = quantile(abs(cor_values), .95),
         LEF=LEF, stringsAsFactors=FALSE)
+    })
+    do.call("rbind", res)
   }
   
-  # .score_clust(2477, treeList, treeListClusters, df_count, pb)
-  
-  # pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta", total = sum(unlist(clCount)), width= 60, clear=FALSE)
-
   cat("Evaluating strength of each cluster...\n\n")
 
-  res = bplapply( seq_len(nrow(df_count)), .score_clust, treeList, treeListClusters, df_count, BPPARAM=BPPARAM)
+  it = corrIterBatch( treeList, treeListClusters, df_count )
+  cat(paste0("Dividing work into ",attr(it, "n_chunks")," chunks...\n"))
+
+  res = bpiterate( it, .score_clusts, BPPARAM=BPPARAM)
+
+  res = do.call("rbind", res)
+  rownames(res) = c()
 
   mscArray = unique(df_count$meanClusterSize)
   clustScoresList = lapply( mscArray, function(msc){
-      idx = vapply(res, function(x){
-        x$id == msc
-        }, logical(1))
-      locRet = do.call("rbind", res[idx])
-      rownames(locRet) = c()
-      locRet
+     res[res$id==msc,]
     })
   names(clustScoresList) = mscArray
   clustScoresList

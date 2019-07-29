@@ -100,6 +100,54 @@ clustIterBatch = function( dfClust, epiSignal, testVariable, n_chunks = 100 ){
 }
 
 
+corrIterBatch = function( treeList, treeListClusters, df_count, n_chunks = 100 ){
+
+    index = meanClusterSize = NA
+
+    df_count = data.table(df_count)
+    df_count[,index:=seq_len(nrow(df_count))]
+
+    # divide batches to include a single chrom and meanClusterSize
+    idx = list()
+    i = 1
+    for(chrom_ in unique(df_count$chrom)){
+        for(id in unique(df_count$meanClusterSize)){
+            idx[[i]] = df_count[chrom==chrom_ & meanClusterSize==id, index]
+            i = i + 1
+        }
+    }
+
+    i <- 0L
+    f = function() {
+        if (i == length(idx)){
+            return(NULL)
+        }
+        i <<- i + 1L
+
+        df_sub = df_count[idx[[i]],]
+
+        chrom = df_sub[,unique(chrom)]
+        id = as.character(df_sub[,unique(meanClusterSize)])
+
+        treeList_sub = treeList[[chrom]]
+        treeListClusters_sub = treeListClusters[[id]][[chrom]]
+
+        list(   treeList            = treeList_sub,
+                treeListClusters    = treeListClusters_sub,
+                df_count            = df_sub, 
+                chrom               = chrom,
+                id                   = id)         
+    }
+
+    attr( f, "n_chunks") = length(idx)
+    f
+}
+
+
+
+
+
+
 
 
 
