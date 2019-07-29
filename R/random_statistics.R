@@ -67,8 +67,7 @@ runPermutedData = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FA
 	# get cutoffs at 0.05 False Positive Rate
 	cutoffs = lapply(clstScore, function(df){
 		apply(df[df$N>1,c('mean_abs_corr', 'quantile75', 'quantile90', 'quantile95', 'LEF')], 2, function(x){
-			x - x
-			sort(x)[nrow(df)*0.95]
+			sort(x)[length(x)*0.05]
 		})
 		})
 	cutoffs = do.call('rbind', cutoffs)
