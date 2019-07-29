@@ -78,7 +78,7 @@ delaneau.test = function( Y, variable, method = c("pearson", "kendall", "spearma
 
 #' Score impact of each sample on sparse leading eigen-value
 #'
-#' Score impact of each sample on sparse leading eigen-value.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on the difference between the sparse leading eigen-value of C and Ci.
+#' Score impact of each sample on sparse leading eigen-value.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on sparse leading eigen-value of the diffrence between C and Ci.
 #'
 #' @param Y data matrix with samples on rows and variables on columns
 #' @param method specify which correlation method: "pearson", "kendall" or "spearman"
@@ -97,34 +97,26 @@ delaneau.test = function( Y, variable, method = c("pearson", "kendall", "spearma
 #' @importFrom stats cor
 #' @export
 #' @seealso sle.test
-sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=0, sumabs=1 ){
+sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.1, sumabs=1 ){
       method = match.arg( method )
 
       # correlation for all samples
       C_all = cor(Y, method=method)
 
-      # get sparse leading eigenvalue
-      p = ncol(C_all)
-      if( p > 2){
-            res = symmPMD(C_all + rho * diag(p), sumabs = sumabs, trace = FALSE)
-            d_all = res$d
-      }else{
-            dcmp = eigen(C_all)
-            d_all = sqrt(dcmp$values[1])
-      }
-
       # Compute leave-one-out correlations and statistics
       sampleScore = vapply( seq_len(nrow(Y)), function( i ){
+
+            # correlation dropping sample i
             C_i = cor( Y[-i,], method=method)
 
-            if( p > 2){
-                  res = symmPMD(C_i + rho * diag(p), sumabs = sumabs, trace = FALSE)
-                  di = res$d
-            }else{
-                  dcmp = eigen(C_i)
-                  di = sqrt(dcmp$values[1])
-            }
-            di - d_all
+            # Difference matrix
+            D.mat = C_all - C_i
+
+            # Evaluate sLED statistic
+            res = sLED:::sLEDTestStat( D.mat, rho=rho, sumabs.seq = sumabs)
+
+            # return test stat
+            res$stats
             }, numeric(1))
 
       if( !is.null(rownames(Y)) ){

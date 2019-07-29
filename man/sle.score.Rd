@@ -4,7 +4,7 @@
 \alias{sle.score}
 \title{Score impact of each sample on sparse leading eigen-value}
 \usage{
-sle.score(Y, method = c("pearson", "kendall", "spearman"), rho = 0,
+sle.score(Y, method = c("pearson", "kendall", "spearman"), rho = 0.1,
   sumabs = 1)
 }
 \arguments{
@@ -20,7 +20,7 @@ sle.score(Y, method = c("pearson", "kendall", "spearman"), rho = 0,
 score for each sample measure impact on correlation structure
 }
 \description{
-Score impact of each sample on sparse leading eigen-value.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on the difference between the sparse leading eigen-value of C and Ci.
+Score impact of each sample on sparse leading eigen-value.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on sparse leading eigen-value of the diffrence between C and Ci.
 }
 \examples{
 # load iris data
