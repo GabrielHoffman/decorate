@@ -207,7 +207,7 @@ addLegend <- function(color, vp, absCorr){
 #' # Choose cutoffs and return clusters
 #' treeListClusters = createClusters( treeList, method='meanClusterSize', meanClusterSize=30) 
 #' 
-#' # Plot correlations and clusters in region defind by query
+#' # Plot correlations and clusters in region defined by query
 #' query = range(simLocation)
 #' 
 #' plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)

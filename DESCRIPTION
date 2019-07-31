@@ -2,7 +2,7 @@ Package: decorate
 Type: Package
 Title: Differential Epigenetic Coregulation Test
 Version: 1.0.20
-Date: 2019-07-28
+Date: 2019-07-31
 Author: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Maintainer: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.

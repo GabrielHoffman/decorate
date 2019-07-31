@@ -93,7 +93,7 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 # Choose cutoffs and return clusters
 treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20) )
 
-# Plot correlations and clusters in region defind by query
+# Plot correlations and clusters in region defined by query
 query = range(simLocation)
 
 # Plot clusters
