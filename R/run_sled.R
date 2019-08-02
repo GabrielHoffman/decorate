@@ -289,31 +289,31 @@ corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.
 					list(prob = fit$prob, stat=fit$chi2)
 					},
 			"Mann.Whitney"	= { 
-					fit = wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE, conf.int=TRUE);
+					fit = wilcox.test( C1[lower.tri(C1)], C2[lower.tri(C2)], paired=TRUE, conf.int=TRUE)
 					list(prob = fit$p.value, stats = fit$estimate)
 					},			
 			"Kruskal.Wallis"	= {
-					fit = kruskal.test( C1[lower.tri(C1)], C2[lower.tri(C2)]); 
+					fit = kruskal.test( C1[lower.tri(C1)], C2[lower.tri(C2)]) 
 					list(prob = fit$p.value, stats = fit$estimate)
 					},
 			"Cai.max" = { 
-					fit = Cai.max.test( Y1, Y2 );
+					fit = Cai.max.test( scale(Y1), scale(Y2) )
 					list(prob = fit$pVal, stat=fit$test.stat)
 					},
 			"Chang.maxBoot" = { 
-					fit = Chang.maxBoot.test( Y1, Y2 );
+					fit = Chang.maxBoot.test( scale(Y1), scale(Y2) )
 					list(prob = fit$pVal, stat=fit$test.stat)
 					},
 			"LC.U" = { 
-					fit = LC.U.test( Y1, Y2 );
+					fit = LC.U.test( scale(Y1), scale(Y2) )
 					list(prob = fit$pVal, stat=fit$test.stat)
 					},
 			"WL.randProj" = {
-				 fit = WL.randProj( Y1, Y2 );
+				 fit = WL.randProj.test( scale(Y1), scale(Y2) )
 					list(prob = fit$pVal, stat=fit$test.stat)
 					},
 			"Schott.Frob" = { 
-					fit = Schott.Frob( Y1, Y2 );
+					fit = Schott.Frob.test( scale(Y1), scale(Y2) )
 					list(prob = fit$pVal, stat=fit$test.stat)
 					},		
 			"Delaneau" = {

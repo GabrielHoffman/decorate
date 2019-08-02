@@ -4,6 +4,7 @@
 		if variable is factor with multiple levels, use Kruskal-Wallis test
 		if variable is factor with 2 levels, use Wilcoxon test
 		if variable is continuous, cor.test with spearman
+	- methods "Cai.max", "Chang.maxBoot", "LC.U", "WL.randProj", "Schott.Frob" now test correlation instead of covariance
 
 1.0.21: August 2, 2019
 	- fix bug in evalDiffCorr() preventing running "deltaSLE" with multiple categories
