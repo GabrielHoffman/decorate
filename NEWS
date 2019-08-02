@@ -1,3 +1,10 @@
+1.0.22: August 2, 2019
+	- in evalDiffCorr() return effect size estimates
+	- in sle.test() and delaneau.test()
+		if variable is factor with multiple levels, use Kruskal-Wallis test
+		if variable is factor with 2 levels, use Wilcoxon test
+		if variable is continuous, cor.test with spearman
+
 1.0.21: August 2, 2019
 	- fix bug in evalDiffCorr() preventing running "deltaSLE" with multiple categories
 

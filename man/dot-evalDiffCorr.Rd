@@ -8,8 +8,8 @@
   npermute = c(100, 10000, 1e+05), adj.beta = 0, rho = 0,
   sumabs.seq = 1, BPPARAM = bpparam(), method = c("sLED", "Box",
   "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot",
-  "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
+  "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
   method.corr = c("pearson", "kendall", "spearman"))
 }
 \arguments{
@@ -31,7 +31,7 @@
 
 \item{BPPARAM}{parameters for parallel evaluation}
 
-\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"}
+\item{method}{"sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"}
 
 \item{method.corr}{Specify type of correlation: "pearson", "kendall", "spearman"}
 }

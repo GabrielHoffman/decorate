@@ -19,19 +19,34 @@ sle.test(Y, variable, method = c("pearson", "kendall", "spearman"),
 \item{sumabs}{regularization paramter. Value of 1 gives no regularization, sumabs*sqrt(p) is the upperbound of the L_1 norm of v,controling the sparsity of solution. Must be between 1/sqrt(p) and 1.}
 }
 \value{
-score for each sample measure impact on correlation structure
+list of p-value, estimate and method used
 }
 \description{
-Score impact of each sample on sparse leading eigen-value and then peform test of association with variable using Kruskal-Wallis test
+Score impact of each sample on sparse leading eigen-value and then peform test of association with variable using non-parametric test
+}
+\details{
+The statistical test used depends on the variable specified.
+if variable is factor with multiple levels, use Kruskal-Wallis test
+if variable is factor with 2 levels, use Wilcoxon test
+if variable is continuous, use Wilcoxon test
 }
 \examples{
 # load iris data
 data(iris)
 
-# Evalaute score on each sample
+# variable is factor with multiple levels
+# use kruskal.test
 sle.test( iris[,1:4], iris[,5] )
+
+# variable is factor with 2 levels
+# use wilcox.test
+sle.test( iris[1:100,1:4], iris[1:100,5] )
+
+# variable is continuous
+# use cor.test with spearman
+sle.test( iris[,1:4], iris[,1] )
 
 }
 \seealso{
-sle.score
+sle.score delaneau.test
 }

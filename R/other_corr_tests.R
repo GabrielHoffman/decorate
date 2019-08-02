@@ -48,30 +48,59 @@ delaneau.score = function( Y, method = c("pearson", "kendall", "spearman") ){
 #'
 #' @param Y data matrix with samples on rows and variables on columns
 #' @param variable variable with number of entries must equal nrow(Y).  Can be discrete or continuous.
-
+#' 
 #' @param method specify which correlation method: "pearson", "kendall" or "spearman"
 #' 
-#' @return score for each sample measure impact on correlation structure 
+#' @return list of p-value, estimate and method used 
+#' 
+#' @details The statistical test used depends on the variable specified.
+#' if variable is factor with multiple levels, use Kruskal-Wallis test
+#' if variable is factor with 2 levels, use Wilcoxon test
+#' if variable is continuous, use Wilcoxon test
 #' 
 #' @examples
 #' # load iris data
 #' data(iris)
 #' 
-#' # Evalaute score on each sample
+#' # variable is factor with multiple levels
+#' # use kruskal.test
 #' delaneau.test( iris[,1:4], iris[,5] )
 #' 
-#' @importFrom stats cor
+#' # variable is factor with 2 levels
+#' # use wilcox.test
+#' delaneau.test( iris[1:100,1:4], iris[1:100,5] )
+#' 
+#' # variable is continuous
+#' # use cor.test with spearman
+#' delaneau.test( iris[,1:4], iris[,1] )
+#' 
+#' @importFrom stats cor.test
 #' @export
-#' @seealso delaneau.score
+#' @seealso delaneau.score sle.test
 delaneau.test = function( Y, variable, method = c("pearson", "kendall", "spearman") ){
 
       # compute sample level scores
       score = delaneau.score( Y, method )
 
-      # Test of association between score and variable
-      kruskal.test( score, variable )   
-}
+       # Test of association between score and variable
+      if( is.factor(variable) ){
+            variable = droplevels(variable)
+            if( nlevels(variable) == 2 ){
+                  x = score[variable==levels(variable)[1]]
+                  y = score[variable==levels(variable)[2]]
+                  fit = wilcox.test( x, y ) 
+                  result = list(p.value = fit$p.value, estimate = median(y) - median(x), method="wilcox.test")  
+            }else{
+                  fit = kruskal.test( score, variable )
+                  result = list(p.value = fit$p.value, estimate = fit$statistic, method="kruskal.test")   
+            }
+      }else{
+            fit = cor.test( score, variable, method="spearman") 
+            result = list(p.value = fit$p.value, estimate = fit$estimate, method="cor.test") 
+      }
 
+      result
+}
 
 
 
@@ -140,7 +169,7 @@ sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.05, 
 
 #' Test association between sparse leading eigen-value and variable
 #'
-#' Score impact of each sample on sparse leading eigen-value and then peform test of association with variable using Kruskal-Wallis test
+#' Score impact of each sample on sparse leading eigen-value and then peform test of association with variable using non-parametric test
 #'
 #' @param Y data matrix with samples on rows and variables on columns
 #' @param variable variable with number of entries must equal nrow(Y).  Can be discrete or continuous.
@@ -148,33 +177,56 @@ sle.score = function( Y, method = c("pearson", "kendall", "spearman"), rho=.05, 
 #' @param rho a positive constant such that cor(Y) + diag(rep(rho,p)) is positive definite.
 #' @param sumabs regularization paramter. Value of 1 gives no regularization, sumabs*sqrt(p) is the upperbound of the L_1 norm of v,controling the sparsity of solution. Must be between 1/sqrt(p) and 1.
 #' 
-#' @return score for each sample measure impact on correlation structure 
+#' @return list of p-value, estimate and method used 
+#' 
+#' @details The statistical test used depends on the variable specified.
+#' if variable is factor with multiple levels, use Kruskal-Wallis test
+#' if variable is factor with 2 levels, use Wilcoxon test
+#' if variable is continuous, use Wilcoxon test
 #' 
 #' @examples
 #' # load iris data
 #' data(iris)
 #' 
-#' # Evalaute score on each sample
+#' # variable is factor with multiple levels
+#' # use kruskal.test
 #' sle.test( iris[,1:4], iris[,5] )
 #' 
-#' @importFrom stats cor
+#' # variable is factor with 2 levels
+#' # use wilcox.test
+#' sle.test( iris[1:100,1:4], iris[1:100,5] )
+#' 
+#' # variable is continuous
+#' # use cor.test with spearman
+#' sle.test( iris[,1:4], iris[,1] )
+#' 
+#' @importFrom stats cor.test
 #' @export
-#' @seealso sle.score
+#' @seealso sle.score delaneau.test
 sle.test = function( Y, variable, method = c("pearson", "kendall", "spearman"), rho=0, sumabs=1 ){
 
-       # compute sample level scores
+      # compute sample level scores
       score = sle.score( Y, method )
 
-      # Test of association between score and variable
-      kruskal.test( score, variable )   
+       # Test of association between score and variable
+      if( is.factor(variable) ){
+            variable = droplevels(variable)
+            if( nlevels(variable) == 2 ){
+                  x = score[variable==levels(variable)[1]]
+                  y = score[variable==levels(variable)[2]]
+                  fit = wilcox.test( x, y ) 
+                  result = list(p.value = fit$p.value, estimate = median(y) - median(x), method="wilcox.test")  
+            }else{
+                  fit = kruskal.test( score, variable )
+                  result = list(p.value = fit$p.value, estimate = fit$statistic, method="kruskal.test")   
+            }
+      }else{
+            fit = cor.test( score, variable, method="spearman") 
+            result = list(p.value = fit$p.value, estimate = fit$estimate, method="cor.test") 
+      }
+
+      result
 }
-
-
-
-
-
-
-
 
 
 

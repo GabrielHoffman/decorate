@@ -14,19 +14,34 @@ delaneau.test(Y, variable, method = c("pearson", "kendall", "spearman"))
 \item{method}{specify which correlation method: "pearson", "kendall" or "spearman"}
 }
 \value{
-score for each sample measure impact on correlation structure
+list of p-value, estimate and method used
 }
 \description{
 Score impact of each sample on correlation sturucture and then peform test of association with variable using Kruskal-Wallis test
+}
+\details{
+The statistical test used depends on the variable specified.
+if variable is factor with multiple levels, use Kruskal-Wallis test
+if variable is factor with 2 levels, use Wilcoxon test
+if variable is continuous, use Wilcoxon test
 }
 \examples{
 # load iris data
 data(iris)
 
-# Evalaute score on each sample
+# variable is factor with multiple levels
+# use kruskal.test
 delaneau.test( iris[,1:4], iris[,5] )
+
+# variable is factor with 2 levels
+# use wilcox.test
+delaneau.test( iris[1:100,1:4], iris[1:100,5] )
+
+# variable is continuous
+# use cor.test with spearman
+delaneau.test( iris[,1:4], iris[,1] )
 
 }
 \seealso{
-delaneau.score
+delaneau.score sle.test
 }
