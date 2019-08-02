@@ -80,7 +80,6 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
   colnames(clustDf)[colnames(clustDf)=="seqnames"] = "chrom"
   clustDf$chrom = as.character(clustDf$chrom ) 
   
-
   # merge
   if( verbose ){
 	cat("Merging results...\n")

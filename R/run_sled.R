@@ -340,27 +340,34 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 #' @importFrom data.table data.table
 .evalDiffCorr = function(epiSignal, testVariable, gRanges, clustList, npermute = c(100, 10000, 1e5), adj.beta=0, rho=0, sumabs.seq=1, BPPARAM = bpparam(), method=c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U.test", "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE" ), method.corr=c("pearson", "kendall", "spearman")){
 
+	method = match.arg( method )
+
 	if( nrow(epiSignal) != length(gRanges)){
 		stop("Number of rows in epiSignal must equal number of entries in gRanges")
+	}
+	if( is.factor(testVariable) ){
+		testVariable = droplevels(testVariable)
 	}
 	if( length(testVariable) != ncol(epiSignal) ){
 		stop("Number of columns in epiSignal must equal number of entries in testVariable")
 	}
-	if( ! is(testVariable, 'factor') ){
-		stop("Entries in testVariable must be a factor with entries in at least two levels")
-	}
-	method = match.arg( method )
+
+	if( !(method %in% c("Delaneau", "deltaSLE") )){
+		if( !is(testVariable, 'factor') ){
+			stop("Entries in testVariable must be a factor with entries in at least two levels")
+		}
+		if( min(table(testVariable)) < 10){
+			stop("Need at last 10 samples in smallest class of testVariable")
+		}
+		if( (nlevels(testVariable) < 2) || (nlevels(testVariable) > 2 && ! (method %in% c("Box", "Box.permute"))) ){
+			out = paste0("Method '", method, "' is only able to compare 2 groups.\nThere are ", nlevels(testVariable), " levels in the group variable: ", paste(levels(testVariable), collapse=', '))
+			stop( out )
+		}
+	}	
 	if( method == "sLED" && (length(npermute) < 2 || is.unsorted(npermute) ) ){
 		stop("npermute must have 2 or 3 increasing entries")
-	}
-	testVariable = droplevels(testVariable)
-	if( (nlevels(testVariable) < 2) || (nlevels(testVariable) > 2 && ! (method %in% c("Box", "Box.permute"))) ){
-		out = paste0("Method '", method, "' is only able to compare 2 groups.\nThere are ", nlevels(testVariable), " levels in the group variable: ", paste(levels(testVariable), collapse=', '))
-		stop( out )
-	}
-	if( min(table(testVariable)) < 10){
-		stop("Need at last 10 samples in smallest class of testVariable")
 	}	
+		
 	if( any(!unique(unlist(lapply(clustList, names))) %in% seqnames(gRanges)@values) ){
 		stop("Chromosomes from clustList must be in gRanges")
 	} 

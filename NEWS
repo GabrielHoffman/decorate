@@ -1,8 +1,11 @@
+1.0.21: August 2, 2019
+	- fix bug in evalDiffCorr() preventing running "deltaSLE" with multiple categories
+
 1.0.20: July 31, 2019
 	- modify sle.score() to use lead eigen value of difference matrix
 	- add runPermutedData() to get cluster statistics from permuted data
 	- faster scoreClusters()
-	- plotCorrDecay()
+	- plotCorrDecay() 
 
 1.0.19: July 26, 2019
 	- getClusterRanges() and combineResults() is much faster
