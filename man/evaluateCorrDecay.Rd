@@ -4,7 +4,8 @@
 \alias{evaluateCorrDecay}
 \title{Evaluate the decay of correlation versus distance between features}
 \usage{
-evaluateCorrDecay(treeList, gr, chromArray = seqlevels(gr))
+evaluateCorrDecay(treeList, gr, chromArray = seqlevels(gr),
+  verbose = TRUE)
 }
 \arguments{
 \item{treeList}{list of hclust objects}
@@ -12,6 +13,8 @@ evaluateCorrDecay(treeList, gr, chromArray = seqlevels(gr))
 \item{gr}{GenomicRanges object corresponding to features clustered in treeList}
 
 \item{chromArray}{Use this only this set of chromosmes.  Can substantially reduce memory usage}
+
+\item{verbose}{show progress}
 }
 \value{
 a data.frame of distance and correlation value for all pairs of features already evalauted in treeList.  Note that runOrderedClusteringGenome() that returns treeList only evalutes correlation between a specified number of adjacent peaks

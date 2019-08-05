@@ -6,6 +6,7 @@
 #' @param treeList list of hclust objects
 #' @param gr GenomicRanges object corresponding to features clustered in treeList
 #' @param chromArray Use this only this set of chromosmes.  Can substantially reduce memory usage
+#' @param verbose show progress
 #'
 #' @return a data.frame of distance and correlation value for all pairs of features already evalauted in treeList.  Note that runOrderedClusteringGenome() that returns treeList only evalutes correlation between a specified number of adjacent peaks 
 #' 
@@ -29,14 +30,21 @@
 #' @import GenomicRanges
 #' @importFrom data.table data.table
 #' @export
-evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
+evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TRUE){
   
   # Drop empty chromsomes
   chrNameCount = table(seqnames(gr))
   gr = dropSeqlevels( gr, names(chrNameCount[chrNameCount==0]))
 
+  # chromArray should only contain chromsome with at least 1 peak
+  chromArray = chromArray[chromArray%in% seqlevels(gr)]
+
   distList = list()
   for( chrom in seqlevels(gr)[seqlevels(gr) %in% chromArray] ){
+
+    if( verbose ){
+      cat(paste0("\r", chrom, '      '))
+    }
 
     # get GenomicRange for this chromosome
     gRange = gr[seqnames(gr) == chrom]
@@ -56,6 +64,10 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr)){
     # compute chromsomal distance between pairs with non-zero correlation
     dfDist$distance = distance(gRange[dfDist$i],gRange[dfDist$j])
     distList[[chrom]] = dfDist
+  }
+
+  if( verbose ){
+    cat("\n")
   }
 
   feature_i = feature_j = NA
