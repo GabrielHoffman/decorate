@@ -254,7 +254,7 @@ corrMatrix.test = function( Y, group, method = c("Box", "Box.permute", "Steiger.
 			stop( out )
 		}
 
-		if( method %in% c("Steiger.fisher", "Steiger" , "Jennrich", "Factor" , "Mann.Whitney", "Kruskal.Wallis") ){	
+		if( method %in% c("Steiger.fisher", "Steiger" , "Jennrich", "Factor" , "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U", "WL.randProj", "Schott.Frob") ){	
 
 			Y1 = Y[group==levels(group)[1],]
 			Y2 = Y[group==levels(group)[2],] 
