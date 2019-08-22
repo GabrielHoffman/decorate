@@ -4,7 +4,8 @@
 \alias{plotCorrDecay}
 \title{Plot correlation delay}
 \usage{
-plotCorrDecay(dfDist, n = 20000, nbins = 1000)
+plotCorrDecay(dfDist, n = 20000, nbins = 1000, method = c("R",
+  "Rsq"), xlim = c(10, 1e+06))
 }
 \arguments{
 \item{dfDist}{data.frame of distance and correlation from from evaluateCorrDecay()}
@@ -12,6 +13,10 @@ plotCorrDecay(dfDist, n = 20000, nbins = 1000)
 \item{n}{number of points to sample per bin}
 
 \item{nbins}{number of bins on the x-axis}
+
+\item{method}{on show either R or Rsq on y-axis}
+
+\item{xlim}{min and max values for x-axis}
 }
 \description{
 Plot correlation delay using subsampling

@@ -1,3 +1,6 @@
+1.0.24: August 22, 2019
+	- add options for plotCorrDecay()
+
 1.0.23: August 5, 2019
 	- fix bug in evaluateCorrDecay() when chromosome has no peaks
 

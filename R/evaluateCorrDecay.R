@@ -87,6 +87,8 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
 #' @param dfDist data.frame of distance and correlation from from evaluateCorrDecay() 
 #' @param n number of points to sample per bin
 #' @param nbins number of bins on the x-axis
+#' @param method on show either R or Rsq on y-axis
+#' @param xlim min and max values for x-axis
 #'
 #' @details Plot correlation versus log10 distance.  Sample equal number of points for each bin along the x-axis.
 #'
@@ -107,10 +109,22 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
 #'
 #' @import ggplot2
 #' @export
-plotCorrDecay = function( dfDist, n = 20000, nbins=1000){  
-  fig = ggplot_by_sampling( log10(dfDist$distance), dfDist$correlation, n, nbins )
+plotCorrDecay = function( dfDist, n = 20000, nbins=1000, method = c("R", "Rsq"), xlim=c(10,1e6) ){  
 
-  fig + geom_point(size=.1) + theme_bw(17) + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5)) + geom_smooth() + ylim(-1,1) + ggtitle("Correlation versus distance between CpG's") + xlab("Distance between CpG's (log10 scale)") + ylab("Correlation") + scale_x_continuous(breaks=c(1, 2,3,4, 5, 6), labels=c('1bp', '10 bp', '1 kb', '10 kb', '100 kb', '1 Mb'), limits=c(1,6))
+  method = match.arg(method)
+
+  if( method == 'R' ){
+    fig = ggplot_by_sampling( log10(dfDist$distance), dfDist$correlation, n, nbins ) + ylim(-1,1) + ylab("Correlation") 
+  }else{
+     fig = ggplot_by_sampling( log10(dfDist$distance), dfDist$correlation^2, n, nbins ) + ylim(0,1) + ylab("Squared Correlation") 
+  }
+
+  breaks = c(0, 1, 2,3,4, 5, 6, 7)
+  labels = c('1bp', '10 bp', '100bp', '1 kb', '10 kb', '100 kb', '1 Mb', '10 Mb')
+
+  idx = (10^breaks >= xlim[1]) & (10^breaks <= xlim[2])
+
+  fig + geom_point(size=.1) + theme_bw(17) + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5)) + geom_smooth() + ggtitle("Correlation versus distance between features") + xlab(bquote(Distance~between~features~(log[10]~scale))) + scale_x_continuous(breaks=breaks[idx], labels=labels[idx], limits=log10(xlim))
 }
 
 
