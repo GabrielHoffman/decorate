@@ -85,8 +85,9 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
 #' Plot correlation delay using subsampling
 #'
 #' @param dfDist data.frame of distance and correlation from from evaluateCorrDecay() 
-#' @param n number of points to sample per bin
-#' @param nbins number of bins on the x-axis
+#' @param n the number of equally spaced points at which the density is to be estimated.
+#' @param outlierQuantile show points if density is less than this quantile
+#' @param densityExponent color based on density^densityExponent
 #' @param method on show either R or Rsq on y-axis
 #' @param xlim min and max values for x-axis
 #'
@@ -109,14 +110,14 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
 #'
 #' @import ggplot2
 #' @export
-plotCorrDecay = function( dfDist, n = 20000, nbins=1000, method = c("R", "Rsq"), xlim=c(10,1e6) ){  
+plotCorrDecay = function( dfDist, method = c("R", "Rsq"), xlim=c(10,1e6), n=100, outlierQuantile=0.001, densityExponent=0.25 ){  
 
   method = match.arg(method)
 
   if( method == 'R' ){
-    fig = ggplot_by_sampling( log10(dfDist$distance), dfDist$correlation, n, nbins ) + ylim(-1,1) + ylab("Correlation") 
+    fig = plotDensityPoints( log10(dfDist$distance), dfDist$correlation, n, outlierQuantile, densityExponent) + scale_y_continuous(limits=c(-1,1), expand=c(0,0)) + ylab("Correlation") 
   }else{
-     fig = ggplot_by_sampling( log10(dfDist$distance), dfDist$correlation^2, n, nbins ) + ylim(0,1) + ylab("Squared Correlation") 
+     fig = plotDensityPoints( log10(dfDist$distance), dfDist$correlation^2, n, outlierQuantile, densityExponent) + scale_y_continuous(limits=c(0,1), expand=c(0,0)) + ylab("Squared Correlation") 
   }
 
   breaks = c(0, 1, 2,3,4, 5, 6, 7)
@@ -124,8 +125,59 @@ plotCorrDecay = function( dfDist, n = 20000, nbins=1000, method = c("R", "Rsq"),
 
   idx = (10^breaks >= xlim[1]) & (10^breaks <= xlim[2])
 
-  fig + geom_point(size=.1) + theme_bw(17) + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5)) + geom_smooth() + ggtitle("Correlation versus distance between features") + xlab(bquote(Distance~between~features~(log[10]~scale))) + scale_x_continuous(breaks=breaks[idx], labels=labels[idx], limits=log10(xlim))
+  fig + theme_bw(17) + theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5)) + ggtitle("Correlation versus distance between features") + xlab(bquote(Distance~between~features~(log[10]~scale))) + scale_x_continuous(breaks=breaks[idx], labels=labels[idx], limits=log10(xlim), expand=c(0,0)) + geom_hline(yintercept=0, color="grey", linetype="dashed") + geom_smooth(se=FALSE)
 }
+
+#' Plot density as color, add outlier points
+#'
+#' Plot density as color, add outlier points
+#'
+#' @param x x values
+#' @param y y values
+#' @param n the number of equally spaced points at which the density is to be estimated.
+#' @param outlierQuantile show points if density is less than this quantile
+#' @param densityExponent color based on density^densityExponent
+#'
+#' @examples
+#' 
+#' x = rnorm(10000)
+#' y = rnorm(10000)
+#' 
+#' plotDensityPoints( x, y)
+#' 
+#' @importFrom MASS kde2d
+#' @import ggplot2
+#' @export
+plotDensityPoints = function(x, y, n=100, outlierQuantile=0.001, densityExponent=0.25){
+
+  # pass R check
+  ..density.. = NA
+  
+  get_density <- function(x, y, ...) {
+    dens <- kde2d(x, y, ...)
+    ix <- findInterval(x, dens$x)
+    iy <- findInterval(y, dens$y)
+    ii <- cbind(ix, iy)
+    return( list(densityGrid = dens, 
+        densityByPoint = dens$z[ii]))
+  }
+
+  data = data.table(x,y)
+  
+  data = data[complete.cases(data*0)]
+
+  densObj = get_density( data$x, data$y )
+
+  data$density = densObj$densityByPoint
+
+  datasub = data[data$density < quantile(data$density, outlierQuantile),]
+
+  cols <-  colorRampPalette(c("white", "#00FEFF", "#45FE4F", 
+                              "#FCFF00", "#FF9400", "#FF3100"))(256)
+
+  ggplot(data, aes(x, y)) + stat_density2d(n=n, geom="tile", aes(fill=..density..^densityExponent), contour=FALSE) + scale_fill_gradientn(colours = cols, name=paste0('Density^', densityExponent)) + geom_point(data=datasub, aes(x,y), size=.2) + scale_x_continuous(expand=c(0,0)) + scale_y_continuous(expand=c(0,0)) 
+}
+
 
 
 #' Plot by subsampling in each bin 

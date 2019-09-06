@@ -1,0 +1,63 @@
+
+
+library(decorate)
+library(ggplot2)
+data(iris)
+
+# run sle.score on first 2 iris species
+# this is not significant
+df = data.frame(categ = droplevels(iris[1:100,5]), score = sle.score(iris[1:100,1:4], method="spearman"))
+
+ggplot(df, aes(categ, score)) + geom_boxplot()
+
+with(df[df$categ %in%c ("setosa", "versicolor"),], summary(lm(score~categ)))
+
+
+# Evaluating all 3 species together changes the SLE metric 
+# and the 3 species are not significantly different
+
+df = data.frame(categ = droplevels(iris[,5]), score = sle.score(iris[,1:4], method="spearman"))
+
+ggplot(df, aes(categ, score)) + geom_boxplot()
+
+with(df[df$categ %in%c ("setosa", "versicolor"),], summary(lm(score~categ)))
+
+
+
+
+library(decorate)
+library(ggplot2)
+data(iris)
+
+# run sle.score on first 2 iris species
+# this is not significant
+df = data.frame(categ = droplevels(iris[1:100,5]), score = delaneau.score(iris[1:100,1:4], method="spearman"))
+
+ggplot(df, aes(categ, score)) + geom_boxplot()
+
+with(df[df$categ %in%c ("setosa", "versicolor"),], summary(lm(score~categ)))
+
+
+# Evaluating all 3 species together changes the SLE metric 
+# and the 3 species are not significantly different
+
+df = data.frame(categ = droplevels(iris[,5]), score = delaneau.score(iris[,1:4], method="spearman"))
+
+ggplot(df, aes(categ, score)) + geom_boxplot()
+
+with(df[df$categ %in%c ("setosa", "versicolor"),], summary(lm(score~categ)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

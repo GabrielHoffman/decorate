@@ -1,3 +1,6 @@
+1.0.25: September 6, 2019
+	- use density plot for plotCorrDecay()
+
 1.0.24: August 22, 2019
 	- add options for plotCorrDecay()
 
