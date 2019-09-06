@@ -278,6 +278,6 @@ plot_grid( fig1, fig2, ncol=2, labels=c('A: Contols (i.e. Disease==0)', 'B: Case
 ```
 
 ### Pairwise scatter plots
-```{r scatter, echo=TRUE, message=FALSE}
+```{r scatter, echo=TRUE, message=FALSE, fig.width=15, fig.height=15}
 plotScatterPairs( simData, peakIDs, metadata$Disease) + ggtitle(main)
 ```

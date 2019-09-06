@@ -148,11 +148,11 @@ plotCorrDecay = function( dfDist, method = c("R", "Rsq"), xlim=c(10,1e6), n=100,
 #' @importFrom MASS kde2d
 #' @import ggplot2
 #' @export
-plotDensityPoints = function(x, y, n=100, outlierQuantile=0.001, densityExponent=0.25){
+plotDensityPoints = function(x, y, n=100, outlierQuantile=1e-5, densityExponent=0.25){
 
   # pass R check
   ..density.. = NA
-  
+
   get_density <- function(x, y, ...) {
     dens <- kde2d(x, y, ...)
     ix <- findInterval(x, dens$x)
