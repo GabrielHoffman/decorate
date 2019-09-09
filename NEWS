@@ -1,3 +1,6 @@
+1.0.26: September 9, 2019
+	- in boxM_permute() return NA's if more variables than samples in the smallest group
+
 1.0.25: September 6, 2019
 	- use density plot for plotCorrDecay()
 

@@ -245,7 +245,11 @@ boxM_permute = function(Y, group, nperm=200, method=c("pearson", "kendall", "spe
    lev <- levels(group)
    dfs <- tapply(group, group, length) - 1
    if( any(dfs < p) ){ 
-      warning("there are one or more levels with less observations than variables!")
+      warning("there are one or more levels with fewer observations than variables!")
+      return(list( p.value = NA,
+      statistic = NA,
+      df.approx = NA,
+      stat_logdet = NA))
    }
 
    method = match.arg( method )  
