@@ -38,3 +38,6 @@ I have not tried to install these dependencies on Windows, but decorate should i
 
 
 ## Vignette: [Run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
+
+
+## [Data analysis from manuscript] (https://www.synapse.org/#!Synapse:syn20742092)
