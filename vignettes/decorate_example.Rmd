@@ -1,6 +1,6 @@
 
 ---
-title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>egul<u>a</u>tion <u>Te</u>st"
+title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>ela<u>a</u>tion <u>Te</u>st"
 author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
 date: "Run on `r Sys.Date()`"
 documentclass: article
@@ -9,7 +9,7 @@ output:
   toc: true
   smart: false
 vignette: >
-  %\VignetteIndexEntry{decorate: Differential Epigenetic Coregulation Test}
+  %\VignetteIndexEntry{decorate: Differential Epigenetic Corelation Test}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
@@ -23,6 +23,18 @@ cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
 rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html") 
 
 scp decorate_example2.html minerva:/hpc/users/hoffmg01/www/software/decorate/decorate_example.html 
+
+# move simulation to website
+cd /hpc/users/hoffmg01/www/software/decorate
+cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html .
+mv KIRC2.html KIRC.html
+cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html .
+mv EpiMap2.html EpiMap.html
+cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html .
+mv methyl_scz_decorate2.html methyl_scz_decorate.html
+
+
+
 --->
 
 Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.  Epigenetic datasets where decorate can be applied include ChIP-seq, ATAC-seq and DNA methylation.
@@ -59,7 +71,10 @@ decorate v`r packageVersion("decorate")`
 
 \item 5) Statistical test of differential correlation 
 
-    + `evalDiffCorr():` run permutations tests in parallel on multicore machine using the sparse leading eigen-value driven test (sLED).
+    + `evalDiffCorr():` implements 16 tests of differential correlation with different properties.  See 
+
+
+    run permutations tests in parallel on multicore machine using the sparse leading eigen-value driven test (sLED).
     + the amount of regularization is determind with the parameter `sumabs.seq`, where a value of 1 is the least sparse and decreasing values result in more regularization.
     + see sLED [package](https://github.com/lingxuez/sLED) and [manuscript](https://projecteuclid.org/euclid.aoas/1507168849) for details of `adj.beta`, `rho` and `sumabs.seq` 
     + merge all results into one data.frame with `combineResults()`
