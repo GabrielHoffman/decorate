@@ -26,13 +26,10 @@ scp decorate_example2.html minerva:/hpc/users/hoffmg01/www/software/decorate/dec
 
 # move simulation to website
 cd /hpc/users/hoffmg01/www/software/decorate
-cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html .
-mv KIRC2.html KIRC.html
-cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html .
-mv EpiMap2.html EpiMap.html
-cp /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html .
-mv methyl_scz_decorate2.html methyl_scz_decorate.html
-
+cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
+cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html EpiMap.html
+cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
+cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
 
 
 --->
@@ -71,12 +68,7 @@ decorate v`r packageVersion("decorate")`
 
 \item 5) Statistical test of differential correlation 
 
-    + `evalDiffCorr():` implements 16 tests of differential correlation with different properties.  See 
-
-
-    run permutations tests in parallel on multicore machine using the sparse leading eigen-value driven test (sLED).
-    + the amount of regularization is determind with the parameter `sumabs.seq`, where a value of 1 is the least sparse and decreasing values result in more regularization.
-    + see sLED [package](https://github.com/lingxuez/sLED) and [manuscript](https://projecteuclid.org/euclid.aoas/1507168849) for details of `adj.beta`, `rho` and `sumabs.seq` 
+    + `evalDiffCorr():` implements 16 tests of differential correlation with different properties.  See [here](https://hoffmg01.u.hpc.mssm.edu/software/decorate/simulations.html) for comparison of methods.  I recommend 'Box.permute', 'deltaSLE', 'sLED' to retain power while controlling the false positive rate
     + merge all results into one data.frame with `combineResults()`
 
 \item 6) Data visualization
@@ -121,7 +113,8 @@ ensdb = EnsDb.Hsapiens.v86
 
 # Evaluate hierarchical clustering
 # adjacentCount is the number of adjacent peaks considered in correlation
-treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500 )
+# use Spearman correlation to reduce the effects of outliers
+treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500, method.corr="spearman" )
 
 # Choose cutoffs and return clusters using multiple values for meanClusterSize 
 # Clusters corresponding to each parameter value are returned 
@@ -203,11 +196,12 @@ plot_grid( fig, ncol=1, labels=c('C: After collapsing clusters'), hjust=0 )
 Evaluate `treeListClusters_collapse`, the filtered collapsed set of clusters
 ```{r compare, echo=TRUE, message=FALSE, results="hide"}
 library(BiocParallel)
-param = SnowParam(4, progressbar=TRUE)
+register(SnowParam(4, progressbar=TRUE))
 
 # Evaluate Differential Correlation between two subsets of data
+# Use Spearman correlation to reduce the effect of outliers
 resDiffCorr = evalDiffCorr( simData, metadata$Disease, simLocation, 
-  treeListClusters_collapse, method='deltaSLE', BPPARAM=param)
+  treeListClusters_collapse, method='deltaSLE',  method.corr="spearman")
 
 # get summary of results
 df = summary( resDiffCorr )
