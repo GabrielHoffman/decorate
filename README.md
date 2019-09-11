@@ -1,5 +1,5 @@
 
-# decorate: Differential Epigenetic Coregeulation Test
+# decorate: Differential Epigenetic Correlation Test
 
 ![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
 
