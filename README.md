@@ -33,9 +33,11 @@ Depending on your system, you may need to install these dependencies first:
 ###### Ubuntu
 ```sudo apt-get install libudunits2-dev libproj-dev proj-data proj-bin libgeos-dev libgeos-c1v5 libgdal-dev```
 
-###### Windows
-I have not tried to install these dependencies on Windows, but decorate should install on Windows with no issues.
+###### CentOS
+You will need to install these same dependencies, but I don't have experience with the CentOS package manager.
 
+###### Windows
+Although I have not tried to install these dependencies on Windows, decorate should install on Windows with no issues.
 
 ## [Vignette: run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
 
