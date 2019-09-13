@@ -45,8 +45,8 @@ I have not tried to install these dependencies on Windows, but decorate should i
  - [DNA methylation from kidney renal clear cell carcinoma](https://hoffmg01.u.hpc.mssm.edu/software/decorate/KIRC.html)
  - [DNA methylation from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/methyl_scz_decorate.html)
  - [ATAC-seq from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/atac_local_corr.html)
- - [Histone modification ChiP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
+ - [Histone modification ChIP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
 
   [Results files](https://www.synapse.org/#!Synapse:syn20742092)
-  
+
   [Analysis code](https://github.com/GabrielHoffman/decorate_analysis)
