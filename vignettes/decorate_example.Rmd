@@ -24,12 +24,13 @@ rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./
 
 scp decorate_example2.html minerva:/hpc/users/hoffmg01/www/software/decorate/decorate_example.html 
 
-# move simulation to website
+# move simulation to website on *minerva*
 cd /hpc/users/hoffmg01/www/software/decorate
-cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
-cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html EpiMap.html
-cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
-cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
+\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
+\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html EpiMap.html
+\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/atac_local_corr.html atac_local_corr.html
+\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
+\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
 
 
 --->

@@ -205,7 +205,7 @@ boxM_basic <- function(Y, group, tol=1e-10, fxn=cor, method= c("pearson", "kenda
 #'
 #' boxM performs the Box's (1949) M-test for homogeneity of covariance matrices obtained from multivariate normal data according to one or more classification factors. The test compares  the product of the log determinants of the separate covariance  matrices to the log determinant of the pooled covariance matrix,    analogous to a likelihood ratio test. The test statistic uses a chi-square approximation. Uses permutations to estimate the degrees of freedom under the null
 #' @param Y response variable matrix
-#' @param group a factor defining groups, number of entries must equal nrow(Y)
+#' @param group a factor defining groups, or a continuous variable, number of entries must equal nrow(Y)
 #' @param nperm number of permutations of group variable used to estimate degrees of freedom under the null
 #' @param method Specify type of correlation: "pearson", "kendall", "spearman"
 #' 
