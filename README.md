@@ -48,4 +48,4 @@ I have not tried to install these dependencies on Windows, but decorate should i
  - [Histone modification ChiP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
 
   [Results files](https://www.synapse.org/#!Synapse:syn20742092)
-
+  [Analysis code](https://github.com/GabrielHoffman/decorate_analysis)
