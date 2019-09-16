@@ -24,6 +24,14 @@ rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./
 
 scp decorate_example2.html minerva:/hpc/users/hoffmg01/www/software/decorate/decorate_example.html 
 
+cd /Users/gabrielhoffman/workspace/scripts/decorate_analysis
+\cp -f EpiMap.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+\cp -f KIRC.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+\cp -f atac_local_corr.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+\cp -f methyl_scz_decorate.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+\cp -f simulations.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+
+
 # move simulation to website on *minerva*
 cd /hpc/users/hoffmg01/www/software/decorate
 \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
@@ -31,6 +39,7 @@ cd /hpc/users/hoffmg01/www/software/decorate
 \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/atac_local_corr2.html atac_local_corr.html
 \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
 \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
+
 
 
 --->
@@ -97,25 +106,26 @@ knitr::opts_chunk$set(
 options(markdown.HTML.stylesheet = 'css/custom.css')
 ```
 
+
 # Analysis of simulated data
 ```{r run.analysis, echo=TRUE, message=FALSE, results='hide'}
 library(decorate)
 library(GenomicRanges)
 library(cowplot)     
-library(EnsDb.Hsapiens.v86)
+library(limma)     
 
 # load data
 data('decorateData')
 
-# load gene locations
-# this is ENSEMBL v86 from the hg38 assembly
-# but other versions and assemblies are available
-ensdb = EnsDb.Hsapiens.v86
+# Compute residuals with respect to variable of interested plus confounders
+design = model.matrix(~ Disease, metadata)
+fit = lmFit(simData, design)
+residValues = residuals( fit, simData)
 
 # Evaluate hierarchical clustering
 # adjacentCount is the number of adjacent peaks considered in correlation
 # use Spearman correlation to reduce the effects of outliers
-treeList = runOrderedClusteringGenome( simData, simLocation, adjacentCount=500, method.corr="spearman" )
+treeList = runOrderedClusteringGenome( residValues, simLocation, adjacentCount=500, method.corr="spearman" )
 
 # Choose cutoffs and return clusters using multiple values for meanClusterSize 
 # Clusters corresponding to each parameter value are returned 
@@ -162,33 +172,36 @@ Number of clusters after collapsing: `r countClusters(treeListClusters_collapse)
 
 ## Make plots
 ### Evaluate correlation structure versus distance
-```{r plot.corr.decay}
+```{r plot.corr.decay, echo=TRUE, message=FALSE, fig.height=5}
 dfDist = evaluateCorrDecay( treeList, simLocation, verbose=FALSE)
 
 plotCorrDecay( dfDist, outlierQuantile=1e-5 )
 ```
 
 
-```{r plot2Decorate.text, eval=FALSE, echo=TRUE}
-# A) plot all clusters
-plotDecorate( ensdb, treeList, treeListClusters, simLocation, query )
-
-# B) plot clusters after filtering
-plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
+# Plot correlation structure along genome
+### Load gene database
+```{r, echo=TRUE }
+# load gene locations
+# this is ENSEMBL v86 from the hg38 assembly
+# but other versions and assemblies are available
+library(EnsDb.Hsapiens.v86)
 ```
 
-```{r plot2Decorate, fig.width=15, message=FALSE, results="hide", echo=FALSE}
+```{r reload, cache=FALSE, echo=FALSE}
+detach('package:EnsDb.Hsapiens.v86', unload=TRUE)
+library(EnsDb.Hsapiens.v86)      
+ensdb = EnsDb.Hsapiens.v86
+```
+
+```{r plot2Decorate, fig.width=15, message=FALSE, echo=TRUE}
 fig1 = plotDecorate( ensdb, treeList, treeListClusters, simLocation, query)
 fig2 = plotDecorate( ensdb, treeList, treeListClusters_filter, simLocation, query)
 plot_grid( fig1, fig2, ncol=2, labels=c('A: All clusters', 'B: After filtering') )
 ```
 
 ## Plot after filtering and collapsing redundant clusters
-```{r plotCollapse, eval=TRUE, message=FALSE, results="hide", echo=TRUE, eval=FALSE}
-plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
-```
-
-```{r plotCollapse.2, message=FALSE, results="hide", echo=FALSE}
+```{r plotCollapse.2, message=FALSE, echo=TRUE}
 fig = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query)
 plot_grid( fig, ncol=1, labels=c('C: After collapsing clusters'), hjust=0 )
 ```
@@ -201,7 +214,7 @@ register(SnowParam(4, progressbar=TRUE))
 
 # Evaluate Differential Correlation between two subsets of data
 # Use Spearman correlation to reduce the effect of outliers
-resDiffCorr = evalDiffCorr( simData, metadata$Disease, simLocation, 
+resDiffCorr = evalDiffCorr( residValues, metadata$Disease, simLocation, 
   treeListClusters_collapse, method='deltaSLE',  method.corr="spearman")
 
 # get summary of results
@@ -214,24 +227,44 @@ head(df)
 head(df)    
 ```
 The id column gives the clustering parameter from `runOrderedClusteringGenome()`, so cluster 6 with id 10 is different from cluster 6 with id 50.
+<!---
 Note that n.perm can vary across clusters because decorate uses a data-adaptive method to select the number of permutations.  Decorate devotes more permutations to clusters with smaller p-values 
-
+---> 
 Combine results to merge properties of each cluster into a single data.frame
 ```{r combine.results, message=FALSE, echo=TRUE}
 df_results = combineResults( resDiffCorr, clstScore, treeListClusters, simLocation)
 head(df_results)
 ```
+Note that permutations are only used for test `'sLED'`, so is set to zero for all others.
 
 ### Summary of cluster properties
-```{r cluster properties, message=FALSE}
+```{r cluster properties, message=FALSE, echo=TRUE}
 # Histogram of LEF
-ggplot(df_results, aes(LEF, fill=id)) + geom_histogram(alpha=0.7) + theme_bw(17) + xlim(0,1) + theme(aspect.ratio=1, legend.position="bottom", plot.title = element_text(hjust = 0.5)) + scale_fill_discrete(name = "Requested mean cluster size") + xlab("Lead eigenvalue fraction (LEF)") + ggtitle("Summarize LEF")
+ggplot(df_results, aes(LEF, fill=id)) + geom_histogram(alpha=0.7) + 
+  theme_bw(17) + xlim(0,1) + 
+  theme(aspect.ratio=1, legend.position="bottom", 
+    plot.title = element_text(hjust = 0.5)) + 
+    scale_fill_discrete(name = "Requested mean cluster size") + 
+    xlab("Lead eigenvalue fraction (LEF)") + ggtitle("Summarize LEF")
 
 # Histogram of mean absolute correlation
-ggplot(df_results, aes(mean_abs_corr, fill=id)) + geom_histogram(alpha=0.7) + theme_bw(17) + xlim(0,1) + theme(aspect.ratio=1, legend.position="bottom", plot.title = element_text(hjust = 0.5)) + scale_fill_discrete(name = "Requested mean cluster size") + xlab("Mean absolute correlation") + ggtitle("Summarize absolute correlation")
+ggplot(df_results, aes(mean_abs_corr, fill=id)) + geom_histogram(alpha=0.7) + theme_bw(17) + xlim(0,1) + 
+  theme(aspect.ratio=1, legend.position="bottom", 
+    plot.title = element_text(hjust = 0.5)) + 
+    scale_fill_discrete(name = "Requested mean cluster size") + 
+    xlab("Mean absolute correlation") + 
+    ggtitle("Summarize absolute correlation")
 
 # Boxplot of number of features per cluster
-ggplot(df_results, aes(id, N, fill=id)) + geom_boxplot() + theme_bw(17) + theme(aspect.ratio=1, legend.position="bottom", plot.title = element_text(hjust = 0.5)) + scale_fill_discrete(name = "Feature per cluster") + xlab("Requested mean cluster size") + ylab("Number of features") + ggtitle("Summarize feature per cluster") + coord_flip()
+ggplot(df_results, aes(id, N, fill=id)) + geom_boxplot() + 
+  theme_bw(17) + 
+  theme(aspect.ratio=1, legend.position="bottom", 
+    plot.title = element_text(hjust = 0.5)) + 
+  scale_fill_discrete(name = "Feature per cluster") + 
+  xlab("Requested mean cluster size") + 
+  ylab("Number of features") + 
+  ggtitle("Summarize feature per cluster") + 
+  coord_flip()
 ```
 
 ### Compare correlation structure in two subsets of the data
@@ -246,14 +279,18 @@ locText = with( data.frame(query), paste0(seqnames, ':', format(start, big.mark=
 # plot comparison of correlation matrices for peaks in peakIDs
 #  where data is subset by metadata$Disease
 main = paste0(df$chrom[1], ': cluster ', df$cluster[1], '\n', locText)   
-plotCompareCorr( simData, peakIDs, metadata$Disease) + ggtitle(main)
+plotCompareCorr( residValues, peakIDs, metadata$Disease) + ggtitle(main)
 ```
 
 ### Compare correlation structure along genome
 First, plot correlation structure for controls (metadata\$Disease==0).  Then, plot correlation structure for cases (metadata\$Disease==1).
 
-The cluster located at `r locText` has a p-value of `r format(df_results$pValue[1], digits=4)` and a test statistic of `r format(df_results$stat[1], digits=3)`.  The negative sign indicates a loss of correlation in the test set (i.e. Disease==1) compared to the baseline correlation in controls (i.e. Dissease==0)
-```{r decoate.sled, eval=FALSE, echo=TRUE, message=FALSE}
+The cluster located at `r locText` has a p-value of `r format(df_results$pValue[1], digits=4)` and a test statistic of `r format(df_results$stat[1], digits=3)`.  
+<!---
+The negative sign indicates a loss of correlation in the test set (i.e. Disease==1) compared to the baseline correlation in controls (i.e. Dissease==0)
+--->
+
+```{r plot2Decorate.query, fig.width=15, message=FALSE, results="hide", echo=TRUE}
 # get location of peaks in this cluster  
 query = range(simLocation[names(simLocation) %in% peakIDs])
 
@@ -262,32 +299,14 @@ window = 2000
 start(query) = start(query) - window
 end(query) = end(query) + window
 
-# correlations for Disease == 0
-plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==0])
+fig1 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=residValues[,metadata$Disease==0])
 
-# correlations for Disease == 1
-plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==1])
-```
-
-
-
-
-```{r plot2Decorate.query, fig.width=15, message=FALSE, results="hide", echo=FALSE}
-# get location of peaks in this cluster  
-query = range(simLocation[names(simLocation) %in% peakIDs])
-
-# expand window to include adjacent clusters
-window = 2000 
-start(query) = start(query) - window
-end(query) = end(query) + window
-
-fig1 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==0])
-
-fig2 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=simData[,metadata$Disease==1])
+fig2 = plotDecorate( ensdb, treeList, treeListClusters_collapse, simLocation, query, data=residValues[,metadata$Disease==1])
 plot_grid( fig1, fig2, ncol=2, labels=c('A: Contols (i.e. Disease==0)', 'B: Cases (i.e. Disease==1)') )
 ```
 
 ### Pairwise scatter plots
+For all pairs of features in the significant cluster, make a scatterplot for cases and controls seperately.  
 ```{r scatter, echo=TRUE, message=FALSE, fig.width=15, fig.height=15}
-plotScatterPairs( simData, peakIDs, metadata$Disease) + ggtitle(main)
+plotScatterPairs( residValues, peakIDs, metadata$Disease) + ggtitle(main)
 ```
