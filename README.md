@@ -21,17 +21,21 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 ```
 
 # Dependencies
-Depending on your system, you may need to install these dependencies first: 
+Depending on your system, you may need to install these system dependencies first: 
 - udunits 
 - proj
 - gdal 
 - geos
 
 ###### Mac OS X
-```brew install udunits proj gdal geos```
+```
+brew install udunits proj gdal geos
+```
 
 ###### Ubuntu
-```sudo apt-get install libudunits2-dev libproj-dev proj-data proj-bin libgeos-dev libgeos-c1v5 libgdal-dev```
+```
+apt-get install libudunits2-dev libproj-dev proj-data proj-bin libgeos-dev libgeos-c1v5 libgdal-dev
+```
 
 ###### CentOS
 ```
@@ -42,7 +46,7 @@ yum install geos-devel
 ```
 
 ###### Windows
-Although I have not tried to install these dependencies on Windows, decorate should install on Windows with no issues.
+decorate should install on Windows without needing to install these dependencies.
 
 ## [Vignette: run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
 
