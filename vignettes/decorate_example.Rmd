@@ -41,7 +41,6 @@ cd /hpc/users/hoffmg01/www/software/decorate
 \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
 
 
-
 --->
 
 Standard analysis compares the differences in magnitude in epigenetic signal between two subsets of a dataset.  The decorate workflow evaluates the local correlation structure between nearby epigenetic features and identify clusters of features that are differential correlation between two subsets of a dataset.  Epigenetic datasets where decorate can be applied include ChIP-seq, ATAC-seq and DNA methylation.
