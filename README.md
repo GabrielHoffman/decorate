@@ -52,7 +52,7 @@ decorate should install on Windows without needing to install these dependencies
 
 ## [Manual](http://deepfigv.mssm.edu/img/software/decorate/decorate-manual.pdf)
 
-## [Simulations and properties of methods](http://deepfigv.mssm.edu/img/software/decorate/decorate_example.html)
+## [Simulations and properties of methods](http://deepfigv.mssm.edu/img/software/decorate/simulations.html)
 
 ## Data analysis from manuscript
  - [DNA methylation from kidney renal clear cell carcinoma](http://deepfigv.mssm.edu/img/software/decorate/KIRC.html)
