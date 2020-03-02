@@ -11,37 +11,69 @@
 \alias{evalDiffCorr,data.frame,ANY,GRanges,list,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \title{Evaluate Differential Correlation}
 \usage{
-evalDiffCorr(epiSignal, testVariable, gRanges, clustList,
-  npermute = c(100, 10000, 1e+05), adj.beta = 0, rho = 0,
-  sumabs.seq = 1, BPPARAM = bpparam(), method = c("sLED", "Box",
-  "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
-  "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
-  method.corr = c("pearson", "kendall", "spearman"))
+evalDiffCorr(
+  epiSignal,
+  testVariable,
+  gRanges,
+  clustList,
+  npermute = c(100, 10000, 1e+05),
+  adj.beta = 0,
+  rho = 0,
+  sumabs.seq = 1,
+  BPPARAM = bpparam(),
+  method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich",
+    "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
+    "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  method.corr = c("pearson", "kendall", "spearman")
+)
 
-\S4method{evalDiffCorr}{EList,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
-  rho = 0, sumabs.seq = 1, BPPARAM = bpparam(), method = c("sLED",
-  "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
-  "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
-  method.corr = c("pearson", "kendall", "spearman"))
+\S4method{evalDiffCorr}{EList,ANY,GRanges,list}(
+  epiSignal,
+  testVariable,
+  gRanges,
+  clustList,
+  npermute = c(100, 10000, 1e+05),
+  adj.beta = 0,
+  rho = 0,
+  sumabs.seq = 1,
+  BPPARAM = bpparam(),
+  method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich",
+    "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
+    "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  method.corr = c("pearson", "kendall", "spearman")
+)
 
-\S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(epiSignal, testVariable,
-  gRanges, clustList, npermute = c(100, 10000, 1e+05), adj.beta = 0,
-  rho = 0, sumabs.seq = 1, BPPARAM = bpparam(), method = c("sLED",
-  "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
-  "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
-  "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
-  method.corr = c("pearson", "kendall", "spearman"))
+\S4method{evalDiffCorr}{matrix,ANY,GRanges,list}(
+  epiSignal,
+  testVariable,
+  gRanges,
+  clustList,
+  npermute = c(100, 10000, 1e+05),
+  adj.beta = 0,
+  rho = 0,
+  sumabs.seq = 1,
+  BPPARAM = bpparam(),
+  method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich",
+    "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
+    "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  method.corr = c("pearson", "kendall", "spearman")
+)
 
-\S4method{evalDiffCorr}{data.frame,ANY,GRanges,list}(epiSignal,
-  testVariable, gRanges, clustList, npermute = c(100, 10000, 1e+05),
-  adj.beta = 0, rho = 0, sumabs.seq = 1, BPPARAM = bpparam(),
-  method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger",
-  "Jennrich", "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max",
-  "Chang.maxBoot", "LC.U", "WL.randProj", "Schott.Frob", "Delaneau",
-  "deltaSLE"), method.corr = c("pearson", "kendall", "spearman"))
+\S4method{evalDiffCorr}{data.frame,ANY,GRanges,list}(
+  epiSignal,
+  testVariable,
+  gRanges,
+  clustList,
+  npermute = c(100, 10000, 1e+05),
+  adj.beta = 0,
+  rho = 0,
+  sumabs.seq = 1,
+  BPPARAM = bpparam(),
+  method = c("sLED", "Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich",
+    "Factor", "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U",
+    "WL.randProj", "Schott.Frob", "Delaneau", "deltaSLE"),
+  method.corr = c("pearson", "kendall", "spearman")
+)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}

@@ -280,7 +280,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   chrom = names(fit)
 
   # if( showTree){
-  #   cat("Dropping tree plot tree unless entire chromosome is plotted\n")
+  #   message("Dropping tree plot tree unless entire chromosome is plotted\n")
   #   showTree = FALSE
   # }
 
@@ -407,7 +407,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
 
   # If data is defined as argument, compute correlations directly
   if( ! missing(data) ){
-    cat("Computing correlation from given data...\n")
+    message("Computing correlation from given data...\n")
 
     peakIDs = rownames(C)
     if( ! all(peakIDs %in% rownames(data)) ){
@@ -455,7 +455,7 @@ plotDecorate = function( ensdb, treeList, treeListClusters, featurePositions, qu
   n_features = nrow(C)
 
   if( !identical(rownames(C), names(featurePositions)) ){
-    cat("Processing subset of features in query...\n")
+    message("Processing subset of features in query...\n")
     showTree = FALSE
   }
 

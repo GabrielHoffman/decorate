@@ -4,8 +4,14 @@
 \alias{corSubsetPairs}
 \title{Compute correlations between pairs of features}
 \usage{
-corSubsetPairs(Y, idxi, idxj, method = c("pearson", "spearman"),
-  silent = FALSE, setNANtoZero = FALSE)
+corSubsetPairs(
+  Y,
+  idxi,
+  idxj,
+  method = c("pearson", "spearman"),
+  silent = FALSE,
+  setNANtoZero = FALSE
+)
 }
 \arguments{
 \item{Y}{matrix where rows are features}

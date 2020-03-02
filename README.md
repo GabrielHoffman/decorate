@@ -50,7 +50,9 @@ decorate should install on Windows without needing to install these dependencies
 
 ## [Vignette: run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
 
-## [Simulations and properties of methods](https://hoffmg01.u.hpc.mssm.edu/software/decorate/simulations.html)
+## [Manual](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
+
+## [Simulations and properties of methods](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate-manual.pdf)
 
 ## Data analysis from manuscript
  - [DNA methylation from kidney renal clear cell carcinoma](https://hoffmg01.u.hpc.mssm.edu/software/decorate/KIRC.html)

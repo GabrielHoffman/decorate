@@ -4,8 +4,7 @@
 \alias{evaluateCorrDecay}
 \title{Evaluate the decay of correlation versus distance between features}
 \usage{
-evaluateCorrDecay(treeList, gr, chromArray = seqlevels(gr),
-  verbose = TRUE)
+evaluateCorrDecay(treeList, gr, chromArray = seqlevels(gr), verbose = TRUE)
 }
 \arguments{
 \item{treeList}{list of hclust objects}

@@ -129,9 +129,9 @@ corSubsetPairs <- function(Y, idxi, idxj, method = c("pearson", "spearman"), sil
                 dims = c(N,N), symmetric=TRUE)
 
 	if( ! silent ){
-		cat("Covariance matrix...\n")
-		cat(" sparsity:", sprintf("%.3f%s", 100 - sparsity*100, ' %\n'))
-		cat(" memory usage:", format(object.size(M), "MB"), '\n')
+		message("Covariance matrix...\n")
+		message(" sparsity:", sprintf("%.3f%s", 100 - sparsity*100, ' %\n'))
+		message(" memory usage:", format(object.size(M), "MB"), '\n')
 	}
 
 	M

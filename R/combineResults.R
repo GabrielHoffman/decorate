@@ -52,19 +52,19 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
   
   # get test results
   if( verbose ){
-  	cat("Summarizing analysis...\n")
+  	message("Summarizing analysis...\n")
   }
   df = summary(sledRes)
 
   # combine with cluster summary statistics
   if( verbose ){
-  	cat("Summarizing cluster properties...\n")
+  	message("Summarizing cluster properties...\n")
   }
   df_combine = merge( df, do.call('rbind', clstScore ), by=c("id", 'chrom', 'cluster') )
 
   # extract cluster locations
   if( verbose ){
-	 cat("Collecting cluster locations...\n")
+	 message("Collecting cluster locations...\n")
 	}
   # res = lapply( seq_len(nrow(df_combine)), function(i){
   #   peakIDs = getFeaturesInCluster( treeListClusters, df_combine$chrom[i], df_combine$cluster[i], df_combine$id[i])
@@ -82,7 +82,7 @@ combineResults = function( sledRes, clstScore, treeListClusters, peakLocations, 
   
   # merge
   if( verbose ){
-	cat("Merging results...\n")
+	message("Merging results...\n")
 	}
   df_combine = merge( df_combine, clustDf[,c('chrom', 'cluster', 'id', 'start', 'end', 'width')], by=c("id", 'chrom', 'cluster') )
 

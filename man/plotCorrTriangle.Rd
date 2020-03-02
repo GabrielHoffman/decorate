@@ -4,8 +4,13 @@
 \alias{plotCorrTriangle}
 \title{Plot triangle of correlation matrix}
 \usage{
-plotCorrTriangle(C, size = 1, stroke = 1.5, cols = c("blue", "white",
-  "red"), absCorr = FALSE)
+plotCorrTriangle(
+  C,
+  size = 1,
+  stroke = 1.5,
+  cols = c("blue", "white", "red"),
+  absCorr = FALSE
+)
 }
 \arguments{
 \item{C}{correlation matrix}

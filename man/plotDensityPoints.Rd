@@ -4,8 +4,13 @@
 \alias{plotDensityPoints}
 \title{Plot density as color, add outlier points}
 \usage{
-plotDensityPoints(x, y, n = 100, outlierQuantile = 1e-05,
-  densityExponent = 0.25)
+plotDensityPoints(
+  x,
+  y,
+  n = 100,
+  outlierQuantile = 1e-05,
+  densityExponent = 0.25
+)
 }
 \arguments{
 \item{x}{x values}

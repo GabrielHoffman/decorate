@@ -64,10 +64,10 @@ plotGenes = function (minRange, maxRange, chromosome, genome = "hg19", plot_line
     Range <- maxRange - minRange
     vp$xscale <- c(minRange, maxRange)
     vp$name <- "transcriptsVP"
-    cat("Connecting to UCSC...\n")
+    message("Connecting to UCSC...\n")
     session <- browserSession()
     genome(session) <- genome
-    cat("Connection extablished.  Processing query...\n")
+    message("Connection extablished.  Processing query...\n")
     query1 <- ucscTableQuery(session, "knownGene",
         GRangesForUCSCGenome(genome, chromosome,
             IRanges(minRange, maxRange)))

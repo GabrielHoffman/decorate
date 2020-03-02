@@ -4,9 +4,16 @@
 \alias{createCorrelationMatrix}
 \title{Create correlation matrix}
 \usage{
-createCorrelationMatrix(query, regionQuant, adjacentCount = 500,
-  windowSize = 1e+06, method = "adjacent", method.corr = c("pearson",
-  "spearman"), quiet = FALSE, setNANtoZero = FALSE)
+createCorrelationMatrix(
+  query,
+  regionQuant,
+  adjacentCount = 500,
+  windowSize = 1e+06,
+  method = "adjacent",
+  method.corr = c("pearson", "spearman"),
+  quiet = FALSE,
+  setNANtoZero = FALSE
+)
 }
 \arguments{
 \item{query}{GRanges object of intervals to query}

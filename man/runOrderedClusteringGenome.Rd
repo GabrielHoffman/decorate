@@ -4,9 +4,16 @@
 \alias{runOrderedClusteringGenome}
 \title{Run hierarchical clustering preserving order}
 \usage{
-runOrderedClusteringGenome(X, gr, method = c("adjclust", "hclustgeo"),
-  quiet = FALSE, alpha = 0.5, adjacentCount = 500,
-  setNANtoZero = FALSE, method.corr = c("pearson", "spearman"))
+runOrderedClusteringGenome(
+  X,
+  gr,
+  method = c("adjclust", "hclustgeo"),
+  quiet = FALSE,
+  alpha = 0.5,
+  adjacentCount = 500,
+  setNANtoZero = FALSE,
+  method.corr = c("pearson", "spearman")
+)
 }
 \arguments{
 \item{X}{data matrix were *rows* are features in sequential order}

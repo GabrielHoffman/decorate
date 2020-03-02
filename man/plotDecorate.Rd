@@ -4,10 +4,20 @@
 \alias{plotDecorate}
 \title{Plot decorate analysis}
 \usage{
-plotDecorate(ensdb, treeList, treeListClusters, featurePositions, query,
-  data, cols, showGenes = TRUE, splice_variants = FALSE,
-  non_coding = FALSE, absCorr = FALSE, method.corr = c("pearson",
-  "kendall", "spearman"))
+plotDecorate(
+  ensdb,
+  treeList,
+  treeListClusters,
+  featurePositions,
+  query,
+  data,
+  cols,
+  showGenes = TRUE,
+  splice_variants = FALSE,
+  non_coding = FALSE,
+  absCorr = FALSE,
+  method.corr = c("pearson", "kendall", "spearman")
+)
 }
 \arguments{
 \item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}

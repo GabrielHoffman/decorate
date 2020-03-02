@@ -95,7 +95,7 @@ delaneau.test = function( Y, variable, method = c("pearson", "kendall", "spearma
                   result = list(p.value = fit$p.value, estimate = fit$statistic, method="kruskal.test")   
             }
       }else{
-            fit = cor.test( score, variable, method="spearman") 
+            fit = suppressWarnings(cor.test( score, variable, method="spearman") )
             result = list(p.value = fit$p.value, estimate = fit$estimate, method="cor.test") 
       }
 
@@ -221,7 +221,7 @@ sle.test = function( Y, variable, method = c("pearson", "kendall", "spearman"), 
                   result = list(p.value = fit$p.value, estimate = fit$statistic, method="kruskal.test")   
             }
       }else{
-            fit = cor.test( score, variable, method="spearman") 
+            fit = suppressWarnings(cor.test( score, variable, method="spearman") )
             result = list(p.value = fit$p.value, estimate = fit$estimate, method="cor.test") 
       }
 

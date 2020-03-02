@@ -4,8 +4,13 @@
 \alias{sle.test}
 \title{Test association between sparse leading eigen-value and variable}
 \usage{
-sle.test(Y, variable, method = c("pearson", "kendall", "spearman"),
-  rho = 0, sumabs = 1)
+sle.test(
+  Y,
+  variable,
+  method = c("pearson", "kendall", "spearman"),
+  rho = 0,
+  sumabs = 1
+)
 }
 \arguments{
 \item{Y}{data matrix with samples on rows and variables on columns}

@@ -43,7 +43,7 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
   for( chrom in seqlevels(gr)[seqlevels(gr) %in% chromArray] ){
 
     if( verbose ){
-      cat(paste0("\r", chrom, '      '))
+      message(paste0("\r", chrom, '      '))
     }
 
     # get GenomicRange for this chromosome
@@ -52,6 +52,10 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
     # get correlation matrix for this chromosome
     # convert format of sparse correlation matrix
     A = as(treeList[[chrom]]@correlation, 'TsparseMatrix')
+
+    if( is.null(rownames(A)) ){
+      stop("Correlation matrix must have rownames")
+    }
 
     # extract index and correlation value for each non-zero pair
     dfDist = data.frame( chrom=chrom,
@@ -67,7 +71,7 @@ evaluateCorrDecay = function( treeList, gr, chromArray=seqlevels(gr), verbose=TR
   }
 
   if( verbose ){
-    cat("\n")
+    message("\n")
   }
 
   feature_i = feature_j = NA

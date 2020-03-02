@@ -93,7 +93,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
   }
 
   if( method == "adjacent"){
-    if( ! quiet ) cat("adjacent: ", adjacentCount, 'entries\n')
+    if( ! quiet ) message("adjacent: ", adjacentCount, 'entries\n')
     # define pairs based on number of entries
     start(query) = seq_len(length(query))
     end(query) = seq_len(length(query))
@@ -102,7 +102,7 @@ createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windo
 
   }else if( method == "distance"){
 
-    if( ! quiet ) cat("distance: ", windowSize, 'bp\n')
+    if( ! quiet ) message("distance: ", windowSize, 'bp\n')
     # define pairs based on distance
     df_peaksMap = getPeakDistances( query, windowSize=windowSize )
 
@@ -212,14 +212,14 @@ setClass("epiclustList", representation('ANY'))
 
 setMethod("print", "epiclustList", function( x ){
 
-  cat("List of hierarchical clustering for", length(x), "chromosomes:\n\n")
+  message("List of hierarchical clustering for", length(x), "chromosomes:\n\n")
 
   counts = lapply(x, function(x) length(x@clust$labels))
 
   df = data.frame(chrom = names(counts), nFeatures = unlist(counts), stringsAsFactors=FALSE)
   rownames(df) = c()
   print(df, row.names=FALSE)
-  cat("\n")
+  message("\n")
 })
 
 setMethod("show", "epiclustList", function( object ){
@@ -227,7 +227,7 @@ setMethod("show", "epiclustList", function( object ){
 })
 
 setMethod("print", "epiclust", function( x ){
-  cat("Hierarchical clustering for", length(x@clust$labels), "features\n\n")
+  message("Hierarchical clustering for", length(x@clust$labels), "features\n\n")
 })
 
 setMethod("show", "epiclust", function( object ){
@@ -292,6 +292,14 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     stop("# rows of X must equal # of entries in gr: ", nrow(X), ' != ', length(gr))
   }
 
+  if( is.null(rownames(X)) ){
+      stop("Data matrix X must have rownames that match names(gr)")
+  }
+
+  if( !all(rownames(X) %in% names(gr)) ){
+    stop("All rownames of X must be found in names of gr so that all(rownames(X) %in% names(gr)) is TRUE  ")
+  } 
+
   method <- match.arg(method)
   method.corr  <- match.arg(method.corr)
 
@@ -328,7 +336,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
   # for each chromosome
   treePerChrom = lapply( chromArray, function(chrom){
 
-    cat("\rEvaluating:", chrom, '          ')
+    if( !quiet ) message("\rEvaluating:", chrom, '          ')
 
     idx = which(array(GenomicRanges::seqnames(gr) == chrom))
 
@@ -365,7 +373,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
     gc()
     res
   })
-  cat('\n')
+  message('\n')
 
   names(treePerChrom) = chromArray
   
@@ -494,7 +502,7 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
   
   method <- match.arg(method)
 
-  cat("Method:", method, '\n')
+  message("Method:", method, '\n')
 
   if( method == "meanClusterSize"){
 
@@ -515,7 +523,7 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
         frac = N / n_features_total
         n_clust = round( frac*n_total_clusters )
 
-        # cat(paste("\r", mcs, n_clust))
+        # message(paste("\r", mcs, n_clust))
         cutree(x@clust, k=max(n_clust, 1))
       })
       names(res) = names(treeList)
@@ -546,7 +554,7 @@ createClusters = function(treeList, method = c("capushe", "bstick", "meanCluster
 # setMethod("print", "epiclustDiscrete", function( x ){
 #   nFeatures = length(x)
 #   nClusters = length(unique(x))
-#   cat(nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+#   message(nFeatures, "features in", nClusters, "discrete clusters\n\n" )
 # })
 
 # setMethod("show", "epiclustDiscrete", function( object ){
@@ -566,7 +574,7 @@ setMethod("print", "epiclustDiscreteList", function( x ){
   for( chrom in names(x) ){
     nFeatures = length(x[[chrom]])
     nClusters = length(unique(x[[chrom]]))
-    cat(paste0(chrom, ':'),nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+    message(paste0(chrom, ':'),nFeatures, "features in", nClusters, "discrete clusters\n\n" )
   }
 })
 
@@ -586,10 +594,10 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 setClass("epiclustDiscreteListContain", representation('list'))
 
 setMethod("print", "epiclustDiscreteListContain", function( x ){
-  cat("Clusters defined using", length(x), "parameter values:",  paste(names(x), collapse=', '), '\n\n' ) 
+  message("Clusters defined using", length(x), "parameter values:",  paste(names(x), collapse=', '), '\n\n' ) 
 
   for( id in names(x) ){
-    cat("parameter:", id, '\n')
+    message("parameter:", id, '\n')
     print(x[[id]])
   }
 })
@@ -870,10 +878,10 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=bpparam()){
     do.call("rbind", res)
   }
   
-  cat("Evaluating strength of each cluster...\n\n")
+  message("Evaluating strength of each cluster...\n\n")
 
   it = corrIterBatch( treeList, treeListClusters, df_count )
-  cat(paste0("Dividing work into ",attr(it, "n_chunks")," chunks...\n"))
+  message(paste0("Dividing work into ",attr(it, "n_chunks")," chunks...\n"))
 
   res = bpiterate( it, .score_clusts, BPPARAM=BPPARAM)
 
@@ -992,12 +1000,12 @@ retainClusters = function(clstScore, metric="LEF", cutoff = 0.40){
 
   names(cutoff) = names(clstScore)
 
-  cat("Using cutoffs:\n")
-  cat("Cluster set\tcutoff\n")
+  message("Using cutoffs:\n")
+  message("Cluster set\tcutoff\n")
   for(i in seq_len(length(clstScore))){
-    cat(paste0(" ", names(clstScore)[i], "\t\t", format(cutoff[i], digits=3), '\n'))
+    message(paste0(" ", names(clstScore)[i], "\t\t", format(cutoff[i], digits=3), '\n'))
   }
-  cat("\n")
+  message("\n")
 
   clstScoreDF = do.call("rbind", clstScore)
 
@@ -1116,7 +1124,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
   # Get all pairs of clusters, then filter out pairs with same cutoff or different chromsome
   ###################
 
-  cat("Identifying redundant clusters...\n")
+  message("Identifying redundant clusters...\n")
 
   msc = chrom = cluster = msc.x = msc.y = chrom.x = chrom.y = N.x = N.y = key.x = key.y = .SD = key = NULL
 

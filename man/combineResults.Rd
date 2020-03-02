@@ -4,8 +4,13 @@
 \alias{combineResults}
 \title{Combine results into a single data.frame}
 \usage{
-combineResults(sledRes, clstScore, treeListClusters, peakLocations,
-  verbose = TRUE)
+combineResults(
+  sledRes,
+  clstScore,
+  treeListClusters,
+  peakLocations,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{sledRes}{sLEDresults from evalDiffCorr()}

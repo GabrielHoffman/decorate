@@ -147,7 +147,7 @@ getClusterRanges = function(gRanges, clustList, verbose=TRUE){
 
 	# Summarize each cluster
 	if( verbose ){
-		cat("Summarizing each cluster...\n")
+		message("Summarizing each cluster...\n")
 	}
 	df = df_merge[,data.frame(id=unique(id), chrom = unique(chrom), cluster=unique(cluster), start=min(start), end=max(end), stringsAsFactors=FALSE),by='clusterName']
 

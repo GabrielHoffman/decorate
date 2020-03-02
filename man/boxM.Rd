@@ -4,8 +4,13 @@
 \alias{boxM}
 \title{Box's M-test}
 \usage{
-boxM(Y, group, tol = 1e-10, fxn = cor, method = c("pearson",
-  "kendall", "spearman"))
+boxM(
+  Y,
+  group,
+  tol = 1e-10,
+  fxn = cor,
+  method = c("pearson", "kendall", "spearman")
+)
 }
 \arguments{
 \item{Y}{response matrix}

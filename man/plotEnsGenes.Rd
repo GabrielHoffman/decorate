@@ -4,9 +4,16 @@
 \alias{plotEnsGenes}
 \title{Plot ENSEMBL genes}
 \usage{
-plotEnsGenes(ensdb, minRange, maxRange, chromosome,
-  plot_lines_distance = 0.03, vp = viewport(x = 0, y = 0.95, just =
-  c("left", "top")), splice_variants = TRUE, non_coding = TRUE)
+plotEnsGenes(
+  ensdb,
+  minRange,
+  maxRange,
+  chromosome,
+  plot_lines_distance = 0.03,
+  vp = viewport(x = 0, y = 0.95, just = c("left", "top")),
+  splice_variants = TRUE,
+  non_coding = TRUE
+)
 }
 \arguments{
 \item{ensdb}{ENSEMBL database object like EnsDb.Hsapiens.v86}

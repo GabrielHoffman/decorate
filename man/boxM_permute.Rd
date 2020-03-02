@@ -4,13 +4,17 @@
 \alias{boxM_permute}
 \title{Box's M-test}
 \usage{
-boxM_permute(Y, group, nperm = 200, method = c("pearson", "kendall",
-  "spearman"))
+boxM_permute(
+  Y,
+  group,
+  nperm = 200,
+  method = c("pearson", "kendall", "spearman")
+)
 }
 \arguments{
 \item{Y}{response variable matrix}
 
-\item{group}{a factor defining groups, number of entries must equal nrow(Y)}
+\item{group}{a factor defining groups, or a continuous variable, number of entries must equal nrow(Y)}
 
 \item{nperm}{number of permutations of group variable used to estimate degrees of freedom under the null}
 

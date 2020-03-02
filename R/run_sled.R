@@ -143,12 +143,12 @@ setMethod("summary", "sLEDresults", function( object ){
 
 
 setMethod("print", "sLEDresults", function( x ){
-	cat("Hypothesis tests of each cluster\n\n")
+	message("Hypothesis tests of each cluster\n\n")
 	for( chrom in names(x) ){
 	    nTest = length(x[[chrom]])
-	    cat(paste0(chrom, ': Tests of'),nTest, "clusters\n" )
+	    message(paste0(chrom, ': Tests of'),nTest, "clusters\n" )
   	}
-  	cat('\n')
+  	message('\n')
 })
 
 
@@ -443,7 +443,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 	dfClust = data.table(do.call('rbind', dfClust))
 
 	# check size of clusters
-	cat("Note that clusters of 2 or fewer features are omitted from analysis\n\n")
+	message("Note that clusters of 2 or fewer features are omitted from analysis\n\n")
 
 	# only get peaks that are in the the epiSignal dataset
 	peak = NA
@@ -463,7 +463,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 
 	n_clusters = nrow(dfClustCountsSort)
 
-	cat("# Clusters:", n_clusters, '\n')
+	message("# Clusters:", n_clusters, '\n')
 
 	# Evaluate statistics with permutations
 	#######################################
@@ -477,7 +477,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 	# combinedResults = bplapply( seq_len(nrow(dfClustUnique)), runSled, dfClustUnique, dfClust, epiSignal, set1, set2, npermute, BPPARAM=BPPARAM)
 	
 	if( method == "sLED"){
-		cat("Initial pass through all clusters...\n")
+		message("Initial pass through all clusters...\n")
 		# run with iterators
 		it = clustIter( dfClustCountsSort, dfClust, epiSignal, testVariable )
 		
@@ -494,7 +494,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 		numPassCutoff = sum(df$permCounts < 10, na.rm=TRUE)
 
 		if( numPassCutoff > 0 ){
-			cat("Intensive second pass...\n")
+			message("Intensive second pass...\n")
 
 			# parallelize run of each cluster
 			pb <- progress_bar$new(format = ":current/:total [:bar] :percent ETA::eta",	total = numPassCutoff, width= 60, clear=FALSE)
@@ -563,7 +563,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 		# run with iterators
 		it = clustIterBatch( clustList, epiSignal, testVariable, n_chunks = 100 )
 		
-		cat(paste0("Dividing work into ",attr(it, "n_chunks")," chunks...\n"))
+		message(paste0("Dividing work into ",attr(it, "n_chunks")," chunks...\n"))
 
 		res1 = bpiterate( it, .eval_batch, method, method.corr, BPPARAM=BPPARAM)
 		combinedResults = unlist(res1, recursive=FALSE)
@@ -572,7 +572,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 	# return list of lists
 	######################
 
-	cat("Combining results...\n")
+	message("Combining results...\n")
 
 	resList = list()
 	chromArray = unique(dfClustCounts$chrom)
@@ -589,7 +589,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
 	}
 	names(resList) = chromArray
 	
-	cat("\n")
+	message("\n")
 	new("sLEDresults", resList)
 }
 
@@ -625,7 +625,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
     npermute = 100, seeds = NULL,
     verbose = TRUE, niter = 20, trace = FALSE, BPPARAM=SerialParam()){
     if (verbose) {
-        cat(npermute, "permutation started:\n")
+        message(npermute, "permutation started:\n")
     }
             
     perm.results <- bplapply(seq_len(npermute), sLED:::sLEDOnePermute,
@@ -641,7 +641,7 @@ runFastStat = function( itObj, method = c("Box", "Box.permute", "Steiger.fisher"
         Tn.permute.sign[, i] <- perm.results[[i]]$Tn.permute.sign
     }
     if (verbose) {
-        cat("permutations finished.", fill = TRUE)
+        message("permutations finished.", fill = TRUE)
     }
     return(list(Tn.permute = Tn.permute, Tn.permute.sign = Tn.permute.sign))
 }

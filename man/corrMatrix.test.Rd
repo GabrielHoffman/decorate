@@ -4,11 +4,14 @@
 \alias{corrMatrix.test}
 \title{Test difference between two correlation matricies}
 \usage{
-corrMatrix.test(Y, group, method = c("Box", "Box.permute",
-  "Steiger.fisher", "Steiger", "Jennrich", "Factor", "Mann.Whitney",
-  "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U", "WL.randProj",
-  "Schott.Frob", "Delaneau", "deltaSLE"), method.corr = c("pearson",
-  "kendall", "spearman"))
+corrMatrix.test(
+  Y,
+  group,
+  method = c("Box", "Box.permute", "Steiger.fisher", "Steiger", "Jennrich", "Factor",
+    "Mann.Whitney", "Kruskal.Wallis", "Cai.max", "Chang.maxBoot", "LC.U", "WL.randProj",
+    "Schott.Frob", "Delaneau", "deltaSLE"),
+  method.corr = c("pearson", "kendall", "spearman")
+)
 }
 \arguments{
 \item{Y}{data matrix}

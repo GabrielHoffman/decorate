@@ -4,8 +4,12 @@
 \alias{createClusters}
 \title{Create cluster from list of hclust objects}
 \usage{
-createClusters(treeList, method = c("capushe", "bstick",
-  "meanClusterSize"), meanClusterSize = 50, pct = 0.15)
+createClusters(
+  treeList,
+  method = c("capushe", "bstick", "meanClusterSize"),
+  meanClusterSize = 50,
+  pct = 0.15
+)
 }
 \arguments{
 \item{treeList}{list of hclust objects}

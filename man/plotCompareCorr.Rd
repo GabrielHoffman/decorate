@@ -4,8 +4,14 @@
 \alias{plotCompareCorr}
 \title{Plot two correlation matrices together}
 \usage{
-plotCompareCorr(epiSignal, peakIDs, testVariable, cols, size = 5,
-  absCorr = FALSE)
+plotCompareCorr(
+  epiSignal,
+  peakIDs,
+  testVariable,
+  cols,
+  size = 5,
+  absCorr = FALSE
+)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}

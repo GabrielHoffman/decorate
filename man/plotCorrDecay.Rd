@@ -4,8 +4,14 @@
 \alias{plotCorrDecay}
 \title{Plot correlation delay}
 \usage{
-plotCorrDecay(dfDist, method = c("R", "Rsq"), xlim = c(10, 1e+06),
-  n = 100, outlierQuantile = 0.001, densityExponent = 0.25)
+plotCorrDecay(
+  dfDist,
+  method = c("R", "Rsq"),
+  xlim = c(10, 1e+06),
+  n = 100,
+  outlierQuantile = 0.001,
+  densityExponent = 0.25
+)
 }
 \arguments{
 \item{dfDist}{data.frame of distance and correlation from from evaluateCorrDecay()}

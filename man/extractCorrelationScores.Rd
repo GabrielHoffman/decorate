@@ -4,9 +4,16 @@
 \alias{extractCorrelationScores}
 \title{Extract sample-level correlation scores}
 \usage{
-extractCorrelationScores(epiSignal, gRanges, clustList,
-  method = c("deltaSLE", "Delaneau"), method.corr = c("pearson",
-  "kendall", "spearman"), BPPARAM = bpparam(), rho = 0.1, sumabs = 1)
+extractCorrelationScores(
+  epiSignal,
+  gRanges,
+  clustList,
+  method = c("deltaSLE", "Delaneau"),
+  method.corr = c("pearson", "kendall", "spearman"),
+  BPPARAM = bpparam(),
+  rho = 0.1,
+  sumabs = 1
+)
 }
 \arguments{
 \item{epiSignal}{matrix or EList of epigentic signal.  Rows are features and columns are samples}

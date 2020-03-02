@@ -4,10 +4,17 @@
 \alias{runPermutedData}
 \title{Run hierarchical clustering permuting features}
 \usage{
-runPermutedData(X, gr, method = c("adjclust", "hclustgeo"),
-  quiet = FALSE, alpha = 0.5, adjacentCount = 500,
-  setNANtoZero = FALSE, method.corr = c("pearson", "spearman"),
-  meanClusterSize = c(5, 10))
+runPermutedData(
+  X,
+  gr,
+  method = c("adjclust", "hclustgeo"),
+  quiet = FALSE,
+  alpha = 0.5,
+  adjacentCount = 500,
+  setNANtoZero = FALSE,
+  method.corr = c("pearson", "spearman"),
+  meanClusterSize = c(5, 10)
+)
 }
 \arguments{
 \item{X}{data matrix were *rows* are features in sequential order}
