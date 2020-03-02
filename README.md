@@ -48,6 +48,22 @@ yum install geos-devel
 ###### Windows
 decorate should install on Windows without needing to install these dependencies.
 
+## [Vignette: run example analysis](http://deepfigv.mssm.edu/img/software/decorate/decorate_example.html)
+
+## [Manual](http://deepfigv.mssm.edu/img/software/decorate/decorate-manual.pdf)
+
+## [Simulations and properties of methods](http://deepfigv.mssm.edu/img/software/decorate/decorate_example.html)
+
+## Data analysis from manuscript
+ - [DNA methylation from kidney renal clear cell carcinoma](http://deepfigv.mssm.edu/img/software/decorate/KIRC.html)
+ - [DNA methylation from schizophrenia brains](http://deepfigv.mssm.edu/img/software/decorate/methyl_scz_decorate.html)
+ - [ATAC-seq from schizophrenia brains](http://deepfigv.mssm.edu/img/software/decorate/atac_local_corr.html)
+ - [Histone modification ChIP-seq from human brain](http://deepfigv.mssm.edu/img/software/decorate/EpiMap.html)
+
+
+
+
+<!--
 ## [Vignette: run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
 
 ## [Manual](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate-manual.pdf)
@@ -59,6 +75,7 @@ decorate should install on Windows without needing to install these dependencies
  - [DNA methylation from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/methyl_scz_decorate.html)
  - [ATAC-seq from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/atac_local_corr.html)
  - [Histone modification ChIP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
+-->
 
   [Results files](https://www.synapse.org/#!Synapse:syn20742092)
 

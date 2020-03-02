@@ -22,7 +22,7 @@ cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
 # cd ~/work//decorate/
 rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html") 
 
-scp decorate_example2.html minerva:/hpc/users/hoffmg01/www/software/decorate/decorate_example.html 
+scp decorate_example2.html sklar1:/sc/orga/work/hoffmg01/software/decorate/decorate_example.html 
 
 cd /Users/gabrielhoffman/workspace/scripts/decorate_analysis
 \cp -f EpiMap.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
