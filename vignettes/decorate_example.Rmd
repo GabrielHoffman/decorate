@@ -1,6 +1,6 @@
 
 ---
-title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>ela<u>a</u>tion <u>Te</u>st"
+title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>rel<u>a</u>tion <u>Te</u>st"
 author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
 date: "Run on `r Sys.Date()`"
 documentclass: article
@@ -9,7 +9,7 @@ output:
   toc: true
   smart: false
 vignette: >
-  %\VignetteIndexEntry{decorate: Differential Epigenetic Corelation Test}
+  %\VignetteIndexEntry{decorate: Differential Epigenetic Correlation Test}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
@@ -188,7 +188,9 @@ library(EnsDb.Hsapiens.v86)
 ```
 
 ```{r reload, cache=FALSE, echo=FALSE}
-detach('package:EnsDb.Hsapiens.v86', unload=TRUE)
+if( is.loaded("EnsDb.Hsapiens.v86")){
+  detach('package:EnsDb.Hsapiens.v86', unload=TRUE)
+}
 library(EnsDb.Hsapiens.v86)      
 ensdb = EnsDb.Hsapiens.v86
 ```
