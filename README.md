@@ -1,5 +1,5 @@
 
-# decorate: *D*ifferential *E<*pigenetic *Cor*rel*a*tion *Te*st
+# decorate: *D*ifferential *E*pigenetic *Cor*rel*a*tion *Te*st
 ![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
 
 # Install
