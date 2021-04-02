@@ -8,6 +8,7 @@ Maintainer: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.
 VignetteBuilder: knitr
 License: GPL (>= 2)
+URL: https://github.com/GabrielHoffman/decorate
 Suggests:
     BiocStyle,
     knitr,    
@@ -63,4 +64,4 @@ Imports:
     stats
 LinkingTo: 
     Rcpp, RcppArmadillo
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.1
