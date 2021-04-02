@@ -1,6 +1,6 @@
 
 # decorate: Differential Epigenetic Correlation Test
-# decorate: _D_ ifferential <u>E</u>pigenetic <u>Cor</u>rel<u>a</u>tion <u>Te</u>st
+# decorate: *D* ifferential <u>E</u>pigenetic <u>Cor</u>rel<u>a</u>tion <u>Te</u>st
 ![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
 
 # Install
