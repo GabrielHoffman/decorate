@@ -1,6 +1,6 @@
 
 ---
-title: "decorate: <u>D</u>ifferential <u>E</u>pigenetic <u>Cor</u>rel<u>a</u>tion <u>Te</u>st"
+title: "decorate: Differential Epigenetic Correlation Test"
 author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
 date: "Run on `r Sys.Date()`"
 documentclass: article

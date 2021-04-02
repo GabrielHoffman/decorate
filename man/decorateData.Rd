@@ -7,7 +7,13 @@
 \alias{simLocation}
 \alias{metadata}
 \title{Simulated data to show correlation clustering}
-\format{An object of class \code{matrix} with 448 rows and 1000 columns.}
+\format{
+An object of class \code{matrix} (inherits from \code{array}) with 448 rows and 1000 columns.
+
+An object of class \code{GRanges} of length 448.
+
+An object of class \code{data.frame} with 1000 rows and 1 columns.
+}
 \usage{
 data(decorateData)
 
