@@ -8,6 +8,13 @@
 
 <title>Score impact of each sample on correlation sturucture — delaneau.score • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Score impact of each sample on correlation sturucture — delaneau.score" />
 <meta property="og:description" content="Score impact of each sample on correlation sturucture.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on the difference between C and Ci." />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -152,13 +163,72 @@
     <div class='dont-index'><p>delaneau.test</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># load iris data</span>
+    <pre class="examples"><div class='input'><span class='co'># load iris data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span>
 
 <span class='co'># Evalaute score on each sample</span>
 <span class='fu'>delaneau.score</span><span class='op'>(</span> <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>]</span> <span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt;             1             2             3             4             5 
+#&gt;  2.392020e-03 -2.023052e-03 -2.254228e-04 -1.175789e-03  3.067485e-03 
+#&gt;             6             7             8             9            10 
+#&gt;  3.613378e-03  1.739786e-03  1.610689e-03 -3.581280e-03 -1.058259e-03 
+#&gt;            11            12            13            14            15 
+#&gt;  3.585132e-03  1.608228e-03 -2.264272e-03 -2.863378e-03  5.269956e-03 
+#&gt;            16            17            18            19            20 
+#&gt;  4.101427e-03  4.175666e-03  2.310130e-03  3.590239e-03  3.938222e-03 
+#&gt;            21            22            23            24            25 
+#&gt;  1.847168e-03  3.298703e-03  3.512710e-03  8.622414e-04  1.644556e-03 
+#&gt;            26            27            28            29            30 
+#&gt; -1.787499e-03  1.532360e-03  2.385847e-03  1.754538e-03 -1.226307e-04 
+#&gt;            31            32            33            34            35 
+#&gt; -1.039851e-03  1.740320e-03  5.640836e-03  5.352945e-03 -1.002131e-03 
+#&gt;            36            37            38            39            40 
+#&gt; -2.111842e-05  2.801364e-03  3.216784e-03 -2.461947e-03  1.652132e-03 
+#&gt;            41            42            43            44            45 
+#&gt;  2.358733e-03 -1.152656e-02 -1.921528e-04  2.156260e-03  3.406659e-03 
+#&gt;            46            47            48            49            50 
+#&gt; -2.001511e-03  4.051521e-03 -2.039643e-04  3.560882e-03  8.334199e-04 
+#&gt;            51            52            53            54            55 
+#&gt; -2.621935e-04 -7.436557e-04 -1.444262e-04 -1.576373e-03  8.006617e-04 
+#&gt;            56            57            58            59            60 
+#&gt;  2.988601e-04 -1.430851e-03 -3.516053e-03  7.904226e-04  1.251058e-04 
+#&gt;            61            62            63            64            65 
+#&gt; -6.620587e-03  1.136425e-04 -1.713778e-03  3.127337e-04 -4.507567e-05 
+#&gt;            66            67            68            69            70 
+#&gt;  8.323117e-05  4.918621e-04 -3.178555e-04  6.151750e-04 -1.254188e-03 
+#&gt;            71            72            73            74            75 
+#&gt; -4.442575e-04  2.056908e-04  1.251319e-03  5.066490e-04  4.963374e-04 
+#&gt;            76            77            78            79            80 
+#&gt;  3.672432e-04  1.391915e-03 -7.654247e-05  2.766486e-04 -1.282107e-03 
+#&gt;            81            82            83            84            85 
+#&gt; -1.954137e-03 -2.335353e-03 -3.072779e-04  1.005528e-03  8.558707e-04 
+#&gt;            86            87            88            89            90 
+#&gt; -1.385069e-03 -2.419081e-04  5.224943e-04  1.949653e-04 -7.713257e-04 
+#&gt;            91            92            93            94            95 
+#&gt; -2.010578e-04  6.732146e-05 -4.417269e-04 -4.271265e-03 -3.506618e-05 
+#&gt;            96            97            98            99           100 
+#&gt;  1.276182e-04  1.455780e-04  2.810288e-04 -2.715923e-03  2.715293e-05 
+#&gt;           101           102           103           104           105 
+#&gt; -2.811279e-03  1.608949e-03 -8.295545e-04  4.658131e-04 -4.556453e-04 
+#&gt;           106           107           108           109           110 
+#&gt; -9.522773e-04  1.776821e-03  7.473937e-04  2.684696e-03 -9.533994e-03 
+#&gt;           111           112           113           114           115 
+#&gt; -1.643350e-03  1.352727e-03 -5.915504e-04  2.258187e-03  2.590909e-03 
+#&gt;           116           117           118           119           120 
+#&gt; -1.672388e-03 -2.684843e-04 -1.375366e-02  3.536663e-03  8.647845e-04 
+#&gt;           121           122           123           124           125 
+#&gt; -2.868901e-03  1.845266e-03  1.851005e-03  1.123129e-03 -3.362203e-03 
+#&gt;           126           127           128           129           130 
+#&gt; -2.206105e-03  7.682669e-04  8.593464e-05  1.053592e-03  3.582294e-04 
+#&gt;           131           132           133           134           135 
+#&gt;  1.653224e-03 -1.216428e-02  1.149715e-03  7.533122e-04  1.591714e-03 
+#&gt;           136           137           138           139           140 
+#&gt; -9.175706e-04 -3.515552e-03 -8.308748e-04  2.086295e-04 -1.421053e-03 
+#&gt;           141           142           143           144           145 
+#&gt; -1.533218e-03 -1.239890e-03  1.608949e-03 -2.904417e-03 -3.752880e-03 
+#&gt;           146           147           148           149           150 
+#&gt; -3.482134e-04  1.903139e-03 -2.864917e-04 -2.970967e-03  3.940631e-04 </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -170,7 +240,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

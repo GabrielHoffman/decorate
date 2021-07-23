@@ -8,6 +8,13 @@
 
 <title>Test association between sparse leading eigen-value and variable — sle.test • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Test association between sparse leading eigen-value and variable — sle.test" />
 <meta property="og:description" content="Score impact of each sample on sparse leading eigen-value and then peform test of association with variable using non-parametric test" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -176,22 +187,48 @@ if variable is continuous, use Wilcoxon test</p>
     <div class='dont-index'><p>sle.score delaneau.test</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># load iris data</span>
+    <pre class="examples"><div class='input'><span class='co'># load iris data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span>
 
 <span class='co'># variable is factor with multiple levels</span>
 <span class='co'># use kruskal.test</span>
 <span class='fu'>sle.test</span><span class='op'>(</span> <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>]</span>, <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>5</span><span class='op'>]</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; $p.value
+#&gt; [1] 1.604944e-08
+#&gt; 
+#&gt; $estimate
+#&gt; Kruskal-Wallis chi-squared 
+#&gt;                   35.89518 
+#&gt; 
+#&gt; $method
+#&gt; [1] "kruskal.test"
+#&gt; </div><div class='input'>
 <span class='co'># variable is factor with 2 levels</span>
 <span class='co'># use wilcox.test</span>
 <span class='fu'>sle.test</span><span class='op'>(</span> <span class='va'>iris</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>,<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>]</span>, <span class='va'>iris</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>,<span class='fl'>5</span><span class='op'>]</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; $p.value
+#&gt; [1] 0.7329198
+#&gt; 
+#&gt; $estimate
+#&gt; [1] -0.0005423853
+#&gt; 
+#&gt; $method
+#&gt; [1] "wilcox.test"
+#&gt; </div><div class='input'>
 <span class='co'># variable is continuous</span>
 <span class='co'># use cor.test with spearman</span>
 <span class='fu'>sle.test</span><span class='op'>(</span> <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>]</span>, <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>]</span> <span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt; $p.value
+#&gt; [1] 0.000519093
+#&gt; 
+#&gt; $estimate
+#&gt;       rho 
+#&gt; -0.280033 
+#&gt; 
+#&gt; $method
+#&gt; [1] "cor.test"
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -203,7 +240,7 @@ if variable is continuous, use Wilcoxon test</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

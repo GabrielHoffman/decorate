@@ -8,6 +8,13 @@
 
 <title>Score impact of each sample on sparse leading eigen-value — sle.score • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Score impact of each sample on sparse leading eigen-value — sle.score" />
 <meta property="og:description" content="Score impact of each sample on sparse leading eigen-value.  Compute correlation using all samples (i.e. C), then compute correlation omitting sample i (i.e. Ci).  The score the sample i is based on sparse leading eigen-value of the diffrence between C and Ci." />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -165,13 +176,62 @@
     <div class='dont-index'><p>sle.test</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># load iris data</span>
+    <pre class="examples"><div class='input'><span class='co'># load iris data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span>
 
 <span class='co'># Evalaute score on each sample</span>
 <span class='fu'>sle.score</span><span class='op'>(</span> <span class='va'>iris</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>]</span> <span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt;            1            2            3            4            5            6 
+#&gt; 0.0100508501 0.0063532005 0.0040422346 0.0035951853 0.0132116072 0.0125309552 
+#&gt;            7            8            9           10           11           12 
+#&gt; 0.0100934398 0.0082490593 0.0114693323 0.0032052360 0.0122602163 0.0093574036 
+#&gt;           13           14           15           16           17           18 
+#&gt; 0.0070555663 0.0088254694 0.0184610609 0.0146444218 0.0144360540 0.0097520909 
+#&gt;           19           20           21           22           23           24 
+#&gt; 0.0118698471 0.0155046106 0.0061783969 0.0131563750 0.0169579645 0.0047634522 
+#&gt;           25           26           27           28           29           30 
+#&gt; 0.0090398155 0.0056904038 0.0077634331 0.0092150805 0.0069066487 0.0039830882 
+#&gt;           31           32           33           34           35           36 
+#&gt; 0.0031741402 0.0058447528 0.0203620157 0.0184108094 0.0030292459 0.0028027419 
+#&gt;           37           38           39           40           41           42 
+#&gt; 0.0089979730 0.0144614375 0.0076171795 0.0075813407 0.0105486832 0.0391144133 
+#&gt;           43           44           45           46           47           48 
+#&gt; 0.0043555698 0.0090955256 0.0139203037 0.0062276312 0.0159334491 0.0042216347 
+#&gt;           49           50           51           52           53           54 
+#&gt; 0.0124391046 0.0056051298 0.0062012259 0.0025538913 0.0027379404 0.0077974686 
+#&gt;           55           56           57           58           59           60 
+#&gt; 0.0031339724 0.0019131283 0.0048033019 0.0168761145 0.0026469713 0.0063139558 
+#&gt;           61           62           63           64           65           66 
+#&gt; 0.0270335216 0.0003607039 0.0095555803 0.0010817355 0.0011013864 0.0022526040 
+#&gt;           67           68           69           70           71           72 
+#&gt; 0.0022366774 0.0025516518 0.0041880468 0.0050152029 0.0037346124 0.0010691602 
+#&gt;           73           74           75           76           77           78 
+#&gt; 0.0050958706 0.0020457400 0.0017485637 0.0012400943 0.0048936187 0.0007369925 
+#&gt;           79           80           81           82           83           84 
+#&gt; 0.0009470987 0.0045808930 0.0076575464 0.0086515896 0.0011598561 0.0033769991 
+#&gt;           85           86           87           88           89           90 
+#&gt; 0.0040138952 0.0053708319 0.0017749569 0.0058275110 0.0010149180 0.0051076748 
+#&gt;           91           92           93           94           95           96 
+#&gt; 0.0044393934 0.0003113556 0.0017605131 0.0181676043 0.0023235321 0.0006398017 
+#&gt;           97           98           99          100          101          102 
+#&gt; 0.0009850551 0.0010481157 0.0118987312 0.0010920772 0.0139253836 0.0055572820 
+#&gt;          103          104          105          106          107          108 
+#&gt; 0.0026698326 0.0018311742 0.0016102118 0.0034648797 0.0183216541 0.0038243309 
+#&gt;          109          110          111          112          113          114 
+#&gt; 0.0112190900 0.0320116383 0.0054984010 0.0057990997 0.0022704649 0.0092346175 
+#&gt;          115          116          117          118          119          120 
+#&gt; 0.0089619798 0.0073418013 0.0012511391 0.0473107730 0.0183510194 0.0034704520 
+#&gt;          121          122          123          124          125          126 
+#&gt; 0.0093238498 0.0071416694 0.0081656016 0.0046067168 0.0110746046 0.0081178997 
+#&gt;          127          128          129          130          131          132 
+#&gt; 0.0028699817 0.0005083525 0.0043144966 0.0031497198 0.0071068499 0.0458246032 
+#&gt;          133          134          135          136          137          138 
+#&gt; 0.0042239870 0.0028311575 0.0055666365 0.0029206057 0.0157660466 0.0027558203 
+#&gt;          139          140          141          142          143          144 
+#&gt; 0.0009196381 0.0044974112 0.0052033499 0.0049786976 0.0055572820 0.0094222000 
+#&gt;          145          146          147          148          149          150 
+#&gt; 0.0132687311 0.0026642950 0.0071995856 0.0013516828 0.0141944453 0.0020270562 </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -183,7 +243,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

@@ -8,6 +8,13 @@
 
 <title>Get name of each cluster — getClusterNames • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Get name of each cluster — getClusterNames" />
 <meta property="og:description" content="Get name of each cluster as parameter:chrom:cluster" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -145,7 +156,7 @@
     <p>array of cluster names</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
 
 <span class='co'># load data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>'decorateData'</span><span class='op'>)</span>
@@ -153,14 +164,116 @@
 <span class='co'># Evaluate hierarchical clustering</span>
 <span class='co'># adjacentCount is the number of adjacent peaks considered in correlation</span>
 <span class='va'>treeList</span> <span class='op'>=</span> <span class='fu'><a href='runOrderedClusteringGenome.html'>runOrderedClusteringGenome</a></span><span class='op'>(</span> <span class='va'>simData</span>, <span class='va'>simLocation</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Evaluating:chr20          </span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Choose cutoffs and return cluster</span>
 <span class='va'>treeListClusters</span> <span class='op'>=</span> <span class='fu'><a href='createClusters.html'>createClusters</a></span><span class='op'>(</span> <span class='va'>treeList</span>, method <span class='op'>=</span> <span class='st'>"meanClusterSize"</span>, meanClusterSize<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='fl'>10</span>, <span class='fl'>20</span>, <span class='fl'>30</span>, <span class='fl'>40</span>, <span class='fl'>50</span><span class='op'>)</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Method:meanClusterSize</span></div><div class='input'>
 <span class='co'># Name of each cluster is parameter:chrom:cluster</span>
 <span class='fu'>getClusterNames</span><span class='op'>(</span> <span class='va'>treeListClusters</span><span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt;     parameter chrom cluster        name
+#&gt; 1          10 chr20       1  10_chr20_1
+#&gt; 2          10 chr20       2  10_chr20_2
+#&gt; 3          10 chr20       3  10_chr20_3
+#&gt; 4          10 chr20       4  10_chr20_4
+#&gt; 5          10 chr20       5  10_chr20_5
+#&gt; 6          10 chr20       6  10_chr20_6
+#&gt; 7          10 chr20       7  10_chr20_7
+#&gt; 8          10 chr20       8  10_chr20_8
+#&gt; 9          10 chr20       9  10_chr20_9
+#&gt; 10         10 chr20      10 10_chr20_10
+#&gt; 11         10 chr20      11 10_chr20_11
+#&gt; 12         10 chr20      12 10_chr20_12
+#&gt; 13         10 chr20      13 10_chr20_13
+#&gt; 14         10 chr20      14 10_chr20_14
+#&gt; 15         10 chr20      15 10_chr20_15
+#&gt; 16         10 chr20      16 10_chr20_16
+#&gt; 17         10 chr20      17 10_chr20_17
+#&gt; 18         10 chr20      18 10_chr20_18
+#&gt; 19         10 chr20      19 10_chr20_19
+#&gt; 20         10 chr20      20 10_chr20_20
+#&gt; 21         10 chr20      21 10_chr20_21
+#&gt; 22         10 chr20      22 10_chr20_22
+#&gt; 23         10 chr20      23 10_chr20_23
+#&gt; 24         10 chr20      24 10_chr20_24
+#&gt; 25         10 chr20      25 10_chr20_25
+#&gt; 26         10 chr20      26 10_chr20_26
+#&gt; 27         10 chr20      27 10_chr20_27
+#&gt; 28         10 chr20      28 10_chr20_28
+#&gt; 29         10 chr20      29 10_chr20_29
+#&gt; 30         10 chr20      30 10_chr20_30
+#&gt; 31         10 chr20      31 10_chr20_31
+#&gt; 32         10 chr20      32 10_chr20_32
+#&gt; 33         10 chr20      33 10_chr20_33
+#&gt; 34         10 chr20      34 10_chr20_34
+#&gt; 35         10 chr20      35 10_chr20_35
+#&gt; 36         10 chr20      36 10_chr20_36
+#&gt; 37         10 chr20      37 10_chr20_37
+#&gt; 38         10 chr20      38 10_chr20_38
+#&gt; 39         10 chr20      39 10_chr20_39
+#&gt; 40         10 chr20      40 10_chr20_40
+#&gt; 41         10 chr20      41 10_chr20_41
+#&gt; 42         10 chr20      42 10_chr20_42
+#&gt; 43         10 chr20      43 10_chr20_43
+#&gt; 44         10 chr20      44 10_chr20_44
+#&gt; 45         10 chr20      45 10_chr20_45
+#&gt; 46         20 chr20       1  20_chr20_1
+#&gt; 47         20 chr20       2  20_chr20_2
+#&gt; 48         20 chr20       3  20_chr20_3
+#&gt; 49         20 chr20       4  20_chr20_4
+#&gt; 50         20 chr20       5  20_chr20_5
+#&gt; 51         20 chr20       6  20_chr20_6
+#&gt; 52         20 chr20       7  20_chr20_7
+#&gt; 53         20 chr20       8  20_chr20_8
+#&gt; 54         20 chr20       9  20_chr20_9
+#&gt; 55         20 chr20      10 20_chr20_10
+#&gt; 56         20 chr20      11 20_chr20_11
+#&gt; 57         20 chr20      12 20_chr20_12
+#&gt; 58         20 chr20      13 20_chr20_13
+#&gt; 59         20 chr20      14 20_chr20_14
+#&gt; 60         20 chr20      15 20_chr20_15
+#&gt; 61         20 chr20      16 20_chr20_16
+#&gt; 62         20 chr20      17 20_chr20_17
+#&gt; 63         20 chr20      18 20_chr20_18
+#&gt; 64         20 chr20      19 20_chr20_19
+#&gt; 65         20 chr20      20 20_chr20_20
+#&gt; 66         20 chr20      21 20_chr20_21
+#&gt; 67         20 chr20      22 20_chr20_22
+#&gt; 68         30 chr20       1  30_chr20_1
+#&gt; 69         30 chr20       2  30_chr20_2
+#&gt; 70         30 chr20       3  30_chr20_3
+#&gt; 71         30 chr20       4  30_chr20_4
+#&gt; 72         30 chr20       5  30_chr20_5
+#&gt; 73         30 chr20       6  30_chr20_6
+#&gt; 74         30 chr20       7  30_chr20_7
+#&gt; 75         30 chr20       8  30_chr20_8
+#&gt; 76         30 chr20       9  30_chr20_9
+#&gt; 77         30 chr20      10 30_chr20_10
+#&gt; 78         30 chr20      11 30_chr20_11
+#&gt; 79         30 chr20      12 30_chr20_12
+#&gt; 80         30 chr20      13 30_chr20_13
+#&gt; 81         30 chr20      14 30_chr20_14
+#&gt; 82         30 chr20      15 30_chr20_15
+#&gt; 83         40 chr20       1  40_chr20_1
+#&gt; 84         40 chr20       2  40_chr20_2
+#&gt; 85         40 chr20       3  40_chr20_3
+#&gt; 86         40 chr20       4  40_chr20_4
+#&gt; 87         40 chr20       5  40_chr20_5
+#&gt; 88         40 chr20       6  40_chr20_6
+#&gt; 89         40 chr20       7  40_chr20_7
+#&gt; 90         40 chr20       8  40_chr20_8
+#&gt; 91         40 chr20       9  40_chr20_9
+#&gt; 92         40 chr20      10 40_chr20_10
+#&gt; 93         40 chr20      11 40_chr20_11
+#&gt; 94         50 chr20       1  50_chr20_1
+#&gt; 95         50 chr20       2  50_chr20_2
+#&gt; 96         50 chr20       3  50_chr20_3
+#&gt; 97         50 chr20       4  50_chr20_4
+#&gt; 98         50 chr20       5  50_chr20_5
+#&gt; 99         50 chr20       6  50_chr20_6
+#&gt; 100        50 chr20       7  50_chr20_7
+#&gt; 101        50 chr20       8  50_chr20_8
+#&gt; 102        50 chr20       9  50_chr20_9</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -172,7 +285,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

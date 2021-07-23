@@ -8,6 +8,13 @@
 
 <title>Retain clusters by applying filter — retainClusters • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Retain clusters by applying filter — retainClusters" />
 <meta property="og:description" content="Retain clusters by applying filter" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -153,29 +164,31 @@
     <p>data.frame of chrom, clutser, id (the clustering parameter value), and the specified metric</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/Bioconductor/BiocParallel'>BiocParallel</a></span><span class='op'>)</span>
 
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>'decorateData'</span><span class='op'>)</span>
 
 <span class='co'># Evaluate hierarchical clustering</span>
 <span class='va'>treeList</span> <span class='op'>=</span> <span class='fu'><a href='runOrderedClusteringGenome.html'>runOrderedClusteringGenome</a></span><span class='op'>(</span> <span class='va'>simData</span>, <span class='va'>simLocation</span> <span class='op'>)</span> 
-
+</div><div class='output co'>#&gt; <span class='message'>Evaluating:chr20          </span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Choose cutoffs and return clusters</span>
 <span class='va'>treeListClusters</span> <span class='op'>=</span> <span class='fu'><a href='createClusters.html'>createClusters</a></span><span class='op'>(</span> <span class='va'>treeList</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Method:capushe</span></div><div class='input'>
 <span class='co'># Evaluate score for each cluster</span>
-<span class='va'>clstScore</span> <span class='op'>=</span> <span class='fu'><a href='scoreClusters.html'>scoreClusters</a></span><span class='op'>(</span><span class='va'>treeList</span>, <span class='va'>treeListClusters</span> <span class='op'>)</span>
-
+<span class='va'>clstScore</span> <span class='op'>=</span> <span class='fu'><a href='scoreClusters.html'>scoreClusters</a></span><span class='op'>(</span><span class='va'>treeList</span>, <span class='va'>treeListClusters</span>, BPPARAM <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html'>SerialParam</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Evaluating strength of each cluster...</span>
+#&gt; <span class='message'></span></div><div class='output co'>#&gt; <span class='message'>Dividing work into 1 chunks...</span></div><div class='input'>
 <span class='co'># Retain clusters that pass this criteria</span>
 <span class='va'>clustInclude</span> <span class='op'>=</span> <span class='fu'>retainClusters</span><span class='op'>(</span> <span class='va'>clstScore</span>, <span class='st'>"LEF"</span>, <span class='fl'>0.30</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Using cutoffs:</span></div><div class='output co'>#&gt; <span class='message'>Cluster set	cutoff</span></div><div class='output co'>#&gt; <span class='message'> 0.15		0.3</span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Or filter by mean absolute correlation</span>
 <span class='co'># clustInclude = retainClusters( clstScore, "mean_abs_corr", 0.1 )</span>
 
 <span class='co'># get retained clusters</span>
 <span class='va'>treeListClusters_filter</span> <span class='op'>=</span> <span class='fu'><a href='filterClusters.html'>filterClusters</a></span><span class='op'>(</span> <span class='va'>treeListClusters</span>, <span class='va'>clustInclude</span> <span class='op'>)</span>
 
-</pre>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -187,7 +200,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

@@ -8,6 +8,13 @@
 
 <title>Combine results into a single data.frame — combineResults • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Combine results into a single data.frame — combineResults" />
 <meta property="og:description" content="Combine results into a single data.frame for easy post processing" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -164,9 +175,12 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>EnsDb.Hsapiens.v86</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Loading required package: ensembldb</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomicFeatures</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: AnnotationDbi</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: AnnotationFilter</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: 'ensembldb'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:stats':</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    filter</span></div><div class='input'>
 <span class='co'># load data</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>'decorateData'</span><span class='op'>)</span>
 
@@ -175,31 +189,33 @@
 
 <span class='co'># Evaluate hierarchical clsutering</span>
 <span class='va'>treeList</span> <span class='op'>=</span> <span class='fu'><a href='runOrderedClusteringGenome.html'>runOrderedClusteringGenome</a></span><span class='op'>(</span> <span class='va'>simData</span>, <span class='va'>simLocation</span> <span class='op'>)</span> 
-
+</div><div class='output co'>#&gt; <span class='message'>Evaluating:chr20          </span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Choose cutoffs and return clusters</span>
 <span class='va'>treeListClusters</span> <span class='op'>=</span> <span class='fu'><a href='createClusters.html'>createClusters</a></span><span class='op'>(</span> <span class='va'>treeList</span>, method <span class='op'>=</span> <span class='st'>"meanClusterSize"</span>, meanClusterSize<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='fl'>10</span>, <span class='fl'>20</span><span class='op'>)</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Method:meanClusterSize</span></div><div class='input'>
 <span class='co'># Evaluate strength of correlation for each cluster</span>
 <span class='va'>clstScore</span> <span class='op'>=</span> <span class='fu'><a href='scoreClusters.html'>scoreClusters</a></span><span class='op'>(</span><span class='va'>treeList</span>, <span class='va'>treeListClusters</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Evaluating strength of each cluster...</span>
+#&gt; <span class='message'></span></div><div class='output co'>#&gt; <span class='message'>Dividing work into 2 chunks...</span></div><div class='input'>
 <span class='co'># Filter to retain only strong clusters</span>
 <span class='co'># If lead eigen value fraction (LEF) &gt; 30% then keep clusters</span>
 <span class='co'># LEF is the fraction of variance explained by the first eigen-value</span>
 <span class='va'>clustInclude</span> <span class='op'>=</span> <span class='fu'><a href='retainClusters.html'>retainClusters</a></span><span class='op'>(</span> <span class='va'>clstScore</span>, <span class='st'>"LEF"</span>, <span class='fl'>0.30</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Using cutoffs:</span></div><div class='output co'>#&gt; <span class='message'>Cluster set	cutoff</span></div><div class='output co'>#&gt; <span class='message'> 10		0.3</span></div><div class='output co'>#&gt; <span class='message'> 20		0.3</span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># get retained clusters</span>
 <span class='va'>treeListClusters_filter</span> <span class='op'>=</span> <span class='fu'><a href='filterClusters.html'>filterClusters</a></span><span class='op'>(</span> <span class='va'>treeListClusters</span>, <span class='va'>clustInclude</span><span class='op'>)</span>
 
 <span class='co'># collapse redundant clusters</span>
 <span class='va'>treeListClusters_collapse</span> <span class='op'>=</span> <span class='fu'><a href='collapseClusters.html'>collapseClusters</a></span><span class='op'>(</span> <span class='va'>treeListClusters_filter</span>, <span class='va'>simLocation</span>, jaccardCutoff<span class='op'>=</span><span class='fl'>0.9</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Identifying redundant clusters...</span></div><div class='input'>
 <span class='co'># Evaluate Differential Correlation between two subsets of data</span>
 <span class='va'>sledRes</span> <span class='op'>=</span> <span class='fu'><a href='evalDiffCorr.html'>evalDiffCorr</a></span><span class='op'>(</span> <span class='va'>simData</span>, <span class='va'>metadata</span><span class='op'>$</span><span class='va'>Disease</span>, <span class='va'>simLocation</span>, <span class='va'>treeListClusters_collapse</span>, npermute<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>200</span>, <span class='fl'>2000</span><span class='op'>)</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Note that clusters of 2 or fewer features are omitted from analysis</span>
+#&gt; <span class='message'></span></div><div class='output co'>#&gt; <span class='message'># Clusters:30</span></div><div class='output co'>#&gt; <span class='message'>Initial pass through all clusters...</span></div><div class='output co'>#&gt; <span class='message'>Intensive second pass...</span></div><div class='output co'>#&gt; <span class='message'>Combining results...</span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Combine results for each cluster</span>
 <span class='va'>df_results</span> <span class='op'>=</span> <span class='fu'>combineResults</span><span class='op'>(</span> <span class='va'>sledRes</span>, <span class='va'>clstScore</span>, <span class='va'>treeListClusters</span>, <span class='va'>simLocation</span><span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt; <span class='message'>Summarizing analysis...</span></div><div class='output co'>#&gt; <span class='message'>Summarizing cluster properties...</span></div><div class='output co'>#&gt; <span class='message'>Collecting cluster locations...</span></div><div class='output co'>#&gt; <span class='message'>Summarizing each cluster...</span></div><div class='output co'>#&gt; <span class='message'>Merging results...</span></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -211,7 +227,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">

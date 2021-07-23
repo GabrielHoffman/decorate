@@ -284,7 +284,7 @@ setMethod("show", "epiclust", function( object ){
 #' @importFrom adjclust adjClust
 #' @importFrom methods new
 #' @importFrom stats cor
-#' @importFrom utils assignInNamespace
+# @importFrom utils assignInNamespace
 #' @export
 runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'), quiet=FALSE, alpha=0.5, adjacentCount=500, setNANtoZero=FALSE, method.corr = c("pearson", "spearman")){
 
@@ -326,12 +326,12 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
   # run analysis
   ##############
 
-  # remove clostly sanity check in adjclust
-  f = function(mat){
-    NULL
-  }
+  # remove costly sanity check in adjclust
+  # f = function(mat){
+  #   NULL
+  # }
 
-  assignInNamespace(x="checkCondition", value = f, ns='adjclust')
+  # assignInNamespace(x="checkCondition", value = f, ns='adjclust')
 
   # for each chromosome
   treePerChrom = lapply( chromArray, function(chrom){
@@ -351,7 +351,7 @@ runOrderedClusteringGenome = function( X, gr, method = c("adjclust", 'hclustgeo'
       # }
 
       h = min( adjacentCount, nrow(C)-1)
-      fitClust = suppressMessages(adjClust( C^2, "similarity", h=h))
+      fitClust = suppressMessages(adjClust( C^2, "similarity", h=h, strictCheck=FALSE))
       # fitClust = as.hclust(fitClust)
 
       res = new("epiclust", clust = fitClust, location=gr[idx], adjacentCount=adjacentCount, alpha=0, method=method, correlation=C)
@@ -794,6 +794,7 @@ getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
 #' 
 #' @examples
 #' library(GenomicRanges)
+#' library(BiocParallel)
 #' 
 #' data('decorateData')
 #' 
@@ -804,7 +805,7 @@ getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
 #' treeListClusters = createClusters( treeList )
 #'
 #' # Evaluate score for each cluster
-#' clstScore = scoreClusters(treeList, treeListClusters )
+#' clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 #' 
 #' @export
 #' @importFrom stats quantile
@@ -910,6 +911,7 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=bpparam()){
 #' 
 #' @examples
 #' library(GenomicRanges)
+#' library(BiocParallel)
 #' 
 #' data('decorateData')
 #' 
@@ -920,7 +922,7 @@ scoreClusters = function(treeList, treeListClusters, BPPARAM=bpparam()){
 #' treeListClusters = createClusters( treeList )
 #'
 #' # Evaluate score for each cluster
-#' clstScore = scoreClusters(treeList, treeListClusters )
+#' clstScore = scoreClusters(treeList, treeListClusters, BPPARAM=SerialParam() )
 #' 
 #' # Retain clusters that pass this criteria
 #' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
@@ -961,6 +963,7 @@ filterClusters = function( treeListClusters, clustInclude){
 #'
 #' @examples
 #' library(GenomicRanges)
+#' library(BiocParallel)
 #' 
 #' data('decorateData')
 #' 
@@ -971,7 +974,7 @@ filterClusters = function( treeListClusters, clustInclude){
 #' treeListClusters = createClusters( treeList )
 #'
 #' # Evaluate score for each cluster
-#' clstScore = scoreClusters(treeList, treeListClusters )
+#' clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 #' 
 #' # Retain clusters that pass this criteria
 #' clustInclude = retainClusters( clstScore, "LEF", 0.30 )
@@ -1059,6 +1062,7 @@ jaccard = function(a,b){
 #'
 #' @examples
 #' library(GenomicRanges)
+#' library(BiocParallel)
 #' 
 #' # load data
 #' data('decorateData')
@@ -1071,7 +1075,7 @@ jaccard = function(a,b){
 #' treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
 #' 
 #' # Evaluate strength of correlation for each cluster
-#' clstScore = scoreClusters(treeList, treeListClusters )
+#' clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 #' 
 #' # Filter to retain only strong clusters
 #' clustInclude = retainClusters( clstScore, "LEF", 0.30 )

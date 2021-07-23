@@ -21,6 +21,7 @@ Collapse clusters if jaccard index between clusters exceeds a cutoff
 }
 \examples{
 library(GenomicRanges)
+library(BiocParallel)
 
 # load data
 data('decorateData')
@@ -33,7 +34,7 @@ treeList = runOrderedClusteringGenome( simData, simLocation)
 treeListClusters = createClusters( treeList, method = "meanClusterSize", meanClusterSize=c( 10, 20, 30, 40, 50) )
 
 # Evaluate strength of correlation for each cluster
-clstScore = scoreClusters(treeList, treeListClusters )
+clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 
 # Filter to retain only strong clusters
 clustInclude = retainClusters( clstScore, "LEF", 0.30 )

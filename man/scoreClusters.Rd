@@ -24,6 +24,7 @@ For each cluster, extract the correlation matrix and return the mean absolute co
 }
 \examples{
 library(GenomicRanges)
+library(BiocParallel)
 
 data('decorateData')
 
@@ -34,6 +35,6 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Evaluate score for each cluster
-clstScore = scoreClusters(treeList, treeListClusters )
+clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 
 }

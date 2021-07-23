@@ -21,6 +21,7 @@ Retain clusters by applying filter
 }
 \examples{
 library(GenomicRanges)
+library(BiocParallel)
 
 data('decorateData')
 
@@ -31,7 +32,7 @@ treeList = runOrderedClusteringGenome( simData, simLocation )
 treeListClusters = createClusters( treeList )
 
 # Evaluate score for each cluster
-clstScore = scoreClusters(treeList, treeListClusters )
+clstScore = scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam() )
 
 # Retain clusters that pass this criteria
 clustInclude = retainClusters( clstScore, "LEF", 0.30 )

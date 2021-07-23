@@ -1,14 +1,15 @@
 Package: decorate
 Type: Package
 Title: Differential Epigenetic Coregulation Test
-Version: 1.0.27
-Date: 2019-11-25
-Author: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
+Version: 1.0.29
+Date: 2021-07-23
+Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu")
 Maintainer: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.
 VignetteBuilder: knitr
 License: GPL (>= 2)
 URL: https://github.com/GabrielHoffman/decorate
+BugReports: https://github.com/GabrielHoffman/decorate/issues
 Suggests:
     BiocStyle,
     knitr,    
@@ -35,7 +36,7 @@ Imports:
     spdep,
     vegan,
     rlist,
-    adjclust,
+    adjclust (>= 0.6.0),
     limma,
     sLED,
     foreach,

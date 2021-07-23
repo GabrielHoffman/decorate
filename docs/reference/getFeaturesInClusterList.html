@@ -8,6 +8,13 @@
 
 <title>Get feature names in selected cluster — getFeaturesInClusterList • decorate</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -41,6 +48,7 @@
 
 <meta property="og:title" content="Get feature names in selected cluster — getFeaturesInClusterList" />
 <meta property="og:description" content="Get feature names in selected cluster given array of chrom and cluster ids" />
+<meta property="og:image" content="/logo.svg" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">decorate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.29</span>
       </span>
     </div>
 
@@ -98,6 +106,9 @@
       <a href="../articles/decorate_example.html">decorate: Differential Epigenetic Correlation Test</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -157,24 +168,42 @@
     <p>list of array of feature names.  Query with index i as returned in list index i</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://bioconductor.org/packages/GenomicRanges'>GenomicRanges</a></span><span class='op'>)</span>
 
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>'decorateData'</span><span class='op'>)</span>
 
 <span class='co'># Evaluate hierarchical clustering</span>
 <span class='va'>treeList</span> <span class='op'>=</span> <span class='fu'><a href='runOrderedClusteringGenome.html'>runOrderedClusteringGenome</a></span><span class='op'>(</span> <span class='va'>simData</span>, <span class='va'>simLocation</span> <span class='op'>)</span> 
-
+</div><div class='output co'>#&gt; <span class='message'>Evaluating:chr20          </span></div><div class='output co'>#&gt; <span class='message'></span></div><div class='input'>
 <span class='co'># Choose cutoffs and return clusters</span>
 <span class='va'>treeListClusters</span> <span class='op'>=</span> <span class='fu'><a href='createClusters.html'>createClusters</a></span><span class='op'>(</span> <span class='va'>treeList</span>, method<span class='op'>=</span><span class='st'>'meanClusterSize'</span>, meanClusterSize <span class='op'>=</span> <span class='fl'>50</span> <span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='message'>Method:meanClusterSize</span></div><div class='input'>
 <span class='va'>df_cluster</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span> chrom <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"chr20"</span>, <span class='st'>"chr20"</span><span class='op'>)</span>, 
   cluster <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>,<span class='fl'>5</span><span class='op'>)</span>, 
   id <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"50"</span>, <span class='st'>"50"</span><span class='op'>)</span>, stringsAsFactors<span class='op'>=</span><span class='cn'>FALSE</span> <span class='op'>)</span>
 
 <span class='co'># Find features for the clusters in df_cluster</span>
 <span class='fu'>getFeaturesInClusterList</span><span class='op'>(</span> <span class='va'>treeListClusters</span>, chrom<span class='op'>=</span><span class='va'>df_cluster</span><span class='op'>$</span><span class='va'>chrom</span>, clustID<span class='op'>=</span><span class='va'>df_cluster</span><span class='op'>$</span><span class='va'>cluster</span>, id<span class='op'>=</span><span class='va'>df_cluster</span><span class='op'>$</span><span class='va'>id</span><span class='op'>)</span>
-
-</pre>
+</div><div class='output co'>#&gt; [[1]]
+#&gt;  [1] "peak_100" "peak_101" "peak_102" "peak_103" "peak_104" "peak_105"
+#&gt;  [7] "peak_106" "peak_107" "peak_108" "peak_109" "peak_110" "peak_111"
+#&gt; [13] "peak_112" "peak_113" "peak_114" "peak_115" "peak_116" "peak_117"
+#&gt; [19] "peak_118" "peak_119" "peak_120" "peak_121" "peak_122" "peak_123"
+#&gt; [25] "peak_124" "peak_125"
+#&gt; 
+#&gt; [[2]]
+#&gt;  [1] "peak_183" "peak_184" "peak_185" "peak_186" "peak_187" "peak_188"
+#&gt;  [7] "peak_189" "peak_190" "peak_191" "peak_192" "peak_193" "peak_194"
+#&gt; [13] "peak_195" "peak_196" "peak_197" "peak_198" "peak_199" "peak_200"
+#&gt; [19] "peak_201" "peak_202" "peak_203" "peak_204" "peak_205" "peak_206"
+#&gt; [25] "peak_207" "peak_208" "peak_209" "peak_210" "peak_211" "peak_212"
+#&gt; [31] "peak_213" "peak_214" "peak_215" "peak_216" "peak_217" "peak_218"
+#&gt; [37] "peak_219" "peak_220" "peak_221" "peak_222" "peak_223" "peak_224"
+#&gt; [43] "peak_225" "peak_226" "peak_227" "peak_228" "peak_229" "peak_230"
+#&gt; [49] "peak_231" "peak_232" "peak_233" "peak_234" "peak_235" "peak_236"
+#&gt; [55] "peak_237" "peak_238" "peak_239" "peak_240"
+#&gt; </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -186,7 +215,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Gabriel E. Hoffman.</p>
+  <p>Developed by Gabriel Hoffman.</p>
 </div>
 
 <div class="pkgdown">
