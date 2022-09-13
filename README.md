@@ -1,4 +1,3 @@
-<br>
 
 # *D*ifferential *E*pigenetic *Cor*rel*a*tion *Te*st
 ![](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
