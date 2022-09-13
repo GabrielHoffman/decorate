@@ -1,0 +1,13 @@
+
+citEntry(entry="article",
+   title = "decorate: differential epigenetic correlation test",
+   author = personList( as.person("Gabriel E. Hoffman"),  as.person("Jaroslav Bendl"), as.person("Kiran Girdhar"), as.person("Panos Roussos")),
+   year = 2020,
+   journal = "Bioinformatics",
+   doi = "10.1093/bioinformatics/btaa067",
+   volume = "36",
+   issue = "9",
+   pages = "2856–2861",
+   textVersion = 
+   paste("Hoffman GE, Bendl J, Girdhar K, Roussos P (2020). decorate: differential epigenetic correlation test. Bioinformatics, 36(9):2856–2861, doi:10.1093/bioinformatics/btaa067"))
+

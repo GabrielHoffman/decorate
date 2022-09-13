@@ -1,13 +1,11 @@
+<br>
 
-# decorate: *D*ifferential *E*pigenetic *Cor*rel*a*tion *Te*st
-![alt text](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
+# *D*ifferential *E*pigenetic *Cor*rel*a*tion *Te*st
+![](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
 
 # Install
 ```r
 library(devtools)
-
-# first install sLED
-install_github("lingxuez/sLED")
 
 # Install decorate
 # 	first, check for Bioconductor
@@ -21,6 +19,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 
 # Dependencies
 Depending on your system, you may need to install these system dependencies first: 
+
 - udunits 
 - proj
 - gdal 
@@ -47,18 +46,15 @@ yum install geos-devel
 ###### Windows
 decorate should install on Windows without needing to install these dependencies.
 
-## [Vignette: run example analysis](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate_example.html)
 
-## [Manual](https://hoffmg01.u.hpc.mssm.edu/software/decorate/decorate-manual.pdf)
-
-## [Simulations and properties of methods](https://hoffmg01.u.hpc.mssm.edu/software/decorate/simulations.html)
-
-## Data analysis from manuscript
+### Data analysis from manuscript
  - [DNA methylation from kidney renal clear cell carcinoma](https://hoffmg01.u.hpc.mssm.edu/software/decorate/KIRC.html)
  - [DNA methylation from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/methyl_scz_decorate.html)
  - [ATAC-seq from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/atac_local_corr.html)
  - [Histone modification ChIP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
 
+### Simulations and properties of methods
+  - [Simulations](https://hoffmg01.u.hpc.mssm.edu/software/decorate/simulations.html)
 
 
 

@@ -16,29 +16,29 @@ vignette: >
 ---
 
 <!--- 
-# run analysis
-cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
-# cd /hpc/users/hoffmg01/work/pinnacle/vignettes
-# cd ~/work//decorate/
-rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html") 
+# # run analysis
+# cd /Users/gabrielhoffman/workspace/repos/decorate/vignettes
+# # cd /hpc/users/hoffmg01/work/pinnacle/vignettes
+# # cd ~/work//decorate/
+# rmarkdown::render("decorate_example.Rmd", output_dir='./', intermediates_dir='./'); system("cat decorate_example.html | grep -v 'Found more than one class' | grep -v 'PythonEmbedInR' > decorate_example2.html") 
 
-scp decorate_example2.html sklar1:/sc/orga/work/hoffmg01/software/decorate/decorate_example.html 
+# scp decorate_example2.html sklar1:/sc/orga/work/hoffmg01/software/decorate/decorate_example.html 
 
-cd /Users/gabrielhoffman/workspace/scripts/decorate_analysis
-\cp -f EpiMap.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
-\cp -f KIRC.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
-\cp -f atac_local_corr.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
-\cp -f methyl_scz_decorate.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
-\cp -f simulations.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+# cd /Users/gabrielhoffman/workspace/scripts/decorate_analysis
+# \cp -f EpiMap.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+# \cp -f KIRC.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+# \cp -f atac_local_corr.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+# \cp -f methyl_scz_decorate.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
+# \cp -f simulations.Rmd /Users/gabrielhoffman/workspace/repos/decorate_analysis
 
 
-# move simulation to website on *minerva*
-cd /hpc/users/hoffmg01/www/software/decorate
-\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
-\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html EpiMap.html
-\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/atac_local_corr2.html atac_local_corr.html
-\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
-\cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
+# # move simulation to website on *minerva*
+# cd /hpc/users/hoffmg01/www/software/decorate
+# \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/KIRC2.html KIRC.html
+# \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/EpiMap2.html EpiMap.html
+# \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/atac_local_corr2.html atac_local_corr.html
+# \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/methyl_scz_decorate2.html methyl_scz_decorate.html
+# \cp -f /sc/orga/projects/psychencode/gabriel/decorate_analysis/simulations.html simulations.html
 
 
 --->

@@ -1,7 +1,10 @@
-pandoc: 2.14.0.3
-pkgdown: 1.6.1
+pandoc: '2.18'
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
-  decorate_example: decorate_example.html
-last_built: 2021-07-23T14:33Z
+  decorate: decorate.html
+last_built: 2022-09-13T17:53Z
+urls:
+  reference: http://gabrielhoffman.github.io/decorrelate/reference
+  article: http://gabrielhoffman.github.io/decorrelate/articles
 

@@ -1,3 +1,8 @@
+# decorate 1.0.30
+Sept 13, 2022
+
+	- Update dependencies
+
 # decorate 1.0.29
 July 23, 2021
 
