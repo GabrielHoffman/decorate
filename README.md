@@ -1,6 +1,6 @@
 
 # *D*ifferential *E*pigenetic *Cor*rel*a*tion *Te*st
-![](https://hoffmg01.u.hpc.mssm.edu/software/decorate/workflow.png)
+![](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/workflow.png)
 
 # Install
 ```r
