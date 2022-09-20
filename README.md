@@ -47,13 +47,13 @@ decorate should install on Windows without needing to install these dependencies
 
 
 ### Data analysis from manuscript
- - [DNA methylation from kidney renal clear cell carcinoma](https://hoffmg01.u.hpc.mssm.edu/software/decorate/KIRC.html)
- - [DNA methylation from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/methyl_scz_decorate.html)
- - [ATAC-seq from schizophrenia brains](https://hoffmg01.u.hpc.mssm.edu/software/decorate/atac_local_corr.html)
- - [Histone modification ChIP-seq from human brain](https://hoffmg01.u.hpc.mssm.edu/software/decorate/EpiMap.html)
+ - [DNA methylation from kidney renal clear cell carcinoma](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/KIRC.html)
+ - [DNA methylation from schizophrenia brains](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/methyl_scz_decorate.html)
+ - [ATAC-seq from schizophrenia brains](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/atac_local_corr.html)
+ - [Histone modification ChIP-seq from human brain](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/EpiMap.html)
 
 ### Simulations and properties of methods
-  - [Simulations](https://hoffmg01.u.hpc.mssm.edu/software/decorate/simulations.html)
+  - [Simulations](https://ghoffman-cdn.s3.us-east-2.amazonaws.com/decorate/simulations.html)
 
 
 
