@@ -1,8 +1,8 @@
 Package: decorate
 Type: Package
 Title: Differential Epigenetic Coregulation Test
-Version: 1.0.30
-Date: 2022-09-13
+Version: 1.0.31
+Date: 2023-05-17
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu")
 Maintainer: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Description: Identify regions of the genome that show different patterns of coregulation of epigenetic signals between two datasets.
@@ -10,6 +10,7 @@ VignetteBuilder: knitr
 License: GPL (>= 2)
 URL: https://github.com/DiseaseNeuroGenomics/decorate
 BugReports: https://github.com/DiseaseNeuroGenomics/decorate/issues
+Encoding: UTF-8
 Suggests:
     BiocStyle,
     knitr,    
@@ -32,8 +33,6 @@ Depends:
     methods
 Imports:
     ClustGeo,
-    sp, 
-    spdep,
     vegan,
     rlist,
     adjclust (>= 0.6.0),
@@ -43,11 +42,11 @@ Imports:
     progress,
     data.table,
     BiocParallel,
-    Rcpp,
     MASS,
-    RcppArmadillo,
     labeling,
     cowplot,
+    Rcpp,
+    RcppArmadillo,
     GenomicFeatures,
     grDevices,
     iterators,
@@ -65,6 +64,7 @@ Imports:
     stats
 LinkingTo: 
     Rcpp, RcppArmadillo
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Remotes: 
     github::lingxuez/sLED
+

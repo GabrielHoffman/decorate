@@ -4,7 +4,7 @@
 #include "RcppArmadillo.h"
 
 using namespace Rcpp;
-using namespace arma;
+// using namespace arma;
 
 // via the depends attribute we tell Rcpp to create hooks for
 // RcppArmadillo so that the build process will know what to do
@@ -12,7 +12,7 @@ using namespace arma;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // [[Rcpp::export]]
-vec corSubsetPairs( const mat & Y, const vec & idxi, const vec & idxj){
+arma::vec corSubsetPairs( const arma::mat & Y, const arma::vec & idxi, const arma::vec & idxj){
   
 	// Result is symmatric upper triangle, 
 	// so any entries where i > j should be flipped
@@ -28,7 +28,7 @@ vec corSubsetPairs( const mat & Y, const vec & idxi, const vec & idxj){
 	// }
 
 	// initialize results vector  
-	vec rho( idxj.n_rows );
+	arma::vec rho( idxj.n_rows );
 
 	double N = Y.n_rows;
 

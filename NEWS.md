@@ -1,3 +1,8 @@
+# decorate 1.0.31
+May 17, 2023
+ 
+ - fix bug `https://github.com/GabrielHoffman/decorate/issues/2`
+
 # decorate 1.0.30
 Sept 13, 2022
 

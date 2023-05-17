@@ -88,6 +88,8 @@ getPeakDistances = function( query, windowSize=10000 ){
 #' @importFrom Matrix sparseMatrix
 createCorrelationMatrix = function( query, regionQuant, adjacentCount=500, windowSize=1e6, method = "adjacent", method.corr = c("pearson", "spearman"), quiet=FALSE, setNANtoZero=FALSE){
 
+  method.corr = match.arg(method.corr)
+
   if( nrow(regionQuant) != length(query) ){
     stop("Number of rows in regionQuant must equal entries in query")
   }
@@ -212,7 +214,7 @@ setClass("epiclustList", representation('ANY'))
 
 setMethod("print", "epiclustList", function( x ){
 
-  message("List of hierarchical clustering for", length(x), "chromosomes:\n\n")
+  message("List of hierarchical clustering for ", length(x), " chromosomes:\n\n")
 
   counts = lapply(x, function(x) length(x@clust$labels))
 
@@ -574,7 +576,7 @@ setMethod("print", "epiclustDiscreteList", function( x ){
   for( chrom in names(x) ){
     nFeatures = length(x[[chrom]])
     nClusters = length(unique(x[[chrom]]))
-    message(paste0(chrom, ':'),nFeatures, "features in", nClusters, "discrete clusters\n\n" )
+    message(paste0(chrom, ':'),nFeatures, " features in ", nClusters, " discrete clusters\n\n" )
   }
 })
 
@@ -594,10 +596,10 @@ setMethod("show", "epiclustDiscreteList", function( object ){
 setClass("epiclustDiscreteListContain", representation('list'))
 
 setMethod("print", "epiclustDiscreteListContain", function( x ){
-  message("Clusters defined using", length(x), "parameter values:",  paste(names(x), collapse=', '), '\n\n' ) 
+  message("Clusters defined using ", length(x), " parameter values: ",  paste(names(x), collapse=', '), '\n\n' ) 
 
   for( id in names(x) ){
-    message("parameter:", id, '\n')
+    message("parameter: ", id, '\n')
     print(x[[id]])
   }
 })
@@ -812,7 +814,7 @@ getFeaturesInClusterList = function( treeListClusters, chrom, clustID, id){
 #' @importFrom progress progress_bar
 #' @import BiocParallel 
 # @importFrom irlba partial_eigen
-scoreClusters = function(treeList, treeListClusters, BPPARAM=bpparam()){
+scoreClusters = function(treeList, treeListClusters, BPPARAM=SerialParam()){
 
   # get data.frame of cluster names per chromosomes
   # clCount = countClusters( treeListClusters )
@@ -1213,7 +1215,7 @@ collapseClusters = function(treeListClusters, featurePositions, jaccardCutoff=0.
   clCount = lapply(res, countClusters)
 
   idx = vapply(clCount, function(x){
-      length(x) > 0 && x > 0
+      length(x) > 0 & any(x > 0) 
     }, logical(1))
 
   # drop entries in res if does't contain clusters after filtering

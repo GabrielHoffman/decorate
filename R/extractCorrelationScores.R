@@ -44,9 +44,9 @@
 #' corScores = extractCorrelationScores( simData, simLocation, treeListClusters_collapse )
 #' 
 #' @seealso sle.score delaneau.score
-#' @importFrom BiocParallel bpparam bplapply
+#' @importFrom BiocParallel bplapply SerialParam
 #' @export
-extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("deltaSLE", "Delaneau"), method.corr=c("pearson", "kendall", "spearman"), BPPARAM = bpparam(), rho=.1, sumabs=1){
+extractCorrelationScores = function(epiSignal, gRanges, clustList, method=c("deltaSLE", "Delaneau"), method.corr=c("pearson", "kendall", "spearman"), BPPARAM = SerialParam(), rho=.1, sumabs=1){
 
 	method = match.arg( method )
 	method.cor = match.arg( method.corr )

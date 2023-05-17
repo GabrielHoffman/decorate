@@ -239,7 +239,7 @@ head(df_results)
 Note that permutations are only used for test `'sLED'`, so is set to zero for all others.
 
 ### Summary of cluster properties
-```{r cluster properties, message=FALSE, echo=TRUE}
+```{r clusterProp, message=FALSE, echo=TRUE}
 # Histogram of LEF
 ggplot(df_results, aes(LEF, fill=id)) + geom_histogram(alpha=0.7) + 
   theme_bw(17) + xlim(0,1) + 

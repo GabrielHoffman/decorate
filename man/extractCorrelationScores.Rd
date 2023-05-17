@@ -10,7 +10,7 @@ extractCorrelationScores(
   clustList,
   method = c("deltaSLE", "Delaneau"),
   method.corr = c("pearson", "kendall", "spearman"),
-  BPPARAM = bpparam(),
+  BPPARAM = SerialParam(),
   rho = 0.1,
   sumabs = 1
 )

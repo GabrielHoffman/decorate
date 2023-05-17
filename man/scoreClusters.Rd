@@ -4,7 +4,7 @@
 \alias{scoreClusters}
 \title{Compute scores for each cluster}
 \usage{
-scoreClusters(treeList, treeListClusters, BPPARAM = bpparam())
+scoreClusters(treeList, treeListClusters, BPPARAM = SerialParam())
 }
 \arguments{
 \item{treeList}{list of hclust objects}
