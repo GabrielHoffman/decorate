@@ -3,8 +3,8 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   decorate: decorate.html
-last_built: 2023-05-17T17:46Z
+last_built: 2023-05-17T18:23Z
 urls:
-  reference: http://gabrielhoffman.github.io/decorrelate/reference
-  article: http://gabrielhoffman.github.io/decorrelate/articles
+  reference: http://diseaseneurogenomics.github.io/decorate/reference
+  article: http://diseaseneurogenomics.github.io/decorate/articles
 

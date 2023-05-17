@@ -1,10 +1,10 @@
 
 
-url: http://gabrielhoffman.github.io/decorrelate
+url: http://diseaseneurogenomics.github.io/decorate
 
 authors:
   Gabriel Hoffman:
-    href: http://gabrielhoffman.github.io
+    href: http://diseaseneurogenomics.github.io
 
 template:
   bootstrap: 5
